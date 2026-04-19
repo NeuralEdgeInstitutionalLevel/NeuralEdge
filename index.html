@@ -46,56 +46,14 @@
             transition: none;
         }
 
-        /* ---- AURORA NEBULA BLOBS ---- */
-        .aurora-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-        .aurora-blob {
-            position: absolute; border-radius: 50%;
-            filter: blur(100px); opacity: 0.10;
-            will-change: transform;
+        /* ---- WEBGL SHADER BACKGROUND (GPU-accelerated cosmic nebula) ---- */
+        #shaderCanvas {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
-        .aurora-blob:nth-child(1) {
-            width: 800px; height: 800px; top: -20%; left: -10%;
-            background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
-            animation: aur1 28s ease-in-out infinite alternate;
-        }
-        .aurora-blob:nth-child(2) {
-            width: 700px; height: 700px; top: 15%; right: -15%;
-            background: radial-gradient(circle, #7c3aed 0%, #4c1d95 40%, transparent 70%);
-            animation: aur2 32s ease-in-out infinite alternate;
-            opacity: 0.14;
-        }
-        .aurora-blob:nth-child(3) {
-            width: 700px; height: 700px; bottom: 5%; left: 15%;
-            background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
-            animation: aur3 25s ease-in-out infinite alternate;
-        }
-        .aurora-blob:nth-child(4) {
-            width: 600px; height: 600px; top: 50%; right: 5%;
-            background: radial-gradient(circle, #a855f7 0%, #6d28d9 40%, transparent 70%);
-            animation: aur4 30s ease-in-out infinite alternate;
-            opacity: 0.12;
-        }
-        .aurora-blob:nth-child(5) {
-            width: 500px; height: 500px; top: 35%; left: 40%;
-            background: radial-gradient(circle, #9333ea 0%, #581c87 40%, transparent 70%);
-            animation: aur5 35s ease-in-out infinite alternate;
-            opacity: 0.08;
-        }
-        @keyframes aur1 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,-60px) scale(1.15); } 100% { transform: translate(-40px,40px) scale(0.9); } }
-        @keyframes aur2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,50px) scale(1.1); } 100% { transform: translate(50px,-70px) scale(0.95); } }
-        @keyframes aur3 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(60px,-80px) scale(1.2); } 100% { transform: translate(-50px,30px) scale(0.85); } }
-        @keyframes aur4 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-40px,-50px) scale(1.1); } 100% { transform: translate(70px,60px) scale(0.9); } }
-        @keyframes aur5 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,40px) scale(1.15); } 100% { transform: translate(-60px,-30px) scale(0.85); } }
 
-        /* ---- PARTICLE CANVAS (full page) ---- */
+        /* ---- PARTICLE CANVAS (dust + shooting stars, on top of shader) ---- */
         #bgCanvas {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
-        }
-
-        /* ---- FLAME CANVAS (purple fire) ---- */
-        #flameCanvas {
-            position: fixed; inset: 0; z-index: 0; pointer-events: none;
-            mix-blend-mode: screen;
         }
 
         /* ---- NOISE GRAIN TEXTURE ---- */
@@ -751,18 +709,10 @@
 </head>
 <body>
     <div class="scroll-progress" id="scrollProg"></div>
-    <!-- Aurora nebula blobs -->
-    <div class="aurora-layer">
-        <div class="aurora-blob"></div>
-        <div class="aurora-blob"></div>
-        <div class="aurora-blob"></div>
-        <div class="aurora-blob"></div>
-        <div class="aurora-blob"></div>
-    </div>
-    <!-- Full-page interactive particle canvas -->
+    <!-- WebGL shader background (GPU cosmic nebula) -->
+    <canvas id="shaderCanvas"></canvas>
+    <!-- Dust particles + shooting stars overlay -->
     <canvas id="bgCanvas"></canvas>
-    <!-- Purple flame system -->
-    <canvas id="flameCanvas"></canvas>
     <div class="grain"></div>
     <div class="cursor-glow" id="cursorGlow"></div>
 
@@ -1268,163 +1218,216 @@
         render();
     })();
 
-    // ---- PURPLE FLAME SYSTEM (ultra HQ volumetric fire) ----
+    // ---- WEBGL COSMIC NEBULA SHADER (GPU-accelerated) ----
     (function() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const fc = document.getElementById('flameCanvas');
-        const fctx = fc.getContext('2d');
-        let FW, FH;
+        const canvas = document.getElementById('shaderCanvas');
+        const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
+        if (!gl) return; // WebGL not supported
 
-        function resizeFlame() { FW = fc.width = window.innerWidth; FH = fc.height = window.innerHeight; }
-        window.addEventListener('resize', resizeFlame);
-        resizeFlame();
+        let W, H, uMouse = [0.5, 0.5], startTime = Date.now();
 
-        // Flame emitter sources (bottom corners + bottom center)
-        const emitters = [
-            { x: 0.08, y: 1.02, power: 1.0, hue: 270 },    // left - deep purple
-            { x: 0.5,  y: 1.05, power: 0.6, hue: 260 },     // center - subtle
-            { x: 0.92, y: 1.02, power: 1.0, hue: 280 },    // right - magenta-purple
-            { x: 0.25, y: 1.03, power: 0.7, hue: 250 },     // left-center - blue-purple
-            { x: 0.75, y: 1.03, power: 0.7, hue: 290 },     // right-center - pink-purple
-        ];
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+            gl.viewport(0, 0, W, H);
+        }
+        window.addEventListener('resize', resize);
+        resize();
 
-        const MAX_FLAMES = 350;
-        const flames = [];
+        document.addEventListener('mousemove', e => {
+            uMouse[0] = e.clientX / W;
+            uMouse[1] = 1.0 - e.clientY / H;
+        });
 
-        class FlameParticle {
-            constructor() { this.alive = false; }
+        // ---- Shaders ----
+        const vertSrc = `
+            attribute vec2 aPos;
+            void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
+        `;
 
-            spawn(emitter) {
-                this.alive = true;
-                const ex = emitter.x * FW;
-                const ey = emitter.y * FH;
-                // Spread from emitter
-                this.x = ex + (Math.random() - 0.5) * 160;
-                this.y = ey + Math.random() * 20;
-                // Velocity: mostly upward with turbulence
-                this.vx = (Math.random() - 0.5) * 1.2;
-                this.vy = -(2.5 + Math.random() * 3.5) * emitter.power;
-                // Size: large -> small as it rises
-                this.maxR = 25 + Math.random() * 45;
-                this.r = this.maxR;
-                // Life
-                this.life = 0;
-                this.maxLife = 60 + Math.random() * 80;
-                // Color: purple spectrum
-                this.hue = emitter.hue + (Math.random() - 0.5) * 30;
-                this.baseSat = 70 + Math.random() * 30;
-                // Depth layer (for parallax feel)
-                this.depth = 0.3 + Math.random() * 0.7;
-                // Turbulence
-                this.turbFreq = 0.02 + Math.random() * 0.03;
-                this.turbAmp = 0.8 + Math.random() * 1.5;
-                this.turbOffset = Math.random() * 1000;
-                // Opacity
-                this.maxAlpha = (0.04 + Math.random() * 0.08) * emitter.power * this.depth;
+        const fragSrc = `
+            precision highp float;
+            uniform float uTime;
+            uniform vec2 uResolution;
+            uniform vec2 uMouse;
+
+            // --- Simplex 2D noise (Stefan Gustavson) ---
+            vec3 mod289(vec3 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
+            vec2 mod289v2(vec2 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
+            vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
+
+            float snoise(vec2 v) {
+                const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+                vec2 i = floor(v + dot(v, C.yy));
+                vec2 x0 = v - i + dot(i, C.xx);
+                vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                vec4 x12 = x0.xyxy + C.xxzz;
+                x12.xy -= i1;
+                i = mod289v2(i);
+                vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+                vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+                m = m * m; m = m * m;
+                vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                vec3 h = abs(x) - 0.5;
+                vec3 ox = floor(x + 0.5);
+                vec3 a0 = x - ox;
+                m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+                vec3 g;
+                g.x = a0.x * x0.x + h.x * x0.y;
+                g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                return 130.0 * dot(m, g);
             }
 
-            update() {
-                if (!this.alive) return;
-                this.life++;
-                const lifeRatio = this.life / this.maxLife;
-
-                // Fade in fast, fade out slow
-                let alpha;
-                if (lifeRatio < 0.1) alpha = this.maxAlpha * (lifeRatio / 0.1);
-                else if (lifeRatio > 0.5) alpha = this.maxAlpha * (1 - (lifeRatio - 0.5) / 0.5);
-                else alpha = this.maxAlpha;
-                this.alpha = Math.max(0, alpha);
-
-                // Shrink as it rises
-                this.r = this.maxR * (1 - lifeRatio * 0.7);
-
-                // Turbulence (Perlin-like sine wave)
-                const t = this.life + this.turbOffset;
-                this.vx += Math.sin(t * this.turbFreq) * this.turbAmp * 0.05;
-                this.vy += Math.cos(t * this.turbFreq * 0.7) * 0.02;
-
-                // Slow down upward velocity
-                this.vy *= 0.995;
-                this.vx *= 0.99;
-
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Color shift: purple -> blue as it rises
-                this.hue -= 0.15;
-                this.sat = this.baseSat * (1 - lifeRatio * 0.3);
-                this.light = 15 + lifeRatio * 35; // gets brighter/lighter as it fades
-
-                if (this.life >= this.maxLife) this.alive = false;
+            // --- Fractal Brownian Motion (5 octaves) ---
+            float fbm(vec2 p) {
+                float val = 0.0, amp = 0.5;
+                for (int i = 0; i < 5; i++) {
+                    val += amp * snoise(p);
+                    p *= 2.1;
+                    amp *= 0.48;
+                }
+                return val;
             }
+
+            // --- Domain Warping (noise warped by noise, creates organic flow) ---
+            float domainWarp(vec2 p, float t) {
+                vec2 q = vec2(
+                    fbm(p + vec2(1.7, 9.2) + 0.08 * t),
+                    fbm(p + vec2(8.3, 2.8) + 0.06 * t)
+                );
+                vec2 r = vec2(
+                    fbm(p + 3.8 * q + vec2(1.2, 3.4) + 0.05 * t),
+                    fbm(p + 3.8 * q + vec2(5.1, 7.3) + 0.07 * t)
+                );
+                return fbm(p + 3.2 * r);
+            }
+
+            // --- Cosmic color palette ---
+            vec3 palette(float t) {
+                // Deep space: black -> deep purple -> electric blue -> cyan -> white
+                vec3 a = vec3(0.02, 0.01, 0.04);   // near-black base
+                vec3 b = vec3(0.15, 0.08, 0.35);    // deep purple
+                vec3 c = vec3(0.20, 0.12, 0.50);    // purple
+                vec3 d = vec3(0.10, 0.30, 0.75);    // blue
+                vec3 e = vec3(0.05, 0.55, 0.70);    // cyan
+                vec3 f = vec3(0.50, 0.25, 0.65);    // magenta
+
+                if (t < 0.15) return mix(a, b, t / 0.15);
+                if (t < 0.35) return mix(b, c, (t - 0.15) / 0.2);
+                if (t < 0.55) return mix(c, d, (t - 0.35) / 0.2);
+                if (t < 0.75) return mix(d, e, (t - 0.55) / 0.2);
+                if (t < 0.90) return mix(e, f, (t - 0.75) / 0.15);
+                return mix(f, a, (t - 0.90) / 0.1);
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / uResolution;
+                float aspect = uResolution.x / uResolution.y;
+                vec2 p = vec2(uv.x * aspect, uv.y);
+                float t = uTime;
+
+                // Scale for nice detail level
+                p *= 2.5;
+
+                // Mouse warp: gently distort space near cursor
+                vec2 mouseP = vec2(uMouse.x * aspect, uMouse.y) * 2.5;
+                float mouseDist = length(p - mouseP);
+                float mouseInfluence = smoothstep(1.5, 0.0, mouseDist) * 0.3;
+                vec2 mouseDir = normalize(p - mouseP + 0.001);
+                p += mouseDir * mouseInfluence;
+
+                // Layer 1: Primary domain-warped nebula
+                float n1 = domainWarp(p * 0.7, t);
+
+                // Layer 2: Secondary detail layer (different scale & speed)
+                float n2 = domainWarp(p * 1.3 + 3.0, t * 0.7);
+
+                // Layer 3: Fine detail
+                float n3 = fbm(p * 3.0 + t * 0.15);
+
+                // Combine layers with different weights
+                float combined = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
+
+                // Map to 0-1 range
+                combined = combined * 0.5 + 0.5;
+
+                // Apply contrast curve for depth
+                combined = smoothstep(0.15, 0.85, combined);
+
+                // Color mapping
+                vec3 color = palette(combined);
+
+                // Add subtle highlights near bright areas
+                float highlight = smoothstep(0.6, 0.9, combined);
+                color += highlight * vec3(0.08, 0.04, 0.15);
+
+                // Vignette: darken edges
+                float vignette = 1.0 - length((uv - 0.5) * 1.4);
+                vignette = smoothstep(0.0, 0.7, vignette);
+
+                // Mouse glow: subtle bright spot near cursor
+                float mouseGlow = smoothstep(0.5, 0.0, mouseDist) * 0.08;
+                color += mouseGlow * vec3(0.3, 0.15, 0.6);
+
+                // Final alpha: keep it subtle so content stays readable
+                float alpha = combined * 0.35 * vignette;
+
+                // Boost the nebula brightness slightly in bright areas
+                alpha += highlight * 0.08;
+
+                gl_FragColor = vec4(color, alpha);
+            }
+        `;
+
+        // ---- Compile shaders ----
+        function compileShader(src, type) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+                console.error(gl.getShaderInfoLog(s));
+                return null;
+            }
+            return s;
         }
 
-        // Pre-allocate
-        for (let i = 0; i < MAX_FLAMES; i++) flames.push(new FlameParticle());
+        const vs = compileShader(vertSrc, gl.VERTEX_SHADER);
+        const fs = compileShader(fragSrc, gl.FRAGMENT_SHADER);
+        if (!vs || !fs) return;
 
-        let flameFrame = 0;
-        function renderFlames() {
-            flameFrame++;
-            fctx.clearRect(0, 0, FW, FH);
+        const program = gl.createProgram();
+        gl.attachShader(program, vs);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+        gl.useProgram(program);
 
-            // Spawn new flames from emitters
-            for (const em of emitters) {
-                // Spawn rate varies per emitter
-                const rate = em.power * 1.8;
-                if (Math.random() < rate * 0.3) {
-                    const p = flames.find(f => !f.alive);
-                    if (p) p.spawn(em);
-                }
-            }
+        // Full-screen quad
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+        const aPos = gl.getAttribLocation(program, 'aPos');
+        gl.enableVertexAttribArray(aPos);
+        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-            // Sort by depth for proper layering
-            const alive = flames.filter(f => f.alive);
-            alive.sort((a, b) => a.depth - b.depth);
+        // Uniforms
+        const uTimeLoc = gl.getUniformLocation(program, 'uTime');
+        const uResLoc = gl.getUniformLocation(program, 'uResolution');
+        const uMouseLoc = gl.getUniformLocation(program, 'uMouse');
 
-            // Draw flames
-            for (const f of alive) {
-                f.update();
-                if (!f.alive || f.alpha <= 0) continue;
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-                // Multi-layer gradient circle for volumetric look
-                const grad = fctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
-                const h = Math.round(f.hue);
-                const s = Math.round(f.sat);
-                const l = Math.round(f.light);
-                grad.addColorStop(0, `hsla(${h}, ${s}%, ${l + 20}%, ${f.alpha * 1.5})`);
-                grad.addColorStop(0.3, `hsla(${h}, ${s}%, ${l + 10}%, ${f.alpha})`);
-                grad.addColorStop(0.6, `hsla(${h}, ${s + 10}%, ${l}%, ${f.alpha * 0.5})`);
-                grad.addColorStop(1, `hsla(${h}, ${s}%, ${l - 5}%, 0)`);
-
-                fctx.fillStyle = grad;
-                fctx.beginPath();
-                fctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-                fctx.fill();
-
-                // Inner bright core (for depth feel)
-                if (f.depth > 0.6 && f.alpha > 0.03) {
-                    const innerGrad = fctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 0.3);
-                    innerGrad.addColorStop(0, `hsla(${h + 10}, 100%, ${l + 40}%, ${f.alpha * 0.6})`);
-                    innerGrad.addColorStop(1, `hsla(${h}, ${s}%, ${l + 20}%, 0)`);
-                    fctx.fillStyle = innerGrad;
-                    fctx.beginPath();
-                    fctx.arc(f.x, f.y, f.r * 0.3, 0, Math.PI * 2);
-                    fctx.fill();
-                }
-            }
-
-            // Bottom glow (volumetric base light)
-            const baseGlow = fctx.createLinearGradient(0, FH, 0, FH * 0.55);
-            baseGlow.addColorStop(0, 'rgba(120, 40, 200, 0.06)');
-            baseGlow.addColorStop(0.3, 'rgba(100, 30, 180, 0.03)');
-            baseGlow.addColorStop(0.6, 'rgba(80, 20, 160, 0.01)');
-            baseGlow.addColorStop(1, 'transparent');
-            fctx.fillStyle = baseGlow;
-            fctx.fillRect(0, FH * 0.55, FW, FH * 0.45);
-
-            requestAnimationFrame(renderFlames);
+        function render() {
+            const elapsed = (Date.now() - startTime) * 0.001; // seconds
+            gl.uniform1f(uTimeLoc, elapsed);
+            gl.uniform2f(uResLoc, W, H);
+            gl.uniform2f(uMouseLoc, uMouse[0], uMouse[1]);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
         }
-        renderFlames();
+        render();
     })();
 
     // ---- CURSOR SPOTLIGHT (follows mouse globally) ----
