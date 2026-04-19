@@ -59,9 +59,10 @@
             animation: aur1 28s ease-in-out infinite alternate;
         }
         .aurora-blob:nth-child(2) {
-            width: 600px; height: 600px; top: 15%; right: -15%;
-            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            width: 700px; height: 700px; top: 15%; right: -15%;
+            background: radial-gradient(circle, #7c3aed 0%, #4c1d95 40%, transparent 70%);
             animation: aur2 32s ease-in-out infinite alternate;
+            opacity: 0.14;
         }
         .aurora-blob:nth-child(3) {
             width: 700px; height: 700px; bottom: 5%; left: 15%;
@@ -69,15 +70,16 @@
             animation: aur3 25s ease-in-out infinite alternate;
         }
         .aurora-blob:nth-child(4) {
-            width: 500px; height: 500px; top: 50%; right: 5%;
-            background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+            width: 600px; height: 600px; top: 50%; right: 5%;
+            background: radial-gradient(circle, #a855f7 0%, #6d28d9 40%, transparent 70%);
             animation: aur4 30s ease-in-out infinite alternate;
+            opacity: 0.12;
         }
         .aurora-blob:nth-child(5) {
-            width: 400px; height: 400px; top: 35%; left: 40%;
-            background: radial-gradient(circle, #f59e0b 0%, transparent 70%);
+            width: 500px; height: 500px; top: 35%; left: 40%;
+            background: radial-gradient(circle, #9333ea 0%, #581c87 40%, transparent 70%);
             animation: aur5 35s ease-in-out infinite alternate;
-            opacity: 0.05;
+            opacity: 0.08;
         }
         @keyframes aur1 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,-60px) scale(1.15); } 100% { transform: translate(-40px,40px) scale(0.9); } }
         @keyframes aur2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,50px) scale(1.1); } 100% { transform: translate(50px,-70px) scale(0.95); } }
@@ -88,6 +90,12 @@
         /* ---- PARTICLE CANVAS (full page) ---- */
         #bgCanvas {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+
+        /* ---- FLAME CANVAS (purple fire) ---- */
+        #flameCanvas {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            mix-blend-mode: screen;
         }
 
         /* ---- NOISE GRAIN TEXTURE ---- */
@@ -753,6 +761,8 @@
     </div>
     <!-- Full-page interactive particle canvas -->
     <canvas id="bgCanvas"></canvas>
+    <!-- Purple flame system -->
+    <canvas id="flameCanvas"></canvas>
     <div class="grain"></div>
     <div class="cursor-glow" id="cursorGlow"></div>
 
@@ -1256,6 +1266,165 @@
             requestAnimationFrame(render);
         }
         render();
+    })();
+
+    // ---- PURPLE FLAME SYSTEM (ultra HQ volumetric fire) ----
+    (function() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const fc = document.getElementById('flameCanvas');
+        const fctx = fc.getContext('2d');
+        let FW, FH;
+
+        function resizeFlame() { FW = fc.width = window.innerWidth; FH = fc.height = window.innerHeight; }
+        window.addEventListener('resize', resizeFlame);
+        resizeFlame();
+
+        // Flame emitter sources (bottom corners + bottom center)
+        const emitters = [
+            { x: 0.08, y: 1.02, power: 1.0, hue: 270 },    // left - deep purple
+            { x: 0.5,  y: 1.05, power: 0.6, hue: 260 },     // center - subtle
+            { x: 0.92, y: 1.02, power: 1.0, hue: 280 },    // right - magenta-purple
+            { x: 0.25, y: 1.03, power: 0.7, hue: 250 },     // left-center - blue-purple
+            { x: 0.75, y: 1.03, power: 0.7, hue: 290 },     // right-center - pink-purple
+        ];
+
+        const MAX_FLAMES = 350;
+        const flames = [];
+
+        class FlameParticle {
+            constructor() { this.alive = false; }
+
+            spawn(emitter) {
+                this.alive = true;
+                const ex = emitter.x * FW;
+                const ey = emitter.y * FH;
+                // Spread from emitter
+                this.x = ex + (Math.random() - 0.5) * 160;
+                this.y = ey + Math.random() * 20;
+                // Velocity: mostly upward with turbulence
+                this.vx = (Math.random() - 0.5) * 1.2;
+                this.vy = -(2.5 + Math.random() * 3.5) * emitter.power;
+                // Size: large -> small as it rises
+                this.maxR = 25 + Math.random() * 45;
+                this.r = this.maxR;
+                // Life
+                this.life = 0;
+                this.maxLife = 60 + Math.random() * 80;
+                // Color: purple spectrum
+                this.hue = emitter.hue + (Math.random() - 0.5) * 30;
+                this.baseSat = 70 + Math.random() * 30;
+                // Depth layer (for parallax feel)
+                this.depth = 0.3 + Math.random() * 0.7;
+                // Turbulence
+                this.turbFreq = 0.02 + Math.random() * 0.03;
+                this.turbAmp = 0.8 + Math.random() * 1.5;
+                this.turbOffset = Math.random() * 1000;
+                // Opacity
+                this.maxAlpha = (0.04 + Math.random() * 0.08) * emitter.power * this.depth;
+            }
+
+            update() {
+                if (!this.alive) return;
+                this.life++;
+                const lifeRatio = this.life / this.maxLife;
+
+                // Fade in fast, fade out slow
+                let alpha;
+                if (lifeRatio < 0.1) alpha = this.maxAlpha * (lifeRatio / 0.1);
+                else if (lifeRatio > 0.5) alpha = this.maxAlpha * (1 - (lifeRatio - 0.5) / 0.5);
+                else alpha = this.maxAlpha;
+                this.alpha = Math.max(0, alpha);
+
+                // Shrink as it rises
+                this.r = this.maxR * (1 - lifeRatio * 0.7);
+
+                // Turbulence (Perlin-like sine wave)
+                const t = this.life + this.turbOffset;
+                this.vx += Math.sin(t * this.turbFreq) * this.turbAmp * 0.05;
+                this.vy += Math.cos(t * this.turbFreq * 0.7) * 0.02;
+
+                // Slow down upward velocity
+                this.vy *= 0.995;
+                this.vx *= 0.99;
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Color shift: purple -> blue as it rises
+                this.hue -= 0.15;
+                this.sat = this.baseSat * (1 - lifeRatio * 0.3);
+                this.light = 15 + lifeRatio * 35; // gets brighter/lighter as it fades
+
+                if (this.life >= this.maxLife) this.alive = false;
+            }
+        }
+
+        // Pre-allocate
+        for (let i = 0; i < MAX_FLAMES; i++) flames.push(new FlameParticle());
+
+        let flameFrame = 0;
+        function renderFlames() {
+            flameFrame++;
+            fctx.clearRect(0, 0, FW, FH);
+
+            // Spawn new flames from emitters
+            for (const em of emitters) {
+                // Spawn rate varies per emitter
+                const rate = em.power * 1.8;
+                if (Math.random() < rate * 0.3) {
+                    const p = flames.find(f => !f.alive);
+                    if (p) p.spawn(em);
+                }
+            }
+
+            // Sort by depth for proper layering
+            const alive = flames.filter(f => f.alive);
+            alive.sort((a, b) => a.depth - b.depth);
+
+            // Draw flames
+            for (const f of alive) {
+                f.update();
+                if (!f.alive || f.alpha <= 0) continue;
+
+                // Multi-layer gradient circle for volumetric look
+                const grad = fctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r);
+                const h = Math.round(f.hue);
+                const s = Math.round(f.sat);
+                const l = Math.round(f.light);
+                grad.addColorStop(0, `hsla(${h}, ${s}%, ${l + 20}%, ${f.alpha * 1.5})`);
+                grad.addColorStop(0.3, `hsla(${h}, ${s}%, ${l + 10}%, ${f.alpha})`);
+                grad.addColorStop(0.6, `hsla(${h}, ${s + 10}%, ${l}%, ${f.alpha * 0.5})`);
+                grad.addColorStop(1, `hsla(${h}, ${s}%, ${l - 5}%, 0)`);
+
+                fctx.fillStyle = grad;
+                fctx.beginPath();
+                fctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                fctx.fill();
+
+                // Inner bright core (for depth feel)
+                if (f.depth > 0.6 && f.alpha > 0.03) {
+                    const innerGrad = fctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 0.3);
+                    innerGrad.addColorStop(0, `hsla(${h + 10}, 100%, ${l + 40}%, ${f.alpha * 0.6})`);
+                    innerGrad.addColorStop(1, `hsla(${h}, ${s}%, ${l + 20}%, 0)`);
+                    fctx.fillStyle = innerGrad;
+                    fctx.beginPath();
+                    fctx.arc(f.x, f.y, f.r * 0.3, 0, Math.PI * 2);
+                    fctx.fill();
+                }
+            }
+
+            // Bottom glow (volumetric base light)
+            const baseGlow = fctx.createLinearGradient(0, FH, 0, FH * 0.55);
+            baseGlow.addColorStop(0, 'rgba(120, 40, 200, 0.06)');
+            baseGlow.addColorStop(0.3, 'rgba(100, 30, 180, 0.03)');
+            baseGlow.addColorStop(0.6, 'rgba(80, 20, 160, 0.01)');
+            baseGlow.addColorStop(1, 'transparent');
+            fctx.fillStyle = baseGlow;
+            fctx.fillRect(0, FH * 0.55, FW, FH * 0.45);
+
+            requestAnimationFrame(renderFlames);
+        }
+        renderFlames();
     })();
 
     // ---- CURSOR SPOTLIGHT (follows mouse globally) ----
