@@ -46,8 +46,13 @@
             transition: none;
         }
 
-        /* ---- TRADING CANVAS (The Neural Market) ---- */
-        #tradingCanvas {
+        /* ---- WEBGL SHADER BACKGROUND (GPU-accelerated cosmic nebula) ---- */
+        #shaderCanvas {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+
+        /* ---- PARTICLE CANVAS (dust + shooting stars, on top of shader) ---- */
+        #bgCanvas {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
 
@@ -696,8 +701,10 @@
 </head>
 <body>
     <div class="scroll-progress" id="scrollProg"></div>
-    <!-- The Neural Market - trading-specific background -->
-    <canvas id="tradingCanvas"></canvas>
+    <!-- WebGL shader background (GPU cosmic nebula) -->
+    <canvas id="shaderCanvas"></canvas>
+    <!-- Dust particles + shooting stars overlay -->
+    <canvas id="bgCanvas"></canvas>
     <div class="grain"></div>
     <!-- cursor glow removed -->
 
@@ -1002,260 +1009,451 @@
     </footer>
 
     <script>
-    // ---- THE NEURAL MARKET (trading-specific background) ----
+    // ---- FULL-PAGE INTERACTIVE PARTICLE SYSTEM ----
     (function() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const canvas = document.getElementById('tradingCanvas');
+        const canvas = document.getElementById('bgCanvas');
         const ctx = canvas.getContext('2d');
-        let W, H;
+        let W, H, particles = [], shootingStars = [], mouseX = -9999, mouseY = -9999;
+        const PARTICLE_COUNT = 220;
+        const CONNECT_DIST = 100;
+        // mouse repulsion removed
 
-        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = document.documentElement.scrollHeight; }
         window.addEventListener('resize', resize);
         resize();
+        // Re-measure on scroll-triggered layout changes
+        const ro = new ResizeObserver(() => { H = canvas.height = document.documentElement.scrollHeight; });
+        ro.observe(document.body);
 
-        // === TICKERS for data rain ===
-        const TICKERS = ['BTC','ETH','SOL','XRP','ADA','AVAX','DOGE','LINK','SUI','INJ','HBAR','PEPE','ARB','OP','APT','NEAR','LTC','AAVE','TIA','ETC'];
-        const t0 = performance.now();
+        // Track mouse position (page coords)
+        document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY + window.scrollY; });
 
-        // === 1. FLOWING PRICE CURVES ===
-        const curves = [];
-        for (let i = 0; i < 7; i++) {
-            const hues = [[59,130,246],[139,92,246],[6,182,212],[16,185,129],[236,72,153],[245,158,11],[99,102,241]];
-            curves.push({
-                color: hues[i],
-                speed: 0.15 + Math.random() * 0.25,
-                amp: 30 + Math.random() * 60,
-                yBase: 0.15 + (i / 7) * 0.7,
-                freq: 0.003 + Math.random() * 0.004,
-                phase: Math.random() * 1000,
-                alpha: 0.04 + Math.random() * 0.06,
-                width: 1 + Math.random() * 1.5,
-                depth: 0.3 + Math.random() * 0.7
-            });
-        }
-
-        // === 2. FLOATING CANDLESTICKS ===
-        const candles = [];
-        for (let i = 0; i < 55; i++) {
-            candles.push({
-                x: Math.random() * 1.2 - 0.1,
-                y: Math.random(),
-                vx: -0.0002 - Math.random() * 0.0004,
-                vy: (Math.random() - 0.5) * 0.0001,
-                bull: Math.random() > 0.4,
-                bodyH: 4 + Math.random() * 12,
-                bodyW: 2 + Math.random() * 4,
-                wickTop: 2 + Math.random() * 8,
-                wickBot: 2 + Math.random() * 6,
-                depth: 0.2 + Math.random() * 0.8,
-                rot: (Math.random() - 0.5) * 0.15,
-                rotV: (Math.random() - 0.5) * 0.0003,
-                alpha: 0
-            });
-        }
-
-        // === 3. DATA RAIN COLUMNS ===
-        const columns = [];
-        for (let i = 0; i < 14; i++) {
-            const chars = [];
-            const charCount = 8 + Math.floor(Math.random() * 10);
-            for (let j = 0; j < charCount; j++) {
-                chars.push({
-                    text: '', y: Math.random(), alpha: 0, speed: 0.0004 + Math.random() * 0.0006,
-                    life: Math.random() * 500
-                });
+        // ---- Particle class ----
+        class Particle {
+            constructor() { this.reset(true); }
+            reset(initial) {
+                this.x = Math.random() * W;
+                this.y = initial ? Math.random() * H : -10;
+                this.depth = Math.random(); // 0=far, 1=close
+                this.r = 0.4 + this.depth * 2.2; // size by depth
+                this.baseAlpha = 0.08 + this.depth * 0.28;
+                this.alpha = this.baseAlpha;
+                this.vx = (Math.random() - 0.5) * 0.15;
+                this.vy = -0.05 - Math.random() * 0.2 - this.depth * 0.15; // drift UP (like dust)
+                // Slight horizontal drift
+                this.drift = (Math.random() - 0.5) * 0.02;
+                // Twinkle
+                this.twinkleSpeed = 0.005 + Math.random() * 0.015;
+                this.twinkleOffset = Math.random() * Math.PI * 2;
+                // Color: mix of blue/cyan/purple/white
+                const colors = [
+                    [59,130,246], // blue
+                    [139,92,246], // purple
+                    [6,182,212],  // cyan
+                    [200,210,230], // white-ish
+                    [236,72,153], // pink
+                ];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
             }
-            columns.push({
-                x: 0.05 + (i / 14) * 0.92 + (Math.random() - 0.5) * 0.03,
-                chars,
-                ticker: TICKERS[i % TICKERS.length]
-            });
+            update(t) {
+                // Twinkle
+                this.alpha = this.baseAlpha * (0.6 + 0.4 * Math.sin(t * this.twinkleSpeed + this.twinkleOffset));
+                // (mouse repulsion removed)
+                // Apply velocity with damping
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                this.vx += this.drift;
+                this.x += this.vx;
+                this.y += this.vy;
+                // Wrap around
+                if (this.y < -20) { this.y = H + 20; this.x = Math.random() * W; }
+                if (this.y > H + 20) { this.y = -20; }
+                if (this.x < -20) this.x = W + 20;
+                if (this.x > W + 20) this.x = -20;
+            }
         }
 
-        function genDataText(ticker) {
-            const r = Math.random();
-            if (r < 0.3) return ticker;
-            if (r < 0.5) return (Math.random() * 100000).toFixed(Math.random() > 0.5 ? 0 : 2);
-            if (r < 0.7) return (Math.random() > 0.5 ? '+' : '-') + (Math.random() * 5).toFixed(2) + '%';
-            if (r < 0.85) return ['LONG','SHORT','HOLD','BUY','SELL'][Math.floor(Math.random()*5)];
-            return (Math.random() * 2).toFixed(3);
+        // ---- Shooting Star class ----
+        class ShootingStar {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * W * 1.2;
+                this.y = Math.random() * H * 0.5;
+                this.len = 60 + Math.random() * 120;
+                this.speed = 8 + Math.random() * 12;
+                this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.3; // ~45 degrees
+                this.alpha = 0;
+                this.maxAlpha = 0.3 + Math.random() * 0.4;
+                this.life = 0;
+                this.maxLife = 40 + Math.random() * 30;
+                this.active = false;
+                this.width = 1 + Math.random() * 1.5;
+            }
+            update() {
+                if (!this.active) return;
+                this.life++;
+                // Fade in then fade out
+                if (this.life < 8) this.alpha = this.maxAlpha * (this.life / 8);
+                else if (this.life > this.maxLife - 10) this.alpha = this.maxAlpha * ((this.maxLife - this.life) / 10);
+                else this.alpha = this.maxAlpha;
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                if (this.life >= this.maxLife || this.x > W + 200 || this.y > H + 200) {
+                    this.active = false;
+                }
+            }
         }
 
-        // === 4. SIGNAL PULSES ===
-        const pulses = [];
-        for (let i = 0; i < 4; i++) pulses.push({ active: false, x: 0, life: 0, maxLife: 80, alpha: 0, color: [59,130,246] });
+        // Init particles
+        for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+        // Init shooting stars pool
+        const STAR_POOL = 5;
+        for (let i = 0; i < STAR_POOL; i++) shootingStars.push(new ShootingStar());
 
-        // === 5. NEURAL CONNECTIONS (between nearby candles) ===
-        const connections = [];
-        for (let i = 0; i < 8; i++) connections.push({ active: false, a: 0, b: 0, life: 0, maxLife: 60 });
-
-        // ---- RENDER LOOP ----
         let frame = 0;
         function render() {
             frame++;
-            const t = (performance.now() - t0) * 0.001;
-            ctx.clearRect(0, 0, W, H);
+            // Only render the visible viewport portion for performance
+            const scrollY = window.scrollY;
+            const viewTop = scrollY;
+            const viewBottom = scrollY + window.innerHeight;
 
-            // -- Subtle radial vignette base --
-            const vig = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W * 0.7);
-            vig.addColorStop(0, 'rgba(12,8,24,0)');
-            vig.addColorStop(1, 'rgba(0,0,0,0.3)');
-            ctx.fillStyle = vig;
-            ctx.fillRect(0, 0, W, H);
+            ctx.clearRect(0, viewTop - 50, W, window.innerHeight + 100);
 
-            // -- 1. PRICE CURVES --
-            for (const c of curves) {
-                ctx.beginPath();
-                ctx.strokeStyle = `rgba(${c.color[0]},${c.color[1]},${c.color[2]},${c.alpha})`;
-                ctx.lineWidth = c.width;
-                const yCenter = c.yBase * H;
-                for (let x = 0; x <= W; x += 3) {
-                    const px = x + t * c.speed * 200 + c.phase;
-                    const y = yCenter + Math.sin(px * c.freq) * c.amp
-                            + Math.sin(px * c.freq * 2.3 + 1.5) * c.amp * 0.4
-                            + Math.sin(px * c.freq * 5.1 + 3.0) * c.amp * 0.15;
-                    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-                // Area fill below
-                ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
-                ctx.fillStyle = `rgba(${c.color[0]},${c.color[1]},${c.color[2]},${c.alpha * 0.15})`;
-                ctx.fill();
-            }
-
-            // -- 4. SIGNAL PULSES (behind candles) --
-            if (Math.random() < 0.002) {
-                const p = pulses.find(p => !p.active);
-                if (p) {
-                    p.active = true; p.x = -50; p.life = 0;
-                    const colors = [[59,130,246],[16,185,129],[139,92,246],[6,182,212]];
-                    p.color = colors[Math.floor(Math.random()*colors.length)];
-                }
-            }
-            for (const p of pulses) {
-                if (!p.active) continue;
-                p.life++;
-                p.x = (p.life / p.maxLife) * (W + 100) - 50;
-                p.alpha = p.life < 15 ? p.life / 15 : Math.max(0, 1 - (p.life - 15) / (p.maxLife - 15));
-                p.alpha *= 0.07;
-                // Horizontal sweep line
-                const grad = ctx.createLinearGradient(p.x - 200, 0, p.x + 50, 0);
-                grad.addColorStop(0, 'transparent');
-                grad.addColorStop(0.7, `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${p.alpha})`);
-                grad.addColorStop(1, `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${p.alpha * 2})`);
-                ctx.fillStyle = grad;
-                ctx.fillRect(p.x - 200, 0, 250, H);
-                if (p.life >= p.maxLife) p.active = false;
-            }
-
-            // -- 2. CANDLESTICKS --
-            for (const c of candles) {
-                c.x += c.vx;
-                c.y += c.vy;
-                c.rot += c.rotV;
-                // Wrap
-                if (c.x < -0.1) { c.x = 1.1; c.y = Math.random(); c.bull = Math.random() > 0.4; }
-                // Fade based on depth
-                const targetAlpha = c.depth * 0.35;
-                c.alpha += (targetAlpha - c.alpha) * 0.02;
-
-                const cx = c.x * W, cy = c.y * H;
-                const scale = 0.5 + c.depth * 1.0;
-                const bw = c.bodyW * scale, bh = c.bodyH * scale;
-                const wt = c.wickTop * scale, wb = c.wickBot * scale;
-                const color = c.bull ? [16,185,129] : [239,68,68];
-
-                ctx.save();
-                ctx.translate(cx, cy);
-                ctx.rotate(c.rot);
-                ctx.globalAlpha = c.alpha;
-
-                // Glow for close candles
-                if (c.depth > 0.6) {
-                    ctx.shadowBlur = 8 * c.depth;
-                    ctx.shadowColor = `rgba(${color[0]},${color[1]},${color[2]},0.3)`;
-                }
-
-                // Wick
-                ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.6)`;
-                ctx.lineWidth = 0.5 * scale;
-                ctx.beginPath();
-                ctx.moveTo(0, -bh/2 - wt);
-                ctx.lineTo(0, bh/2 + wb);
-                ctx.stroke();
-
-                // Body
-                ctx.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
-                ctx.fillRect(-bw/2, -bh/2, bw, bh);
-
-                ctx.shadowBlur = 0;
-                ctx.globalAlpha = 1;
-                ctx.restore();
-            }
-
-            // -- 5. NEURAL CONNECTIONS --
-            if (Math.random() < 0.015) {
-                const conn = connections.find(c => !c.active);
-                if (conn) {
-                    conn.a = Math.floor(Math.random() * candles.length);
-                    conn.b = Math.floor(Math.random() * candles.length);
-                    if (conn.a !== conn.b) { conn.active = true; conn.life = 0; }
-                }
-            }
-            for (const conn of connections) {
-                if (!conn.active) continue;
-                conn.life++;
-                const a = candles[conn.a], b = candles[conn.b];
-                const dx = (a.x - b.x) * W, dy = (a.y - b.y) * H;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist > 350) { conn.active = false; continue; }
-                const alpha = (conn.life < 10 ? conn.life / 10 : Math.max(0, 1 - (conn.life - 10) / (conn.maxLife - 10))) * 0.08;
-                ctx.strokeStyle = `rgba(99,130,255,${alpha})`;
-                ctx.lineWidth = 0.5;
-                ctx.beginPath();
-                ctx.moveTo(a.x * W, a.y * H);
-                ctx.lineTo(b.x * W, b.y * H);
-                ctx.stroke();
-                // Pulse dot traveling along connection
-                const prog = conn.life / conn.maxLife;
-                const px = a.x * W + (b.x * W - a.x * W) * prog;
-                const py = a.y * H + (b.y * H - a.y * H) * prog;
-                ctx.fillStyle = `rgba(140,160,255,${alpha * 3})`;
-                ctx.beginPath();
-                ctx.arc(px, py, 1.5, 0, Math.PI * 2);
-                ctx.fill();
-                if (conn.life >= conn.maxLife) conn.active = false;
-            }
-
-            // -- 3. DATA RAIN --
-            ctx.font = '10px "JetBrains Mono", monospace';
-            for (const col of columns) {
-                for (const ch of col.chars) {
-                    ch.life++;
-                    ch.y += ch.speed;
-                    // Fade in at top, fade out at bottom
-                    if (ch.y < 0.1) ch.alpha = ch.y / 0.1 * 0.12;
-                    else if (ch.y > 0.85) ch.alpha = (1 - ch.y) / 0.15 * 0.12;
-                    else ch.alpha = 0.12;
-                    // Reset
-                    if (ch.y > 1) {
-                        ch.y = -0.02;
-                        ch.text = genDataText(col.ticker);
-                        ch.life = 0;
+            // ---- Draw connections between nearby visible particles ----
+            for (let i = 0; i < particles.length; i++) {
+                const a = particles[i];
+                if (a.y < viewTop - 50 || a.y > viewBottom + 50) continue;
+                for (let j = i + 1; j < particles.length; j++) {
+                    const b = particles[j];
+                    if (b.y < viewTop - 50 || b.y > viewBottom + 50) continue;
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < CONNECT_DIST) {
+                        const alpha = (1 - dist / CONNECT_DIST) * 0.04 * Math.min(a.depth, b.depth);
+                        ctx.strokeStyle = `rgba(100,140,220,${alpha})`;
+                        ctx.lineWidth = 0.4;
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.stroke();
                     }
-                    if (!ch.text) ch.text = genDataText(col.ticker);
-                    // Color: green for positive, red for negative, blue for tickers
-                    let clr = '60,70,100';
-                    if (ch.text.startsWith('+')) clr = '16,185,129';
-                    else if (ch.text.startsWith('-')) clr = '239,68,68';
-                    else if (ch.text === 'LONG' || ch.text === 'BUY') clr = '16,185,129';
-                    else if (ch.text === 'SHORT' || ch.text === 'SELL') clr = '239,68,68';
-                    else if (TICKERS.includes(ch.text)) clr = '80,100,180';
-                    ctx.fillStyle = `rgba(${clr},${ch.alpha})`;
-                    ctx.fillText(ch.text, col.x * W, ch.y * H);
                 }
             }
 
+            // ---- Draw particles ----
+            for (const p of particles) {
+                p.update(frame);
+                if (p.y < viewTop - 50 || p.y > viewBottom + 50) continue;
+                // Glow effect for closer particles
+                if (p.depth > 0.7) {
+                    ctx.shadowBlur = 8 + p.depth * 6;
+                    ctx.shadowColor = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${p.alpha * 0.5})`;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fillStyle = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${p.alpha})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+
+            // ---- Shooting stars ----
+            // Spawn occasionally
+            if (Math.random() < 0.004) { // ~every 4 seconds on average
+                const star = shootingStars.find(s => !s.active);
+                if (star) { star.reset(); star.active = true; star.y = viewTop + Math.random() * window.innerHeight * 0.4; }
+            }
+            for (const s of shootingStars) {
+                if (!s.active) continue;
+                s.update();
+                // Draw trail
+                const tailX = s.x - Math.cos(s.angle) * s.len;
+                const tailY = s.y - Math.sin(s.angle) * s.len;
+                const grad = ctx.createLinearGradient(tailX, tailY, s.x, s.y);
+                grad.addColorStop(0, `rgba(180,200,255,0)`);
+                grad.addColorStop(0.7, `rgba(180,200,255,${s.alpha * 0.3})`);
+                grad.addColorStop(1, `rgba(220,240,255,${s.alpha})`);
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = s.width;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(tailX, tailY);
+                ctx.lineTo(s.x, s.y);
+                ctx.stroke();
+                // Bright head
+                ctx.fillStyle = `rgba(255,255,255,${s.alpha * 0.8})`;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = `rgba(180,200,255,${s.alpha})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.width * 0.8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            requestAnimationFrame(render);
+        }
+        render();
+    })();
+
+    // ---- WEBGL COSMIC NEBULA SHADER (GPU-accelerated) ----
+    (function() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const canvas = document.getElementById('shaderCanvas');
+        const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
+        if (!gl) return; // WebGL not supported
+
+        let W, H, uMouse = [0.5, 0.5], uGoldPos = [0.75, 0.5], uGoldIntensity = 0, goldTarget = 0, startTime = Date.now();
+
+        function resize() {
+            W = canvas.width = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+            gl.viewport(0, 0, W, H);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        document.addEventListener('mousemove', e => {
+            uMouse[0] = e.clientX / W;
+            uMouse[1] = 1.0 - e.clientY / H;
+        });
+
+        // ---- Shaders ----
+        const vertSrc = `
+            attribute vec2 aPos;
+            void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
+        `;
+
+        const fragSrc = `
+            precision highp float;
+            uniform float uTime;
+            uniform vec2 uResolution;
+            uniform vec2 uMouse;
+            uniform vec2 uGoldPos;
+            uniform float uGoldIntensity;
+
+            // --- Simplex 2D noise (Stefan Gustavson) ---
+            vec3 mod289(vec3 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
+            vec2 mod289v2(vec2 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
+            vec3 permute(vec3 x) { return mod289(((x * 34.0) + 1.0) * x); }
+
+            float snoise(vec2 v) {
+                const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+                vec2 i = floor(v + dot(v, C.yy));
+                vec2 x0 = v - i + dot(i, C.xx);
+                vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                vec4 x12 = x0.xyxy + C.xxzz;
+                x12.xy -= i1;
+                i = mod289v2(i);
+                vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+                vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+                m = m * m; m = m * m;
+                vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                vec3 h = abs(x) - 0.5;
+                vec3 ox = floor(x + 0.5);
+                vec3 a0 = x - ox;
+                m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
+                vec3 g;
+                g.x = a0.x * x0.x + h.x * x0.y;
+                g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                return 130.0 * dot(m, g);
+            }
+
+            // --- Fractal Brownian Motion (5 octaves) ---
+            float fbm(vec2 p) {
+                float val = 0.0, amp = 0.5;
+                for (int i = 0; i < 5; i++) {
+                    val += amp * snoise(p);
+                    p *= 2.1;
+                    amp *= 0.48;
+                }
+                return val;
+            }
+
+            // --- Domain Warping (noise warped by noise, creates organic flow) ---
+            float domainWarp(vec2 p, float t) {
+                vec2 q = vec2(
+                    fbm(p + vec2(1.7, 9.2) + 0.08 * t),
+                    fbm(p + vec2(8.3, 2.8) + 0.06 * t)
+                );
+                vec2 r = vec2(
+                    fbm(p + 3.8 * q + vec2(1.2, 3.4) + 0.05 * t),
+                    fbm(p + 3.8 * q + vec2(5.1, 7.3) + 0.07 * t)
+                );
+                return fbm(p + 3.2 * r);
+            }
+
+            // --- Cosmic color palette ---
+            vec3 palette(float t) {
+                // Deep space: black -> deep purple -> electric blue -> cyan -> white
+                vec3 a = vec3(0.03, 0.02, 0.08);   // dark base (slightly brighter)
+                vec3 b = vec3(0.25, 0.12, 0.55);    // deep purple (boosted)
+                vec3 c = vec3(0.35, 0.18, 0.75);    // purple (boosted)
+                vec3 d = vec3(0.15, 0.45, 0.90);    // blue (boosted)
+                vec3 e = vec3(0.08, 0.75, 0.85);    // cyan (boosted)
+                vec3 f = vec3(0.70, 0.35, 0.80);    // magenta (boosted)
+
+                if (t < 0.15) return mix(a, b, t / 0.15);
+                if (t < 0.35) return mix(b, c, (t - 0.15) / 0.2);
+                if (t < 0.55) return mix(c, d, (t - 0.35) / 0.2);
+                if (t < 0.75) return mix(d, e, (t - 0.55) / 0.2);
+                if (t < 0.90) return mix(e, f, (t - 0.75) / 0.15);
+                return mix(f, a, (t - 0.90) / 0.1);
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / uResolution;
+                float aspect = uResolution.x / uResolution.y;
+                vec2 p = vec2(uv.x * aspect, uv.y);
+                float t = uTime;
+
+                // Scale for nice detail level
+                p *= 2.5;
+
+                // (mouse warp removed for cleaner look)
+
+                // Layer 1: Primary domain-warped nebula
+                float n1 = domainWarp(p * 0.7, t);
+
+                // Layer 2: Secondary detail layer (different scale & speed)
+                float n2 = domainWarp(p * 1.3 + 3.0, t * 0.7);
+
+                // Layer 3: Fine detail
+                float n3 = fbm(p * 3.0 + t * 0.15);
+
+                // Combine layers with different weights
+                float combined = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
+
+                // Map to 0-1 range
+                combined = combined * 0.5 + 0.5;
+
+                // Apply contrast curve for depth
+                combined = smoothstep(0.15, 0.85, combined);
+
+                // Color mapping
+                vec3 color = palette(combined);
+
+                // Add highlights near bright areas
+                float highlight = smoothstep(0.5, 0.85, combined);
+                color += highlight * vec3(0.12, 0.06, 0.22);
+
+                // Vignette: darken edges
+                float vignette = 1.0 - length((uv - 0.5) * 1.4);
+                vignette = smoothstep(0.0, 0.7, vignette);
+
+                // (mouse glow removed for cleaner look)
+
+                // ---- GOLD ZONE (reacts to $15K card hover) ----
+                vec2 goldP = vec2(uGoldPos.x * aspect, uGoldPos.y) * 2.5;
+                float goldDist = length(p - goldP);
+                float goldZone = smoothstep(2.5, 0.0, goldDist) * uGoldIntensity;
+
+                // Gold palette blend
+                vec3 goldColor = mix(
+                    vec3(0.55, 0.35, 0.05),  // deep gold
+                    vec3(1.0, 0.85, 0.3),     // bright gold
+                    combined
+                );
+                // Add gold shimmer
+                float goldShimmer = snoise(p * 4.0 + uTime * 0.3) * 0.3 + 0.7;
+                goldColor *= goldShimmer;
+
+                // Blend original color toward gold
+                color = mix(color, goldColor, goldZone * 0.8);
+
+                // Gold glow emission
+                float goldGlow = smoothstep(1.8, 0.0, goldDist) * uGoldIntensity * 0.2;
+                color += goldGlow * vec3(0.9, 0.7, 0.15);
+
+                // Final alpha: visible but still readable
+                float alpha = combined * 0.55 * vignette;
+
+                // Boost the nebula brightness in bright areas
+                alpha += highlight * 0.15;
+
+                // Gold zone boosts alpha too
+                alpha += goldZone * 0.25;
+
+                gl_FragColor = vec4(color, alpha);
+            }
+        `;
+
+        // ---- Compile shaders ----
+        function compileShader(src, type) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+                console.error(gl.getShaderInfoLog(s));
+                return null;
+            }
+            return s;
+        }
+
+        const vs = compileShader(vertSrc, gl.VERTEX_SHADER);
+        const fs = compileShader(fragSrc, gl.FRAGMENT_SHADER);
+        if (!vs || !fs) return;
+
+        const program = gl.createProgram();
+        gl.attachShader(program, vs);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+        gl.useProgram(program);
+
+        // Full-screen quad
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+        const aPos = gl.getAttribLocation(program, 'aPos');
+        gl.enableVertexAttribArray(aPos);
+        gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+        // Uniforms
+        const uTimeLoc = gl.getUniformLocation(program, 'uTime');
+        const uResLoc = gl.getUniformLocation(program, 'uResolution');
+        const uMouseLoc = gl.getUniformLocation(program, 'uMouse');
+        const uGoldPosLoc = gl.getUniformLocation(program, 'uGoldPos');
+        const uGoldIntLoc = gl.getUniformLocation(program, 'uGoldIntensity');
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+        // Gold zone: detect $15K card hover
+        function setupGoldCard() {
+            const cards = document.querySelectorAll('.price-card');
+            const goldCard = Array.from(cards).find(c => c.textContent.includes('15K'));
+            if (!goldCard) return;
+            goldCard.addEventListener('mouseenter', () => { goldTarget = 1; });
+            goldCard.addEventListener('mouseleave', () => { goldTarget = 0; });
+            // Track card center position
+            function updateGoldPos() {
+                const r = goldCard.getBoundingClientRect();
+                uGoldPos[0] = (r.left + r.width / 2) / W;
+                uGoldPos[1] = 1.0 - (r.top + r.height / 2) / H;
+            }
+            window.addEventListener('scroll', updateGoldPos, { passive: true });
+            window.addEventListener('resize', updateGoldPos);
+            updateGoldPos();
+        }
+        // Wait for DOM
+        if (document.readyState === 'complete') setupGoldCard();
+        else window.addEventListener('load', setupGoldCard);
+
+        function render() {
+            // Smooth gold intensity transition
+            uGoldIntensity += (goldTarget - uGoldIntensity) * 0.04;
+
+            const elapsed = (Date.now() - startTime) * 0.001;
+            gl.uniform1f(uTimeLoc, elapsed);
+            gl.uniform2f(uResLoc, W, H);
+            gl.uniform2f(uMouseLoc, uMouse[0], uMouse[1]);
+            gl.uniform2f(uGoldPosLoc, uGoldPos[0], uGoldPos[1]);
+            gl.uniform1f(uGoldIntLoc, uGoldIntensity);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
             requestAnimationFrame(render);
         }
         render();
