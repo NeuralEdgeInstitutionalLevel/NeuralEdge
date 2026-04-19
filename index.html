@@ -1306,12 +1306,12 @@
             // --- Cosmic color palette ---
             vec3 palette(float t) {
                 // Deep space: black -> deep purple -> electric blue -> cyan -> white
-                vec3 a = vec3(0.02, 0.01, 0.04);   // near-black base
-                vec3 b = vec3(0.15, 0.08, 0.35);    // deep purple
-                vec3 c = vec3(0.20, 0.12, 0.50);    // purple
-                vec3 d = vec3(0.10, 0.30, 0.75);    // blue
-                vec3 e = vec3(0.05, 0.55, 0.70);    // cyan
-                vec3 f = vec3(0.50, 0.25, 0.65);    // magenta
+                vec3 a = vec3(0.03, 0.02, 0.08);   // dark base (slightly brighter)
+                vec3 b = vec3(0.25, 0.12, 0.55);    // deep purple (boosted)
+                vec3 c = vec3(0.35, 0.18, 0.75);    // purple (boosted)
+                vec3 d = vec3(0.15, 0.45, 0.90);    // blue (boosted)
+                vec3 e = vec3(0.08, 0.75, 0.85);    // cyan (boosted)
+                vec3 f = vec3(0.70, 0.35, 0.80);    // magenta (boosted)
 
                 if (t < 0.15) return mix(a, b, t / 0.15);
                 if (t < 0.35) return mix(b, c, (t - 0.15) / 0.2);
@@ -1358,23 +1358,23 @@
                 // Color mapping
                 vec3 color = palette(combined);
 
-                // Add subtle highlights near bright areas
-                float highlight = smoothstep(0.6, 0.9, combined);
-                color += highlight * vec3(0.08, 0.04, 0.15);
+                // Add highlights near bright areas
+                float highlight = smoothstep(0.5, 0.85, combined);
+                color += highlight * vec3(0.12, 0.06, 0.22);
 
                 // Vignette: darken edges
                 float vignette = 1.0 - length((uv - 0.5) * 1.4);
                 vignette = smoothstep(0.0, 0.7, vignette);
 
                 // Mouse glow: subtle bright spot near cursor
-                float mouseGlow = smoothstep(0.5, 0.0, mouseDist) * 0.08;
-                color += mouseGlow * vec3(0.3, 0.15, 0.6);
+                float mouseGlow = smoothstep(0.6, 0.0, mouseDist) * 0.14;
+                color += mouseGlow * vec3(0.4, 0.2, 0.8);
 
-                // Final alpha: keep it subtle so content stays readable
-                float alpha = combined * 0.35 * vignette;
+                // Final alpha: visible but still readable
+                float alpha = combined * 0.55 * vignette;
 
-                // Boost the nebula brightness slightly in bright areas
-                alpha += highlight * 0.08;
+                // Boost the nebula brightness in bright areas
+                alpha += highlight * 0.15;
 
                 gl_FragColor = vec4(color, alpha);
             }
