@@ -274,14 +274,8 @@
             transform-style: preserve-3d;
             will-change: transform;
         }
-        /* Spotlight effect - radial glow follows mouse */
-        .bento-card .card-spotlight {
-            position: absolute; inset: 0;
-            background: radial-gradient(350px circle at var(--x, 50%) var(--y, 50%), rgba(59,130,246,0.10), transparent 60%);
-            pointer-events: none; opacity: 0;
-            transition: opacity 0.4s;
-        }
-        .bento-card:hover .card-spotlight { opacity: 1; }
+        /* Card spotlight removed - replaced with border gradient */
+        .bento-card .card-spotlight { display: none; }
         .bento-card:hover { border-color: rgba(255,255,255,0.12); box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 30px rgba(59,130,246,0.04); }
         /* Shine sweep on hover */
         .bento-card .card-shine {
@@ -344,7 +338,22 @@
             [data-tilt] { transform: none !important; }
         }
 
-        /* ---- UNIVERSAL CARD EFFECTS (shine, tilt, glow for ALL cards) ---- */
+        /* ---- UNIVERSAL CARD EFFECTS (shine, tilt, border for ALL cards) ---- */
+        /* Content lift on hover */
+        [data-tilt] h3, [data-tilt] p, [data-tilt] .ps-val, [data-tilt] .pc-price,
+        [data-tilt] .fc-size, [data-tilt] .fc-split, [data-tilt] .pt {
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        [data-tilt]:hover h3, [data-tilt]:hover .ps-val, [data-tilt]:hover .pc-price,
+        [data-tilt]:hover .fc-size, [data-tilt]:hover .fc-split { transform: translateY(-2px); }
+        /* Border color shift on hover (each section has unique accent) */
+        .bento-card:hover { border-color: rgba(59,130,246,0.2); }
+        .sec-card:hover { border-color: rgba(16,185,129,0.2); }
+        .perf-stat:hover { border-color: rgba(59,130,246,0.2); }
+        .price-card:hover { border-color: rgba(139,92,246,0.2); }
+        .price-card.pop:hover { border-color: rgba(59,130,246,0.35); }
+        .fc:hover { border-color: rgba(245,158,11,0.25); }
+        .proof-card:hover { border-color: rgba(6,182,212,0.2); }
         [data-tilt] { transform-style: preserve-3d; will-change: transform; }
         .card-shine {
             position: absolute; inset: 0; pointer-events: none; z-index: 2;
@@ -391,12 +400,7 @@
             cursor: pointer; position: relative; overflow: hidden;
         }
         .sec-card:hover { box-shadow: 0 16px 50px rgba(0,0,0,0.3), 0 0 20px rgba(59,130,246,0.03); }
-        .sec-card .card-spotlight {
-            position: absolute; inset: 0;
-            background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(59,130,246,0.05), transparent 60%);
-            pointer-events: none; opacity: 0; transition: opacity 0.4s;
-        }
-        .sec-card:hover .card-spotlight { opacity: 1; }
+        .sec-card .card-spotlight { display: none; }
         .sec-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-4px); }
         .sec-icon {
             width: 52px; height: 52px; margin: 0 auto 20px; border-radius: 14px;
@@ -437,12 +441,7 @@
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
             padding: 32px; position: relative; overflow: hidden;
         }
-        .perf-chart-card .card-spotlight {
-            position: absolute; inset: 0;
-            background: radial-gradient(400px circle at var(--x, 50%) var(--y, 50%), rgba(16,185,129,0.04), transparent 60%);
-            pointer-events: none; opacity: 0; transition: opacity 0.4s;
-        }
-        .perf-chart-card:hover .card-spotlight { opacity: 1; }
+        .perf-chart-card .card-spotlight { display: none; }
         .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .chart-title { font-size: 0.78rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
         .chart-tabs { display: flex; gap: 4px; }
@@ -468,12 +467,7 @@
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
             padding: 24px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
         }
-        .perf-stat .card-spotlight {
-            position: absolute; inset: 0;
-            background: radial-gradient(200px circle at var(--x, 50%) var(--y, 50%), rgba(59,130,246,0.05), transparent 60%);
-            pointer-events: none; opacity: 0; transition: opacity 0.4s;
-        }
-        .perf-stat:hover .card-spotlight { opacity: 1; }
+        .perf-stat .card-spotlight { display: none; }
         .perf-stat:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
         .ps-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 6px; }
         .ps-val { font-family: var(--mono); font-size: 1.5rem; font-weight: 800; }
@@ -584,12 +578,7 @@
             padding: 40px 24px; position: relative; overflow: hidden;
             transition: all 0.4s cubic-bezier(0.16,1,0.3,1); cursor: pointer;
         }
-        .price-card .card-spotlight {
-            position: absolute; inset: 0;
-            background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(59,130,246,0.05), transparent 60%);
-            pointer-events: none; opacity: 0; transition: opacity 0.4s;
-        }
-        .price-card:hover .card-spotlight { opacity: 1; }
+        .price-card .card-spotlight { display: none; }
         .price-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.1); }
         .price-card.pop {
             border-color: rgba(59,130,246,0.3);
@@ -656,12 +645,7 @@
             padding: 32px; text-align: center; cursor: pointer;
             transition: all 0.3s; position: relative; overflow: hidden;
         }
-        .fc .card-spotlight {
-            position: absolute; inset: 0;
-            background: radial-gradient(250px circle at var(--x, 50%) var(--y, 50%), rgba(245,158,11,0.05), transparent 60%);
-            pointer-events: none; opacity: 0; transition: opacity 0.4s;
-        }
-        .fc:hover .card-spotlight { opacity: 1; }
+        .fc .card-spotlight { display: none; }
         .fc:hover { border-color: rgba(245,158,11,0.15); transform: translateY(-3px); }
         .fc.featured { border-color: rgba(245,158,11,0.2); }
         .fc-size { font-family: var(--mono); font-size: 1.5rem; font-weight: 900; color: var(--gold); margin-bottom: 4px; }
@@ -678,12 +662,7 @@
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px;
             padding: 32px; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden;
         }
-        .proof-card .card-spotlight {
-            position: absolute; inset: 0;
-            background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(59,130,246,0.04), transparent 60%);
-            pointer-events: none; opacity: 0; transition: opacity 0.4s;
-        }
-        .proof-card:hover .card-spotlight { opacity: 1; }
+        .proof-card .card-spotlight { display: none; }
         .proof-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-3px); }
         .pq { font-size: 2.2rem; color: var(--blue); opacity: 0.1; font-family: Georgia; line-height: 1; margin-bottom: 8px; }
         .pt { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; font-style: italic; margin-bottom: 20px; }
@@ -1331,17 +1310,7 @@
         render();
     })();
 
-    // ---- CARD SPOTLIGHT + 3D TILT (per card) ----
-    document.querySelectorAll('.card-spotlight').forEach(spot => {
-        const card = spot.parentElement;
-        card.addEventListener('mousemove', e => {
-            const r = card.getBoundingClientRect();
-            const x = e.clientX - r.left;
-            const y = e.clientY - r.top;
-            spot.style.setProperty('--x', x + 'px');
-            spot.style.setProperty('--y', y + 'px');
-        });
-    });
+    // ---- (spotlight removed - mouse glow disabled) ----
 
     // ---- 3D TILT on [data-tilt] cards ----
     document.querySelectorAll('[data-tilt]').forEach(card => {
