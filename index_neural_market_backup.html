@@ -46,7 +46,7 @@
             transition: none;
         }
 
-        /* ---- STEAM CANVAS (Valve / Half-Life theme) ---- */
+        /* ---- TRADING CANVAS (The Neural Market) ---- */
         #tradingCanvas {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
@@ -1039,147 +1039,276 @@
     </footer>
 
     <script>
-    // ---- VALVE STEAM ENGINE (Half-Life inspired background) ----
+    // ---- THE NEURAL MARKET (trading-specific background) ----
     (function() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         const canvas = document.getElementById('tradingCanvas');
         const ctx = canvas.getContext('2d');
         let W, H;
+
         function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize);
         resize();
+
+        // === TICKERS for data rain ===
+        const TICKERS = ['BTC','ETH','SOL','XRP','ADA','AVAX','DOGE','LINK','SUI','INJ','HBAR','PEPE','ARB','OP','APT','NEAR','LTC','AAVE','TIA','ETC'];
         const t0 = performance.now();
 
-        // === STEAM PARTICLES (volumetric vapor rising) ===
-        const emitters = [];
-        for (let i = 0; i < 8; i++) emitters.push({ x: 0.05 + (i/7)*0.9, width: 0.06 + Math.random()*0.08, rate: 0.3 + Math.random()*0.5, baseSpeed: 0.4 + Math.random()*0.3 });
-
-        const MAX_STEAM = 400;
-        const steamArr = [];
-        class SteamP {
-            constructor() { this.alive = false; }
-            spawn(em) {
-                this.alive = true;
-                this.x = (em.x + (Math.random()-0.5)*em.width) * W;
-                this.y = H + 10 + Math.random()*30;
-                this.vx = (Math.random()-0.5)*0.3;
-                this.vy = -(em.baseSpeed + Math.random()*0.6);
-                this.startR = 15 + Math.random()*25;
-                this.r = this.startR;
-                this.maxR = this.startR * (2.5 + Math.random()*2.0);
-                this.life = 0; this.maxLife = 200 + Math.random()*250;
-                this.maxAlpha = 0.02 + Math.random()*0.04;
-                this.alpha = 0; this.depth = Math.random();
-                this.turbPhase = Math.random()*1000;
-                this.turbFreq = 0.008 + Math.random()*0.012;
-                this.turbAmp = 0.3 + Math.random()*0.8;
-                const w = Math.random();
-                this.cr = 180+w*40; this.cg = 175+w*35; this.cb = 170+w*30;
-            }
-            update() {
-                if (!this.alive) return;
-                this.life++;
-                const ratio = this.life / this.maxLife;
-                this.r = this.startR + (this.maxR - this.startR) * Math.pow(ratio, 0.6);
-                if (ratio < 0.08) this.alpha = this.maxAlpha * (ratio/0.08);
-                else if (ratio > 0.4) this.alpha = this.maxAlpha * (1-(ratio-0.4)/0.6);
-                else this.alpha = this.maxAlpha;
-                const tt = this.life + this.turbPhase;
-                this.vx += Math.sin(tt*this.turbFreq)*this.turbAmp*0.008;
-                this.vx += Math.sin(tt*this.turbFreq*2.7+3.0)*this.turbAmp*0.003;
-                this.vy *= 0.9992; this.vx *= 0.998;
-                this.x += this.vx; this.y += this.vy;
-                if (this.life >= this.maxLife || this.y < -this.r*2) this.alive = false;
+        // === 1. FLOWING PRICE CURVES (3 depth layers: far, mid, close) ===
+        const curves = [];
+        const depthLayers = [
+            { count: 5, alphaBase: 0.015, widthBase: 0.5, speedMul: 0.5, ampMul: 0.5 },  // FAR (barely visible, slow)
+            { count: 5, alphaBase: 0.035, widthBase: 1.0, speedMul: 1.0, ampMul: 0.8 },  // MID
+            { count: 4, alphaBase: 0.06,  widthBase: 1.5, speedMul: 1.5, ampMul: 1.2 },  // CLOSE (bright, fast)
+        ];
+        const hues = [[59,130,246],[139,92,246],[6,182,212],[16,185,129],[236,72,153],[245,158,11],[99,102,241],[34,211,238],[168,85,247],[249,115,22],[20,184,166],[244,63,94],[56,189,248],[147,51,234]];
+        let ci = 0;
+        for (const layer of depthLayers) {
+            for (let i = 0; i < layer.count; i++) {
+                curves.push({
+                    color: hues[ci % hues.length],
+                    speed: (0.1 + Math.random() * 0.2) * layer.speedMul,
+                    amp: (25 + Math.random() * 50) * layer.ampMul,
+                    yBase: 0.1 + Math.random() * 0.8,
+                    freq: 0.002 + Math.random() * 0.004,
+                    phase: Math.random() * 2000,
+                    alpha: layer.alphaBase + Math.random() * 0.02,
+                    width: layer.widthBase + Math.random() * 0.5,
+                    depth: ci / 14
+                });
+                ci++;
             }
         }
-        for (let i = 0; i < MAX_STEAM; i++) steamArr.push(new SteamP());
 
-        // === EMBER PARTICLES (tiny orange sparks from heat) ===
-        const MAX_EMBERS = 60;
-        const embersArr = [];
-        class EmberP {
-            constructor() { this.alive = false; }
-            spawn() {
-                this.alive = true;
-                this.x = Math.random()*W; this.y = H+5;
-                this.vx = (Math.random()-0.5)*0.8; this.vy = -(1.5+Math.random()*2.5);
-                this.r = 0.8+Math.random()*1.8; this.life = 0; this.maxLife = 80+Math.random()*120;
-                this.alpha = 0; this.maxAlpha = 0.3+Math.random()*0.5;
-                this.cr = 220+Math.random()*35; this.cg = 100+Math.random()*80; this.cb = 10+Math.random()*30;
-            }
-            update() {
-                if (!this.alive) return;
-                this.life++;
-                const ratio = this.life/this.maxLife;
-                if (ratio < 0.1) this.alpha = this.maxAlpha*(ratio/0.1);
-                else this.alpha = this.maxAlpha*(1-(ratio-0.1)/0.9);
-                this.vx += (Math.random()-0.5)*0.1; this.vy *= 0.998;
-                this.x += this.vx; this.y += this.vy; this.r *= 0.999;
-                if (this.life >= this.maxLife) this.alive = false;
-            }
+        // === 2. FLOATING CANDLESTICKS (3 depth layers) ===
+        const candles = [];
+        for (let i = 0; i < 80; i++) {
+            const depth = Math.random();
+            candles.push({
+                x: Math.random() * 1.3 - 0.15,
+                y: Math.random(),
+                vx: (-0.0001 - Math.random() * 0.0003) * (0.3 + depth * 1.2),
+                vy: (Math.random() - 0.5) * 0.00008,
+                bull: Math.random() > 0.4,
+                bodyH: (3 + Math.random() * 8) * (0.4 + depth * 1.2),
+                bodyW: (1.5 + Math.random() * 2.5) * (0.4 + depth * 1.0),
+                wickTop: (1.5 + Math.random() * 6) * (0.4 + depth),
+                wickBot: (1.5 + Math.random() * 5) * (0.4 + depth),
+                depth: depth,
+                rot: (Math.random() - 0.5) * 0.12,
+                rotV: (Math.random() - 0.5) * 0.0002,
+                alpha: 0
+            });
         }
-        for (let i = 0; i < MAX_EMBERS; i++) embersArr.push(new EmberP());
+        // Sort by depth so far candles render first
+        candles.sort((a, b) => a.depth - b.depth);
 
-        // === RENDER ===
+        // === 3. DATA RAIN COLUMNS ===
+        const columns = [];
+        for (let i = 0; i < 14; i++) {
+            const chars = [];
+            const charCount = 8 + Math.floor(Math.random() * 10);
+            for (let j = 0; j < charCount; j++) {
+                chars.push({
+                    text: '', y: Math.random(), alpha: 0, speed: 0.0004 + Math.random() * 0.0006,
+                    life: Math.random() * 500
+                });
+            }
+            columns.push({
+                x: 0.05 + (i / 14) * 0.92 + (Math.random() - 0.5) * 0.03,
+                chars,
+                ticker: TICKERS[i % TICKERS.length]
+            });
+        }
+
+        function genDataText(ticker) {
+            const r = Math.random();
+            if (r < 0.3) return ticker;
+            if (r < 0.5) return (Math.random() * 100000).toFixed(Math.random() > 0.5 ? 0 : 2);
+            if (r < 0.7) return (Math.random() > 0.5 ? '+' : '-') + (Math.random() * 5).toFixed(2) + '%';
+            if (r < 0.85) return ['LONG','SHORT','HOLD','BUY','SELL'][Math.floor(Math.random()*5)];
+            return (Math.random() * 2).toFixed(3);
+        }
+
+        // === 4. SIGNAL PULSES ===
+        const pulses = [];
+        for (let i = 0; i < 4; i++) pulses.push({ active: false, x: 0, life: 0, maxLife: 80, alpha: 0, color: [59,130,246] });
+
+        // === 5. NEURAL CONNECTIONS (between nearby candles) ===
+        const connections = [];
+        for (let i = 0; i < 8; i++) connections.push({ active: false, a: 0, b: 0, life: 0, maxLife: 60 });
+
+        // ---- RENDER LOOP ----
+        let frame = 0;
         function render() {
-            const t = (performance.now()-t0)*0.001;
+            frame++;
+            const t = (performance.now() - t0) * 0.001;
             ctx.clearRect(0, 0, W, H);
 
-            // Bottom heat glow
-            const hg = ctx.createLinearGradient(0, H, 0, H*0.35);
-            hg.addColorStop(0, 'rgba(180,80,20,0.07)');
-            hg.addColorStop(0.15, 'rgba(140,60,15,0.04)');
-            hg.addColorStop(0.4, 'rgba(80,40,10,0.015)');
-            hg.addColorStop(1, 'transparent');
-            ctx.fillStyle = hg; ctx.fillRect(0, H*0.35, W, H*0.65);
+            // -- Subtle radial vignette base --
+            const vig = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W * 0.7);
+            vig.addColorStop(0, 'rgba(12,8,24,0)');
+            vig.addColorStop(1, 'rgba(0,0,0,0.3)');
+            ctx.fillStyle = vig;
+            ctx.fillRect(0, 0, W, H);
 
-            // Spawn steam
-            for (const em of emitters) { if (Math.random() < em.rate*0.15) { const p = steamArr.find(s => !s.alive); if (p) p.spawn(em); } }
-            // Spawn embers
-            if (Math.random() < 0.08) { const e = embersArr.find(e => !e.alive); if (e) e.spawn(); }
-
-            // Draw steam
-            const alive = steamArr.filter(s => s.alive);
-            alive.sort((a,b) => a.depth - b.depth);
-            for (const s of alive) {
-                s.update();
-                if (!s.alive || s.alpha <= 0.001) continue;
-                const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r);
-                g.addColorStop(0, `rgba(${s.cr|0},${s.cg|0},${s.cb|0},${s.alpha*1.2})`);
-                g.addColorStop(0.3, `rgba(${s.cr|0},${s.cg|0},${s.cb|0},${s.alpha*0.8})`);
-                g.addColorStop(0.6, `rgba(${s.cr|0},${s.cg|0},${s.cb|0},${s.alpha*0.3})`);
-                g.addColorStop(1, `rgba(${s.cr|0},${s.cg|0},${s.cb|0},0)`);
-                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
-            }
-
-            // Draw embers
-            for (const e of embersArr) {
-                e.update();
-                if (!e.alive || e.alpha <= 0) continue;
-                ctx.shadowBlur = 8+e.r*3;
-                ctx.shadowColor = `rgba(${e.cr|0},${e.cg|0},${e.cb|0},${e.alpha*0.6})`;
-                ctx.fillStyle = `rgba(${e.cr|0},${e.cg|0},${e.cb|0},${e.alpha})`;
-                ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
-            }
-            ctx.shadowBlur = 0;
-
-            // Heat distortion lines
-            for (let i = 0; i < 3; i++) {
-                const ly = H*(0.7+i*0.08) + Math.sin(t*0.5+i*2)*5;
-                ctx.strokeStyle = `rgba(200,120,40,${0.012+Math.sin(t*0.3+i)*0.005})`;
-                ctx.lineWidth = 1; ctx.beginPath();
-                for (let x = 0; x < W; x += 4) {
-                    const y = ly + Math.sin(x*0.01+t*1.5+i)*3 + Math.sin(x*0.025+t*0.8)*1.5;
-                    if (x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            // -- 1. PRICE CURVES --
+            for (const c of curves) {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(${c.color[0]},${c.color[1]},${c.color[2]},${c.alpha})`;
+                ctx.lineWidth = c.width;
+                const yCenter = c.yBase * H;
+                for (let x = 0; x <= W; x += 3) {
+                    const px = x + t * c.speed * 200 + c.phase;
+                    const y = yCenter + Math.sin(px * c.freq) * c.amp
+                            + Math.sin(px * c.freq * 2.3 + 1.5) * c.amp * 0.4
+                            + Math.sin(px * c.freq * 5.1 + 3.0) * c.amp * 0.15;
+                    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
                 }
                 ctx.stroke();
+                // Area fill below
+                ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+                ctx.fillStyle = `rgba(${c.color[0]},${c.color[1]},${c.color[2]},${c.alpha * 0.15})`;
+                ctx.fill();
             }
+
+            // -- 4. SIGNAL PULSES (behind candles) --
+            if (Math.random() < 0.002) {
+                const p = pulses.find(p => !p.active);
+                if (p) {
+                    p.active = true; p.x = -50; p.life = 0;
+                    const colors = [[59,130,246],[16,185,129],[139,92,246],[6,182,212]];
+                    p.color = colors[Math.floor(Math.random()*colors.length)];
+                }
+            }
+            for (const p of pulses) {
+                if (!p.active) continue;
+                p.life++;
+                p.x = (p.life / p.maxLife) * (W + 100) - 50;
+                p.alpha = p.life < 15 ? p.life / 15 : Math.max(0, 1 - (p.life - 15) / (p.maxLife - 15));
+                p.alpha *= 0.07;
+                // Horizontal sweep line
+                const grad = ctx.createLinearGradient(p.x - 200, 0, p.x + 50, 0);
+                grad.addColorStop(0, 'transparent');
+                grad.addColorStop(0.7, `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${p.alpha})`);
+                grad.addColorStop(1, `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${p.alpha * 2})`);
+                ctx.fillStyle = grad;
+                ctx.fillRect(p.x - 200, 0, 250, H);
+                if (p.life >= p.maxLife) p.active = false;
+            }
+
+            // -- 2. CANDLESTICKS --
+            for (const c of candles) {
+                c.x += c.vx;
+                c.y += c.vy;
+                c.rot += c.rotV;
+                // Wrap
+                if (c.x < -0.1) { c.x = 1.1; c.y = Math.random(); c.bull = Math.random() > 0.4; }
+                // Fade based on depth (far = dim, close = bright)
+                const targetAlpha = 0.06 + c.depth * 0.4;
+                c.alpha += (targetAlpha - c.alpha) * 0.02;
+
+                const cx = c.x * W, cy = c.y * H;
+                const scale = 0.5 + c.depth * 1.0;
+                const bw = c.bodyW * scale, bh = c.bodyH * scale;
+                const wt = c.wickTop * scale, wb = c.wickBot * scale;
+                const color = c.bull ? [16,185,129] : [239,68,68];
+
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(c.rot);
+                ctx.globalAlpha = c.alpha;
+
+                // Glow for close candles (more intense for depth feel)
+                if (c.depth > 0.5) {
+                    ctx.shadowBlur = 6 + c.depth * 12;
+                    ctx.shadowColor = `rgba(${color[0]},${color[1]},${color[2]},${0.15 + c.depth * 0.25})`;
+                }
+
+                // Wick
+                ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},0.6)`;
+                ctx.lineWidth = 0.5 * scale;
+                ctx.beginPath();
+                ctx.moveTo(0, -bh/2 - wt);
+                ctx.lineTo(0, bh/2 + wb);
+                ctx.stroke();
+
+                // Body
+                ctx.fillStyle = `rgb(${color[0]},${color[1]},${color[2]})`;
+                ctx.fillRect(-bw/2, -bh/2, bw, bh);
+
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+                ctx.restore();
+            }
+
+            // -- 5. NEURAL CONNECTIONS --
+            if (Math.random() < 0.015) {
+                const conn = connections.find(c => !c.active);
+                if (conn) {
+                    conn.a = Math.floor(Math.random() * candles.length);
+                    conn.b = Math.floor(Math.random() * candles.length);
+                    if (conn.a !== conn.b) { conn.active = true; conn.life = 0; }
+                }
+            }
+            for (const conn of connections) {
+                if (!conn.active) continue;
+                conn.life++;
+                const a = candles[conn.a], b = candles[conn.b];
+                const dx = (a.x - b.x) * W, dy = (a.y - b.y) * H;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist > 350) { conn.active = false; continue; }
+                const alpha = (conn.life < 10 ? conn.life / 10 : Math.max(0, 1 - (conn.life - 10) / (conn.maxLife - 10))) * 0.08;
+                ctx.strokeStyle = `rgba(99,130,255,${alpha})`;
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(a.x * W, a.y * H);
+                ctx.lineTo(b.x * W, b.y * H);
+                ctx.stroke();
+                // Pulse dot traveling along connection
+                const prog = conn.life / conn.maxLife;
+                const px = a.x * W + (b.x * W - a.x * W) * prog;
+                const py = a.y * H + (b.y * H - a.y * H) * prog;
+                ctx.fillStyle = `rgba(140,160,255,${alpha * 3})`;
+                ctx.beginPath();
+                ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+                if (conn.life >= conn.maxLife) conn.active = false;
+            }
+
+            // -- 3. DATA RAIN --
+            ctx.font = '10px "JetBrains Mono", monospace';
+            for (const col of columns) {
+                for (const ch of col.chars) {
+                    ch.life++;
+                    ch.y += ch.speed;
+                    // Fade in at top, fade out at bottom
+                    if (ch.y < 0.1) ch.alpha = ch.y / 0.1 * 0.12;
+                    else if (ch.y > 0.85) ch.alpha = (1 - ch.y) / 0.15 * 0.12;
+                    else ch.alpha = 0.12;
+                    // Reset
+                    if (ch.y > 1) {
+                        ch.y = -0.02;
+                        ch.text = genDataText(col.ticker);
+                        ch.life = 0;
+                    }
+                    if (!ch.text) ch.text = genDataText(col.ticker);
+                    // Color: green for positive, red for negative, blue for tickers
+                    let clr = '60,70,100';
+                    if (ch.text.startsWith('+')) clr = '16,185,129';
+                    else if (ch.text.startsWith('-')) clr = '239,68,68';
+                    else if (ch.text === 'LONG' || ch.text === 'BUY') clr = '16,185,129';
+                    else if (ch.text === 'SHORT' || ch.text === 'SELL') clr = '239,68,68';
+                    else if (TICKERS.includes(ch.text)) clr = '80,100,180';
+                    ctx.fillStyle = `rgba(${clr},${ch.alpha})`;
+                    ctx.fillText(ch.text, col.x * W, ch.y * H);
+                }
+            }
+
             requestAnimationFrame(render);
         }
         render();
     })();
-
-    // (old trading background code removed)
 
     // ---- (spotlight removed - mouse glow disabled) ----
 
