@@ -46,6 +46,50 @@
             transition: none;
         }
 
+        /* ---- AURORA NEBULA BLOBS ---- */
+        .aurora-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .aurora-blob {
+            position: absolute; border-radius: 50%;
+            filter: blur(100px); opacity: 0.10;
+            will-change: transform;
+        }
+        .aurora-blob:nth-child(1) {
+            width: 800px; height: 800px; top: -20%; left: -10%;
+            background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+            animation: aur1 28s ease-in-out infinite alternate;
+        }
+        .aurora-blob:nth-child(2) {
+            width: 600px; height: 600px; top: 15%; right: -15%;
+            background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+            animation: aur2 32s ease-in-out infinite alternate;
+        }
+        .aurora-blob:nth-child(3) {
+            width: 700px; height: 700px; bottom: 5%; left: 15%;
+            background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+            animation: aur3 25s ease-in-out infinite alternate;
+        }
+        .aurora-blob:nth-child(4) {
+            width: 500px; height: 500px; top: 50%; right: 5%;
+            background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+            animation: aur4 30s ease-in-out infinite alternate;
+        }
+        .aurora-blob:nth-child(5) {
+            width: 400px; height: 400px; top: 35%; left: 40%;
+            background: radial-gradient(circle, #f59e0b 0%, transparent 70%);
+            animation: aur5 35s ease-in-out infinite alternate;
+            opacity: 0.05;
+        }
+        @keyframes aur1 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,-60px) scale(1.15); } 100% { transform: translate(-40px,40px) scale(0.9); } }
+        @keyframes aur2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-70px,50px) scale(1.1); } 100% { transform: translate(50px,-70px) scale(0.95); } }
+        @keyframes aur3 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(60px,-80px) scale(1.2); } 100% { transform: translate(-50px,30px) scale(0.85); } }
+        @keyframes aur4 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-40px,-50px) scale(1.1); } 100% { transform: translate(70px,60px) scale(0.9); } }
+        @keyframes aur5 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,40px) scale(1.15); } 100% { transform: translate(-60px,-30px) scale(0.85); } }
+
+        /* ---- PARTICLE CANVAS (full page) ---- */
+        #bgCanvas {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+
         /* ---- NOISE GRAIN TEXTURE ---- */
         .grain {
             position: fixed; inset: 0; z-index: 9998; pointer-events: none;
@@ -699,6 +743,16 @@
 </head>
 <body>
     <div class="scroll-progress" id="scrollProg"></div>
+    <!-- Aurora nebula blobs -->
+    <div class="aurora-layer">
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+    </div>
+    <!-- Full-page interactive particle canvas -->
+    <canvas id="bgCanvas"></canvas>
     <div class="grain"></div>
     <div class="cursor-glow" id="cursorGlow"></div>
 
@@ -1003,6 +1057,207 @@
     </footer>
 
     <script>
+    // ---- FULL-PAGE INTERACTIVE PARTICLE SYSTEM ----
+    (function() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        let W, H, particles = [], shootingStars = [], mouseX = -9999, mouseY = -9999;
+        const PARTICLE_COUNT = 220;
+        const CONNECT_DIST = 100;
+        const MOUSE_RADIUS = 180;
+        const MOUSE_FORCE = 0.8;
+
+        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = document.documentElement.scrollHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+        // Re-measure on scroll-triggered layout changes
+        const ro = new ResizeObserver(() => { H = canvas.height = document.documentElement.scrollHeight; });
+        ro.observe(document.body);
+
+        // Track mouse position (page coords)
+        document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY + window.scrollY; });
+
+        // ---- Particle class ----
+        class Particle {
+            constructor() { this.reset(true); }
+            reset(initial) {
+                this.x = Math.random() * W;
+                this.y = initial ? Math.random() * H : -10;
+                this.depth = Math.random(); // 0=far, 1=close
+                this.r = 0.4 + this.depth * 2.2; // size by depth
+                this.baseAlpha = 0.08 + this.depth * 0.28;
+                this.alpha = this.baseAlpha;
+                this.vx = (Math.random() - 0.5) * 0.15;
+                this.vy = -0.05 - Math.random() * 0.2 - this.depth * 0.15; // drift UP (like dust)
+                // Slight horizontal drift
+                this.drift = (Math.random() - 0.5) * 0.02;
+                // Twinkle
+                this.twinkleSpeed = 0.005 + Math.random() * 0.015;
+                this.twinkleOffset = Math.random() * Math.PI * 2;
+                // Color: mix of blue/cyan/purple/white
+                const colors = [
+                    [59,130,246], // blue
+                    [139,92,246], // purple
+                    [6,182,212],  // cyan
+                    [200,210,230], // white-ish
+                    [236,72,153], // pink
+                ];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+            update(t) {
+                // Twinkle
+                this.alpha = this.baseAlpha * (0.6 + 0.4 * Math.sin(t * this.twinkleSpeed + this.twinkleOffset));
+                // Mouse repulsion (screen coords -> page coords)
+                const mxPage = mouseX;
+                const myPage = mouseY;
+                const dx = this.x - mxPage;
+                const dy = this.y - myPage;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < MOUSE_RADIUS && dist > 0) {
+                    const force = (1 - dist / MOUSE_RADIUS) * MOUSE_FORCE;
+                    this.vx += (dx / dist) * force;
+                    this.vy += (dy / dist) * force;
+                }
+                // Apply velocity with damping
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                this.vx += this.drift;
+                this.x += this.vx;
+                this.y += this.vy;
+                // Wrap around
+                if (this.y < -20) { this.y = H + 20; this.x = Math.random() * W; }
+                if (this.y > H + 20) { this.y = -20; }
+                if (this.x < -20) this.x = W + 20;
+                if (this.x > W + 20) this.x = -20;
+            }
+        }
+
+        // ---- Shooting Star class ----
+        class ShootingStar {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * W * 1.2;
+                this.y = Math.random() * H * 0.5;
+                this.len = 60 + Math.random() * 120;
+                this.speed = 8 + Math.random() * 12;
+                this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.3; // ~45 degrees
+                this.alpha = 0;
+                this.maxAlpha = 0.3 + Math.random() * 0.4;
+                this.life = 0;
+                this.maxLife = 40 + Math.random() * 30;
+                this.active = false;
+                this.width = 1 + Math.random() * 1.5;
+            }
+            update() {
+                if (!this.active) return;
+                this.life++;
+                // Fade in then fade out
+                if (this.life < 8) this.alpha = this.maxAlpha * (this.life / 8);
+                else if (this.life > this.maxLife - 10) this.alpha = this.maxAlpha * ((this.maxLife - this.life) / 10);
+                else this.alpha = this.maxAlpha;
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+                if (this.life >= this.maxLife || this.x > W + 200 || this.y > H + 200) {
+                    this.active = false;
+                }
+            }
+        }
+
+        // Init particles
+        for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+        // Init shooting stars pool
+        const STAR_POOL = 5;
+        for (let i = 0; i < STAR_POOL; i++) shootingStars.push(new ShootingStar());
+
+        let frame = 0;
+        function render() {
+            frame++;
+            // Only render the visible viewport portion for performance
+            const scrollY = window.scrollY;
+            const viewTop = scrollY;
+            const viewBottom = scrollY + window.innerHeight;
+
+            ctx.clearRect(0, viewTop - 50, W, window.innerHeight + 100);
+
+            // ---- Draw connections between nearby visible particles ----
+            for (let i = 0; i < particles.length; i++) {
+                const a = particles[i];
+                if (a.y < viewTop - 50 || a.y > viewBottom + 50) continue;
+                for (let j = i + 1; j < particles.length; j++) {
+                    const b = particles[j];
+                    if (b.y < viewTop - 50 || b.y > viewBottom + 50) continue;
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < CONNECT_DIST) {
+                        const alpha = (1 - dist / CONNECT_DIST) * 0.04 * Math.min(a.depth, b.depth);
+                        ctx.strokeStyle = `rgba(100,140,220,${alpha})`;
+                        ctx.lineWidth = 0.4;
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // ---- Draw particles ----
+            for (const p of particles) {
+                p.update(frame);
+                if (p.y < viewTop - 50 || p.y > viewBottom + 50) continue;
+                // Glow effect for closer particles
+                if (p.depth > 0.7) {
+                    ctx.shadowBlur = 8 + p.depth * 6;
+                    ctx.shadowColor = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${p.alpha * 0.5})`;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fillStyle = `rgba(${p.color[0]},${p.color[1]},${p.color[2]},${p.alpha})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+
+            // ---- Shooting stars ----
+            // Spawn occasionally
+            if (Math.random() < 0.004) { // ~every 4 seconds on average
+                const star = shootingStars.find(s => !s.active);
+                if (star) { star.reset(); star.active = true; star.y = viewTop + Math.random() * window.innerHeight * 0.4; }
+            }
+            for (const s of shootingStars) {
+                if (!s.active) continue;
+                s.update();
+                // Draw trail
+                const tailX = s.x - Math.cos(s.angle) * s.len;
+                const tailY = s.y - Math.sin(s.angle) * s.len;
+                const grad = ctx.createLinearGradient(tailX, tailY, s.x, s.y);
+                grad.addColorStop(0, `rgba(180,200,255,0)`);
+                grad.addColorStop(0.7, `rgba(180,200,255,${s.alpha * 0.3})`);
+                grad.addColorStop(1, `rgba(220,240,255,${s.alpha})`);
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = s.width;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(tailX, tailY);
+                ctx.lineTo(s.x, s.y);
+                ctx.stroke();
+                // Bright head
+                ctx.fillStyle = `rgba(255,255,255,${s.alpha * 0.8})`;
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = `rgba(180,200,255,${s.alpha})`;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.width * 0.8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            requestAnimationFrame(render);
+        }
+        render();
+    })();
+
     // ---- CURSOR SPOTLIGHT (follows mouse globally) ----
     const glow = document.getElementById('cursorGlow');
     let mx = 0, my = 0, gx = 0, gy = 0;
