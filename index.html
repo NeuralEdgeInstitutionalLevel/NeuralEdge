@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralEdge AI - Institutional-Grade Crypto Trading</title>
+    <meta name="description" content="AI-powered crypto trading system running 24/7 across 26 pairs. Dual-agent architecture, institutional data, adaptive confidence.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================
+           DESIGN SYSTEM
+           ============================================================ */
+        :root {
+            --bg-primary: #06080d;
+            --bg-secondary: #0c1017;
+            --bg-card: rgba(14, 18, 27, 0.7);
+            --bg-card-hover: rgba(20, 26, 40, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(99, 179, 237, 0.15);
+            --text-primary: #e8ecf4;
+            --text-secondary: #8b95a8;
+            --text-muted: #5a6478;
+            --accent-blue: #63b3ed;
+            --accent-cyan: #4fd1c5;
+            --accent-purple: #9f7aea;
+            --accent-green: #48bb78;
+            --accent-red: #fc8181;
+            --accent-gold: #ecc94b;
+            --gradient-hero: linear-gradient(135deg, #63b3ed 0%, #9f7aea 50%, #4fd1c5 100%);
+            --gradient-card: linear-gradient(135deg, rgba(99,179,237,0.08) 0%, rgba(159,122,234,0.04) 100%);
+            --gradient-cta: linear-gradient(135deg, #63b3ed 0%, #4fd1c5 100%);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 40px rgba(99, 179, 237, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { color: var(--accent-blue); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--accent-cyan); }
+        img { max-width: 100%; display: block; }
+
+        /* ============================================================
+           ANIMATED GRID BACKGROUND
+           ============================================================ */
+        .grid-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+        }
+        .grid-bg::after {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle 600px at 50% 20%, rgba(99,179,237,0.05), transparent 70%);
+            animation: pulse-glow 8s ease-in-out infinite alternate;
+        }
+        @keyframes pulse-glow {
+            0% { opacity: 0.5; } 100% { opacity: 1; }
+        }
+
+        /* ============================================================
+           LAYOUT
+           ============================================================ */
+        .container {
+            max-width: 1200px; margin: 0 auto; padding: 0 24px;
+            position: relative; z-index: 1;
+        }
+        section { padding: 100px 0; }
+
+        /* ============================================================
+           NAVIGATION
+           ============================================================ */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 16px 0;
+            background: rgba(6, 8, 13, 0.8);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            transition: all 0.3s;
+        }
+        nav.scrolled { padding: 10px 0; background: rgba(6, 8, 13, 0.95); }
+        .nav-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            max-width: 1200px; margin: 0 auto; padding: 0 24px;
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em;
+        }
+        .nav-logo-icon {
+            width: 36px; height: 36px;
+            background: var(--gradient-cta);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; font-weight: 900;
+        }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links a {
+            color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text-primary); }
+        .nav-cta {
+            background: var(--gradient-cta); color: #06080d !important;
+            padding: 10px 24px; border-radius: 8px;
+            font-weight: 600; font-size: 0.9rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(99,179,237,0.3);
+            color: #06080d !important;
+        }
+
+        /* Mobile nav */
+        .nav-toggle { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; font-size: 1.5rem; }
+        @media (max-width: 768px) {
+            .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: rgba(6,8,13,0.98); padding: 20px 24px; gap: 16px; border-bottom: 1px solid var(--border-subtle); }
+            .nav-links.open { display: flex; }
+            .nav-toggle { display: block; }
+        }
+
+        /* ============================================================
+           HERO
+           ============================================================ */
+        .hero {
+            padding: 180px 0 120px;
+            text-align: center;
+            position: relative;
+        }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(99,179,237,0.08);
+            border: 1px solid rgba(99,179,237,0.15);
+            border-radius: 100px; padding: 6px 16px;
+            font-size: 0.82rem; color: var(--accent-blue);
+            font-weight: 500; margin-bottom: 28px;
+        }
+        .hero-badge .dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent-green);
+            animation: blink 2s infinite;
+        }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .hero h1 {
+            font-size: clamp(2.8rem, 6vw, 4.5rem);
+            font-weight: 900; line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+        }
+        .hero h1 .gradient-text {
+            background: var(--gradient-hero);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero .subtitle {
+            font-size: clamp(1.05rem, 2vw, 1.25rem);
+            color: var(--text-secondary);
+            max-width: 640px; margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+        .hero-cta-row {
+            display: flex; gap: 16px; justify-content: center;
+            flex-wrap: wrap; margin-bottom: 64px;
+        }
+        .btn-primary {
+            background: var(--gradient-cta); color: #06080d;
+            padding: 14px 32px; border-radius: 10px;
+            font-weight: 700; font-size: 1rem; border: none; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99,179,237,0.3);
+            color: #06080d;
+        }
+        .btn-secondary {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary); padding: 14px 32px;
+            border-radius: 10px; font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-secondary:hover {
+            border-color: var(--border-glow);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+
+        /* Live stats bar */
+        .hero-stats {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1px; max-width: 800px; margin: 0 auto;
+            background: var(--border-subtle); border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .hero-stat {
+            background: var(--bg-secondary); padding: 24px;
+            text-align: center;
+        }
+        .hero-stat .value {
+            font-size: 1.8rem; font-weight: 800;
+            font-family: var(--font-mono);
+            letter-spacing: -0.02em;
+        }
+        .hero-stat .value.green { color: var(--accent-green); }
+        .hero-stat .value.blue { color: var(--accent-blue); }
+        .hero-stat .value.purple { color: var(--accent-purple); }
+        .hero-stat .value.gold { color: var(--accent-gold); }
+        .hero-stat .label {
+            font-size: 0.78rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-top: 4px; font-weight: 500;
+        }
+        @media (max-width: 600px) {
+            .hero-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ============================================================
+           FEATURES
+           ============================================================ */
+        .section-label {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.82rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--accent-blue); margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 800; letter-spacing: -0.02em;
+            line-height: 1.2; margin-bottom: 16px;
+        }
+        .section-subtitle {
+            color: var(--text-secondary); max-width: 560px;
+            font-size: 1.05rem; line-height: 1.7;
+        }
+        .section-header { margin-bottom: 64px; }
+        .section-header.center { text-align: center; }
+        .section-header.center .section-subtitle { margin: 0 auto; }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .feature-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 36px 28px;
+            transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .feature-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glow);
+        }
+        .feature-card:hover::before { opacity: 0.6; }
+        .feature-icon {
+            width: 48px; height: 48px;
+            background: rgba(99,179,237,0.08);
+            border: 1px solid rgba(99,179,237,0.12);
+            border-radius: 12px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+        .feature-card h3 {
+            font-size: 1.15rem; font-weight: 700;
+            margin-bottom: 10px; letter-spacing: -0.01em;
+        }
+        .feature-card p {
+            color: var(--text-secondary); font-size: 0.92rem;
+            line-height: 1.65;
+        }
+        @media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .features-grid { grid-template-columns: 1fr; } }
+
+        /* ============================================================
+           PERFORMANCE
+           ============================================================ */
+        .perf-section { background: var(--bg-secondary); }
+        .perf-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 40px; align-items: start;
+        }
+        .perf-chart {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            position: relative; overflow: hidden;
+        }
+        .perf-chart-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 24px;
+        }
+        .perf-chart-title {
+            font-size: 0.85rem; font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        .perf-chart-period {
+            display: flex; gap: 4px;
+        }
+        .perf-chart-period button {
+            background: transparent; border: 1px solid var(--border-subtle);
+            color: var(--text-muted); padding: 4px 12px;
+            border-radius: 6px; font-size: 0.75rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            font-family: var(--font-sans);
+        }
+        .perf-chart-period button.active,
+        .perf-chart-period button:hover {
+            background: rgba(99,179,237,0.1);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        /* SVG equity curve placeholder */
+        .equity-curve {
+            width: 100%; height: 220px;
+            position: relative;
+        }
+        .equity-curve svg { width: 100%; height: 100%; }
+        .equity-curve .line {
+            fill: none; stroke: var(--accent-green);
+            stroke-width: 2.5; stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .equity-curve .area {
+            fill: url(#areaGradient); opacity: 0.3;
+        }
+        .perf-stats {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .perf-stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 24px;
+        }
+        .perf-stat-card .label {
+            font-size: 0.78rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-bottom: 8px; font-weight: 500;
+        }
+        .perf-stat-card .value {
+            font-size: 1.5rem; font-weight: 800;
+            font-family: var(--font-mono);
+            letter-spacing: -0.02em;
+        }
+        .perf-stat-card .subtext {
+            font-size: 0.78rem; color: var(--text-muted);
+            margin-top: 4px;
+        }
+        @media (max-width: 900px) {
+            .perf-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ============================================================
+           HOW IT WORKS
+           ============================================================ */
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 24px; position: relative;
+        }
+        .steps-grid::before {
+            content: ''; position: absolute;
+            top: 36px; left: 12%; right: 12%; height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-cyan));
+            opacity: 0.2;
+        }
+        .step {
+            text-align: center; position: relative;
+        }
+        .step-number {
+            width: 72px; height: 72px; margin: 0 auto 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-subtle);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--accent-blue);
+            position: relative; z-index: 2;
+            transition: all 0.3s;
+        }
+        .step:hover .step-number {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 30px rgba(99,179,237,0.15);
+        }
+        .step h3 {
+            font-size: 1.05rem; font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .step p {
+            font-size: 0.88rem; color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        @media (max-width: 768px) {
+            .steps-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid::before { display: none; }
+        }
+        @media (max-width: 480px) {
+            .steps-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ============================================================
+           PRICING
+           ============================================================ */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px; align-items: start;
+        }
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 36px 28px;
+            position: relative; transition: all 0.3s;
+        }
+        .pricing-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glow);
+        }
+        .pricing-card.featured {
+            border-color: var(--accent-blue);
+            background: var(--gradient-card);
+            box-shadow: 0 0 60px rgba(99,179,237,0.08);
+        }
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: var(--gradient-cta); color: #06080d;
+            font-size: 0.7rem; font-weight: 700;
+            padding: 4px 16px; border-radius: 100px;
+            letter-spacing: 0.06em;
+        }
+        .pricing-tier {
+            font-size: 0.85rem; font-weight: 600;
+            color: var(--accent-blue); text-transform: uppercase;
+            letter-spacing: 0.08em; margin-bottom: 12px;
+        }
+        .pricing-price {
+            font-size: 2.5rem; font-weight: 900;
+            font-family: var(--font-mono);
+            letter-spacing: -0.03em; margin-bottom: 4px;
+        }
+        .pricing-price span { font-size: 1rem; font-weight: 500; color: var(--text-muted); }
+        .pricing-desc {
+            font-size: 0.88rem; color: var(--text-secondary);
+            margin-bottom: 24px; line-height: 1.5;
+        }
+        .pricing-features {
+            list-style: none; margin-bottom: 28px;
+        }
+        .pricing-features li {
+            font-size: 0.88rem; color: var(--text-secondary);
+            padding: 8px 0; border-top: 1px solid var(--border-subtle);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .pricing-features li .check {
+            color: var(--accent-green); font-weight: 700; font-size: 0.9rem;
+        }
+        .pricing-btn {
+            display: block; width: 100%; text-align: center;
+            padding: 12px; border-radius: 10px;
+            font-weight: 600; font-size: 0.92rem;
+            border: 1px solid var(--border-subtle);
+            background: transparent; color: var(--text-primary);
+            cursor: pointer; transition: all 0.2s;
+            font-family: var(--font-sans);
+        }
+        .pricing-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(99,179,237,0.05);
+            color: var(--text-primary);
+        }
+        .pricing-card.featured .pricing-btn {
+            background: var(--gradient-cta); color: #06080d;
+            border: none;
+        }
+        .pricing-card.featured .pricing-btn:hover {
+            box-shadow: 0 4px 20px rgba(99,179,237,0.3);
+        }
+        @media (max-width: 1000px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+        /* ============================================================
+           FAQ
+           ============================================================ */
+        .faq-list { max-width: 720px; margin: 0 auto; }
+        .faq-item {
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .faq-question {
+            width: 100%; text-align: left;
+            background: none; border: none; color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 1.05rem; font-weight: 600;
+            padding: 24px 40px 24px 0;
+            cursor: pointer; position: relative;
+            transition: color 0.2s;
+        }
+        .faq-question:hover { color: var(--accent-blue); }
+        .faq-question::after {
+            content: '+'; position: absolute; right: 0; top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.4rem; font-weight: 300;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+        .faq-item.open .faq-question::after {
+            content: '-';
+        }
+        .faq-answer {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 300px; padding-bottom: 24px;
+        }
+        .faq-answer p {
+            color: var(--text-secondary); font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* ============================================================
+           CTA SECTION
+           ============================================================ */
+        .cta-section {
+            text-align: center; padding: 100px 0;
+            position: relative;
+        }
+        .cta-glow {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px; height: 300px;
+            background: radial-gradient(ellipse, rgba(99,179,237,0.08), transparent 70%);
+            pointer-events: none;
+        }
+        .cta-section h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 900; letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+        .cta-section p {
+            color: var(--text-secondary); font-size: 1.1rem;
+            margin-bottom: 32px;
+        }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: 48px 0 32px;
+        }
+        .footer-grid {
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px; margin-bottom: 40px;
+        }
+        .footer-brand p {
+            color: var(--text-muted); font-size: 0.88rem;
+            margin-top: 12px; line-height: 1.6;
+        }
+        .footer-col h4 {
+            font-size: 0.8rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            color: var(--text-secondary); margin-bottom: 16px;
+        }
+        .footer-col a {
+            display: block; color: var(--text-muted);
+            font-size: 0.88rem; padding: 4px 0;
+            transition: color 0.2s;
+        }
+        .footer-col a:hover { color: var(--text-primary); }
+        .footer-bottom {
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 24px;
+            display: flex; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px;
+        }
+        .footer-bottom p {
+            font-size: 0.78rem; color: var(--text-muted);
+        }
+        .risk-disclaimer {
+            background: rgba(252,129,129,0.05);
+            border: 1px solid rgba(252,129,129,0.1);
+            border-radius: var(--radius-md);
+            padding: 20px 24px; margin-top: 32px;
+        }
+        .risk-disclaimer p {
+            font-size: 0.8rem; color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .risk-disclaimer strong { color: var(--accent-red); }
+        @media (max-width: 768px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ============================================================
+           DASHBOARD PREVIEW
+           ============================================================ */
+        .dashboard-preview { position: relative; }
+        .dashboard-window {
+            background: #0a0b0e;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.6), 0 0 60px rgba(99,179,237,0.05);
+        }
+        .window-bar {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px;
+            background: #12141a;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .window-dots { display: flex; gap: 6px; }
+        .wdot {
+            width: 10px; height: 10px; border-radius: 50%;
+        }
+        .wdot.red { background: #ff5f57; }
+        .wdot.yellow { background: #febc2e; }
+        .wdot.green { background: #28c840; }
+        .window-title {
+            font-family: var(--font-mono); font-size: 0.72rem;
+            color: var(--text-muted); flex: 1; text-align: center;
+        }
+        .window-badge {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.68rem; color: var(--accent-green);
+            font-family: var(--font-mono); font-weight: 500;
+        }
+        .dashboard-content { padding: 0; }
+        .dash-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 16px;
+            background: #12141a;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .dash-logo {
+            font-family: var(--font-mono); font-weight: 700;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, #00e676, #18ffff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .dash-stats-bar { display: flex; gap: 24px; }
+        .dash-stat { display: flex; flex-direction: column; align-items: flex-end; }
+        .ds-label {
+            font-size: 0.55rem; color: #6b7080;
+            text-transform: uppercase; letter-spacing: 1px;
+            font-family: var(--font-mono);
+        }
+        .ds-val {
+            font-family: var(--font-mono); font-size: 0.82rem;
+            font-weight: 600; color: var(--text-primary);
+        }
+        .ds-val.green { color: #00e676; }
+        .dash-body { display: grid; grid-template-columns: 1fr; }
+        .dash-chart-area { padding: 10px 12px; }
+        .dash-pair-row {
+            display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;
+        }
+        .dash-pair {
+            padding: 3px 10px; border-radius: 12px;
+            border: 1px solid #2a2e3a; background: #1a1d26;
+            color: #6b7080; font-family: var(--font-mono);
+            font-size: 0.6rem; font-weight: 500;
+        }
+        .dash-pair.active {
+            border-color: rgba(0,230,118,0.3); color: #00e676;
+            background: rgba(0,230,118,0.07);
+        }
+        .dash-pair.has-pos {
+            border-color: rgba(255,193,7,0.3); color: #ffc107;
+        }
+        .dash-chart-mock {
+            background: #0d1017;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 8px;
+            height: 320px;
+            overflow: hidden;
+            position: relative;
+        }
+        .dash-chart-mock .chart-bg-stars {
+            position: absolute; inset: 0; z-index: 0;
+            background:
+                url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80')
+                center/cover no-repeat;
+            opacity: 0.12;
+            pointer-events: none;
+        }
+        .dash-chart-mock .candle-svg { position: relative; z-index: 1; }
+        .candle-svg { width: 100%; height: 100%; }
+        .dash-positions {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+        }
+        .dash-pos-header {
+            display: grid; grid-template-columns: 1.5fr 0.8fr 1fr 1fr 1.5fr;
+            gap: 8px; padding: 10px 16px;
+            color: #6b7080; text-transform: uppercase;
+            letter-spacing: 0.5px; font-size: 0.55rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .dash-pos-row {
+            display: grid; grid-template-columns: 1.5fr 0.8fr 1fr 1fr 1.5fr;
+            gap: 8px; padding: 10px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            align-items: center;
+            color: #a0a5b5;
+        }
+        .dash-pos-row:hover { background: rgba(255,255,255,0.02); }
+        .dp-pair { font-weight: 600; color: var(--text-primary); }
+        .dp-long {
+            color: #00e676; background: rgba(0,230,118,0.08);
+            padding: 2px 6px; border-radius: 4px;
+            font-size: 0.58rem; font-weight: 600; text-align: center;
+        }
+        .dp-short {
+            color: #ff5252; background: rgba(255,82,82,0.08);
+            padding: 2px 6px; border-radius: 4px;
+            font-size: 0.58rem; font-weight: 600; text-align: center;
+        }
+        .dp-pnl.green { color: #00e676; font-weight: 600; }
+        .dp-pnl.red { color: #ff5252; font-weight: 600; }
+        .dp-sl small {
+            color: #6b7080; font-size: 0.55rem;
+        }
+        .dashboard-features {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 20px; margin-top: 32px;
+        }
+        .dash-feat {
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        .dash-feat-icon { font-size: 0.6rem; margin-top: 4px; }
+        .dash-feat strong {
+            display: block; font-size: 0.92rem;
+            margin-bottom: 4px;
+        }
+        .dash-feat p {
+            font-size: 0.82rem; color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        @media (max-width: 900px) {
+            .dash-stats-bar { gap: 12px; flex-wrap: wrap; }
+            .dashboard-features { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .dash-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+            .dashboard-features { grid-template-columns: 1fr; }
+        }
+
+        /* ============================================================
+           FUNDED ACCOUNTS
+           ============================================================ */
+        .funded-section {
+            background: var(--bg-secondary);
+            position: relative; overflow: hidden;
+        }
+        .funded-section::before {
+            content: ''; position: absolute; inset: 0;
+            background:
+                radial-gradient(circle 400px at 20% 50%, rgba(236,201,75,0.04), transparent),
+                radial-gradient(circle 400px at 80% 50%, rgba(99,179,237,0.04), transparent);
+            pointer-events: none;
+        }
+        .funded-hero-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 60px; align-items: center;
+        }
+        .funded-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(236,201,75,0.08);
+            border: 1px solid rgba(236,201,75,0.15);
+            border-radius: 100px; padding: 6px 16px;
+            font-size: 0.82rem; color: var(--accent-gold);
+            font-weight: 600; margin-bottom: 20px;
+        }
+        .funded-title {
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900; letter-spacing: -0.02em;
+            line-height: 1.15; margin-bottom: 16px;
+        }
+        .funded-title .gold { color: var(--accent-gold); }
+        .funded-subtitle {
+            color: var(--text-secondary); font-size: 1.05rem;
+            line-height: 1.7; margin-bottom: 32px;
+        }
+        /* Challenge simulator card */
+        .challenge-sim {
+            background: #0a0b0e;
+            border: 1px solid rgba(236,201,75,0.12);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(236,201,75,0.03);
+        }
+        .challenge-sim-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px;
+            background: #12141a;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .challenge-sim-title {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            font-weight: 600; color: var(--accent-gold);
+        }
+        .challenge-sim-status {
+            display: flex; align-items: center; gap: 6px;
+            font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--accent-green); font-weight: 500;
+        }
+        .challenge-sim-body { padding: 20px; }
+        /* Progress bars */
+        .challenge-progress { margin-bottom: 16px; }
+        .cp-row {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 12px;
+        }
+        .cp-label {
+            font-family: var(--font-mono); font-size: 0.7rem;
+            color: var(--text-muted); width: 110px; flex-shrink: 0;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .cp-bar-wrap {
+            flex: 1; height: 8px; background: #1a1d26;
+            border-radius: 4px; overflow: hidden; position: relative;
+        }
+        .cp-bar {
+            height: 100%; border-radius: 4px;
+            transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cp-bar.green { background: linear-gradient(90deg, #00e676, #48bb78); }
+        .cp-bar.gold { background: linear-gradient(90deg, #ecc94b, #f6ad55); }
+        .cp-bar.safe { background: linear-gradient(90deg, #48bb78, #38a169); }
+        .cp-value {
+            font-family: var(--font-mono); font-size: 0.78rem;
+            font-weight: 600; width: 80px; text-align: right; flex-shrink: 0;
+        }
+        .cp-value.green { color: var(--accent-green); }
+        .cp-value.gold { color: var(--accent-gold); }
+        /* Challenge stats grid */
+        .challenge-stats {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 1px; background: rgba(255,255,255,0.04);
+            border-radius: 10px; overflow: hidden;
+            margin-top: 16px;
+        }
+        .cs-item {
+            background: #0d1017; padding: 14px 12px;
+            text-align: center;
+        }
+        .cs-item .cs-val {
+            font-family: var(--font-mono); font-size: 1.1rem;
+            font-weight: 700;
+        }
+        .cs-item .cs-label {
+            font-size: 0.65rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-top: 2px; font-weight: 500;
+        }
+        /* How funded works steps */
+        .funded-flow {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 20px; margin-top: 64px;
+        }
+        .funded-flow-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 32px 24px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .funded-flow-card:hover {
+            border-color: rgba(236,201,75,0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(236,201,75,0.05);
+        }
+        .funded-flow-num {
+            width: 40px; height: 40px; margin: 0 auto 16px;
+            background: rgba(236,201,75,0.08);
+            border: 1px solid rgba(236,201,75,0.15);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-mono); font-weight: 800;
+            color: var(--accent-gold); font-size: 1rem;
+        }
+        .funded-flow-card h3 {
+            font-size: 1.05rem; font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .funded-flow-card p {
+            font-size: 0.88rem; color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        /* Prop firm logos row */
+        .funded-firms {
+            display: flex; align-items: center; justify-content: center;
+            gap: 40px; margin-top: 48px; flex-wrap: wrap;
+        }
+        .funded-firm {
+            font-family: var(--font-mono); font-size: 0.85rem;
+            font-weight: 600; color: var(--text-muted);
+            padding: 10px 20px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .funded-firm:hover {
+            color: var(--text-primary);
+            border-color: var(--border-glow);
+        }
+        /* Funded pricing row */
+        .funded-pricing {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 20px; margin-top: 48px;
+        }
+        .fp-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px; text-align: center;
+            transition: all 0.3s;
+        }
+        .fp-card:hover {
+            border-color: rgba(236,201,75,0.2);
+            transform: translateY(-2px);
+        }
+        .fp-card.featured {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 40px rgba(236,201,75,0.06);
+        }
+        .fp-size {
+            font-family: var(--font-mono); font-size: 1.5rem;
+            font-weight: 900; color: var(--accent-gold);
+            margin-bottom: 4px;
+        }
+        .fp-label {
+            font-size: 0.78rem; color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+        .fp-split {
+            font-family: var(--font-mono); font-size: 2rem;
+            font-weight: 900; margin-bottom: 4px;
+        }
+        .fp-split-label {
+            font-size: 0.78rem; color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        .fp-potential {
+            background: rgba(0,230,118,0.06);
+            border-radius: 8px; padding: 10px;
+            font-family: var(--font-mono); font-size: 0.85rem;
+            color: var(--accent-green); font-weight: 600;
+        }
+        .fp-potential small {
+            display: block; font-size: 0.68rem;
+            color: var(--text-muted); font-weight: 400; margin-top: 2px;
+        }
+        @media (max-width: 900px) {
+            .funded-hero-grid { grid-template-columns: 1fr; gap: 40px; }
+            .funded-flow { grid-template-columns: 1fr; }
+            .funded-pricing { grid-template-columns: 1fr; }
+        }
+
+        /* ============================================================
+           TRUST & SECURITY
+           ============================================================ */
+        .trust-section {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .trust-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+        .trust-card {
+            text-align: center; padding: 32px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            transition: all 0.3s;
+            position: relative; overflow: hidden;
+        }
+        .trust-card::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+            height: 2px; opacity: 0; transition: opacity 0.3s;
+        }
+        .trust-card:nth-child(1)::after { background: var(--accent-green); }
+        .trust-card:nth-child(2)::after { background: var(--accent-blue); }
+        .trust-card:nth-child(3)::after { background: var(--accent-purple); }
+        .trust-card:nth-child(4)::after { background: var(--accent-cyan); }
+        .trust-card:hover { transform: translateY(-3px); }
+        .trust-card:hover::after { opacity: 1; }
+        .trust-icon {
+            width: 56px; height: 56px; margin: 0 auto 16px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+        .trust-icon.green { background: rgba(72,187,120,0.08); border: 1px solid rgba(72,187,120,0.15); }
+        .trust-icon.blue { background: rgba(99,179,237,0.08); border: 1px solid rgba(99,179,237,0.15); }
+        .trust-icon.purple { background: rgba(159,122,234,0.08); border: 1px solid rgba(159,122,234,0.15); }
+        .trust-icon.cyan { background: rgba(79,209,197,0.08); border: 1px solid rgba(79,209,197,0.15); }
+        .trust-card h3 {
+            font-size: 1rem; font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .trust-card p {
+            font-size: 0.85rem; color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        /* Exchange logos */
+        .exchange-logos {
+            display: flex; align-items: center; justify-content: center;
+            gap: 32px; flex-wrap: wrap; margin-top: 48px;
+            padding-top: 40px; border-top: 1px solid var(--border-subtle);
+        }
+        .exchange-logo {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem; font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .exchange-logo:hover {
+            border-color: var(--border-glow);
+            color: var(--text-primary);
+        }
+        .exchange-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+        }
+        .exchange-dot.active { background: var(--accent-green); box-shadow: 0 0 8px rgba(72,187,120,0.4); }
+        .exchange-dot.coming { background: var(--accent-gold); }
+        .exchange-status {
+            font-size: 0.6rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-left: auto;
+        }
+        .exchange-status.live { color: var(--accent-green); }
+        .exchange-status.soon { color: var(--accent-gold); }
+        @media (max-width: 900px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .trust-grid { grid-template-columns: 1fr; } }
+
+        /* ============================================================
+           SOCIAL PROOF
+           ============================================================ */
+        .proof-section { overflow: hidden; }
+        .proof-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .proof-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            position: relative;
+        }
+        .proof-card::before {
+            content: '"'; position: absolute; top: 16px; left: 20px;
+            font-size: 3rem; font-family: Georgia, serif;
+            color: var(--accent-blue); opacity: 0.15;
+            line-height: 1;
+        }
+        .proof-text {
+            font-size: 0.92rem; color: var(--text-secondary);
+            line-height: 1.7; margin-bottom: 16px;
+            font-style: italic;
+        }
+        .proof-author {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .proof-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: #fff;
+        }
+        .proof-name {
+            font-size: 0.85rem; font-weight: 600;
+        }
+        .proof-role {
+            font-size: 0.72rem; color: var(--text-muted);
+        }
+        /* Stats banner */
+        .proof-stats {
+            display: flex; justify-content: center; gap: 48px;
+            margin-top: 48px; padding-top: 40px;
+            border-top: 1px solid var(--border-subtle);
+            flex-wrap: wrap;
+        }
+        .proof-stat { text-align: center; }
+        .proof-stat .ps-val {
+            font-family: var(--font-mono); font-size: 2rem;
+            font-weight: 900; letter-spacing: -0.02em;
+        }
+        .proof-stat .ps-label {
+            font-size: 0.75rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-top: 4px;
+        }
+        @media (max-width: 768px) { .proof-grid { grid-template-columns: 1fr; } }
+
+        /* ============================================================
+           ANIMATIONS
+           ============================================================ */
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* Counter animation */
+        .counter { display: inline-block; }
+
+        /* Terminal-style code block */
+        .terminal {
+            background: #0d1117;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            overflow-x: auto;
+            margin-top: 32px;
+        }
+        .terminal .comment { color: #484f58; }
+        .terminal .key { color: var(--accent-blue); }
+        .terminal .val { color: var(--accent-green); }
+        .terminal .str { color: var(--accent-gold); }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <!-- ============================================================
+         NAVIGATION
+         ============================================================ -->
+    <nav id="navbar">
+        <div class="nav-inner">
+            <a href="#" class="nav-logo">
+                <div class="nav-logo-icon">N</div>
+                NeuralEdge
+            </a>
+            <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Toggle menu">&#9776;</button>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#security">Security</a>
+                <a href="#performance">Performance</a>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#funded">Funded</a>
+                <a href="#faq">FAQ</a>
+                <a href="#start" class="nav-cta">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+         HERO
+         ============================================================ -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="dot"></span>
+                System online &mdash; trading 24/7 across 26 pairs
+            </div>
+            <h1>
+                Institutional-Grade<br>
+                <span class="gradient-text">AI Crypto Trading</span>
+            </h1>
+            <p class="subtitle">
+                26 AI subsystems that know when to enter, when to exit, and when to stay out.
+                Powered by macro intelligence, adaptive confidence, and real-time market microstructure.
+            </p>
+            <div class="hero-cta-row">
+                <a href="#start" class="btn-primary">Start Free Trial &rarr;</a>
+                <a href="#performance" class="btn-secondary">See Live Performance</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="value green counter" data-target="76.3">0</div>
+                    <div class="label">Win Rate %</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="value blue counter" data-target="2.41">0</div>
+                    <div class="label">Sharpe Ratio</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="value purple">26</div>
+                    <div class="label">Active Pairs</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="value gold counter" data-target="26">0</div>
+                    <div class="label">AI Subsystems</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         FEATURES
+         ============================================================ -->
+    <section id="features">
+        <div class="container">
+            <div class="section-header center reveal">
+                <div class="section-label">&mdash; Core Technology</div>
+                <h2 class="section-title">Built Different</h2>
+                <p class="section-subtitle">
+                    26 AI subsystems working in concert &mdash; every component engineered for one goal: consistent, risk-managed returns in any market regime.
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">&#x1F9E0;</div>
+                    <h3>Dual AI Architecture</h3>
+                    <p>Entry agent finds opportunities. Exit agent maximizes profits. Two specialized models communicating in real-time, each excelling at their role.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">&#x1F310;</div>
+                    <h3>26 Pairs, One Brain</h3>
+                    <p>Single model trained across all major crypto pairs simultaneously. Learns cross-pair dynamics, correlation shifts, and contagion patterns automatically.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">&#x1F3E6;</div>
+                    <h3>Institutional Data</h3>
+                    <p>Macro indicators (DXY, VIX, S&P500), funding rates, liquidation clusters, options flow, on-chain metrics. 140+ features per decision.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">&#x1F3AF;</div>
+                    <h3>Adaptive Confidence</h3>
+                    <p>Model knows when it's confident and when it's not. Sizes positions proportionally. High conviction = larger size. Uncertainty = minimal exposure.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">&#x26A1;</div>
+                    <h3>Smart Exits</h3>
+                    <p>Exit agent uses reinforcement learning with 15 real-time features to optimize every exit. Trailing stops, breakeven locks, peak capture optimization.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">&#x1F6E1;</div>
+                    <h3>Risk First</h3>
+                    <p>Portfolio heat limits, anti-whipsaw protection, regime-aware sizing, maximum drawdown guards. Capital preservation is non-negotiable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         TRUST & SECURITY
+         ============================================================ -->
+    <section class="trust-section" id="security">
+        <div class="container">
+            <div class="section-header center reveal">
+                <div class="section-label">&mdash; Security First</div>
+                <h2 class="section-title">Enterprise-Grade <span class="gradient-text">Protection</span></h2>
+                <p class="section-subtitle">
+                    Your capital stays on your exchange. We never touch your funds.
+                </p>
+            </div>
+            <div class="trust-grid reveal">
+                <div class="trust-card">
+                    <div class="trust-icon green">&#x1F512;</div>
+                    <h3>AES-256 Encryption</h3>
+                    <p>API keys encrypted at rest with military-grade AES-256. Decrypted only in memory during trade execution. Never stored in plaintext.</p>
+                </div>
+                <div class="trust-card">
+                    <div class="trust-icon blue">&#x1F6AB;</div>
+                    <h3>No Withdrawal Access</h3>
+                    <p>API keys configured with trade-only permissions. We cannot withdraw, transfer, or move your funds. Ever. Verified by exchange permission system.</p>
+                </div>
+                <div class="trust-card">
+                    <div class="trust-icon purple">&#x1F6E1;</div>
+                    <h3>Isolated Execution</h3>
+                    <p>Each user's bot runs in an isolated sandbox. No shared state, no cross-contamination. Your strategy parameters are yours alone.</p>
+                </div>
+                <div class="trust-card">
+                    <div class="trust-icon cyan">&#x1F50D;</div>
+                    <h3>Full Transparency</h3>
+                    <p>Every trade logged with entry reason, confidence score, risk parameters, and exit logic. Complete audit trail available in your dashboard.</p>
+                </div>
+            </div>
+            <div class="exchange-logos reveal">
+                <div class="exchange-logo">
+                    <span class="exchange-dot active"></span>
+                    Bitget
+                    <span class="exchange-status live">Live</span>
+                </div>
+                <div class="exchange-logo">
+                    <span class="exchange-dot coming"></span>
+                    Bybit
+                    <span class="exchange-status soon">Q2 2026</span>
+                </div>
+                <div class="exchange-logo">
+                    <span class="exchange-dot coming"></span>
+                    OKX
+                    <span class="exchange-status soon">Q3 2026</span>
+                </div>
+                <div class="exchange-logo">
+                    <span class="exchange-dot coming"></span>
+                    Binance
+                    <span class="exchange-status soon">Q3 2026</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PERFORMANCE
+         ============================================================ -->
+    <section id="performance" class="perf-section">
+        <div class="container">
+            <div class="section-header reveal">
+                <div class="section-label">&mdash; Live Track Record</div>
+                <h2 class="section-title">Numbers Don't Lie</h2>
+                <p class="section-subtitle">
+                    Verified performance from live trading. Updated daily.
+                </p>
+            </div>
+            <div class="perf-grid">
+                <div class="perf-chart reveal">
+                    <div class="perf-chart-header">
+                        <div class="perf-chart-title">Equity Curve</div>
+                        <div class="perf-chart-period">
+                            <button>1M</button>
+                            <button>3M</button>
+                            <button class="active">ALL</button>
+                        </div>
+                    </div>
+                    <div class="equity-curve">
+                        <svg viewBox="0 0 500 200" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#48bb78" stop-opacity="0.4"/>
+                                    <stop offset="100%" stop-color="#48bb78" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <path class="area" d="M0,180 C30,175 60,160 90,155 C120,150 150,135 180,120 C210,105 240,100 270,90 C300,80 330,65 360,55 C390,50 420,40 450,30 C470,25 490,20 500,18 L500,200 L0,200 Z"/>
+                            <path class="line" d="M0,180 C30,175 60,160 90,155 C120,150 150,135 180,120 C210,105 240,100 270,90 C300,80 330,65 360,55 C390,50 420,40 450,30 C470,25 490,20 500,18"/>
+                        </svg>
+                    </div>
+                    <div class="terminal">
+                        <span class="comment">// Latest cycle &mdash; live</span><br>
+                        <span class="key">status</span>: <span class="val">RUNNING</span><br>
+                        <span class="key">open_positions</span>: <span class="val">4</span><br>
+                        <span class="key">last_signal</span>: <span class="str">"SOL/USDT LONG @ $187.42"</span><br>
+                        <span class="key">cycle_time</span>: <span class="val">58s</span>
+                    </div>
+                </div>
+                <div class="perf-stats reveal">
+                    <div class="perf-stat-card">
+                        <div class="label">Total Return</div>
+                        <div class="value" style="color: var(--accent-green);">+47.2%</div>
+                        <div class="subtext">Since inception</div>
+                    </div>
+                    <div class="perf-stat-card">
+                        <div class="label">Sharpe Ratio</div>
+                        <div class="value" style="color: var(--accent-blue);">2.41</div>
+                        <div class="subtext">Annualized</div>
+                    </div>
+                    <div class="perf-stat-card">
+                        <div class="label">Max Drawdown</div>
+                        <div class="value" style="color: var(--accent-red);">-8.3%</div>
+                        <div class="subtext">Worst peak-to-trough</div>
+                    </div>
+                    <div class="perf-stat-card">
+                        <div class="label">Win Rate</div>
+                        <div class="value" style="color: var(--accent-green);">67.4%</div>
+                        <div class="subtext">All pairs combined</div>
+                    </div>
+                    <div class="perf-stat-card">
+                        <div class="label">Profit Factor</div>
+                        <div class="value" style="color: var(--accent-purple);">1.89</div>
+                        <div class="subtext">Gross profit / gross loss</div>
+                    </div>
+                    <div class="perf-stat-card">
+                        <div class="label">Avg Hold Time</div>
+                        <div class="value" style="color: var(--accent-cyan);">42m</div>
+                        <div class="subtext">Per trade</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         DASHBOARD PREVIEW
+         ============================================================ -->
+    <section id="dashboard">
+        <div class="container">
+            <div class="section-header center reveal">
+                <div class="section-label">&mdash; Live Dashboard</div>
+                <h2 class="section-title">Full Visibility, <span class="gradient-text">Zero Guesswork</span></h2>
+                <p class="section-subtitle">
+                    Every entry, every trail stop, every exit — visible in real-time.
+                    Professional trading command center included with Pro and Elite plans.
+                </p>
+            </div>
+            <div class="dashboard-preview reveal">
+                <div class="dashboard-window">
+                    <div class="window-bar">
+                        <div class="window-dots">
+                            <span class="wdot red"></span>
+                            <span class="wdot yellow"></span>
+                            <span class="wdot green"></span>
+                        </div>
+                        <div class="window-title">Trading Command Center &mdash; Live</div>
+                        <div class="window-badge"><span class="dot"></span> Connected</div>
+                    </div>
+                    <div class="dashboard-content">
+                        <!-- Simulated dashboard UI -->
+                        <div class="dash-header">
+                            <div class="dash-logo">NeuralEdge</div>
+                            <div class="dash-stats-bar">
+                                <div class="dash-stat"><span class="ds-label">Portfolio</span><span class="ds-val green">$12,847.32</span></div>
+                                <div class="dash-stat"><span class="ds-label">Today P&L</span><span class="ds-val green">+$284.50 (+2.26%)</span></div>
+                                <div class="dash-stat"><span class="ds-label">Open</span><span class="ds-val">4 positions</span></div>
+                                <div class="dash-stat"><span class="ds-label">Win Rate</span><span class="ds-val green">67.4%</span></div>
+                            </div>
+                        </div>
+                        <div class="dash-body">
+                            <div class="dash-chart-area">
+                                <div class="dash-pair-row">
+                                    <span class="dash-pair active">BTC/USDT</span>
+                                    <span class="dash-pair has-pos">ETH/USDT</span>
+                                    <span class="dash-pair has-pos">SOL/USDT</span>
+                                    <span class="dash-pair">XRP/USDT</span>
+                                    <span class="dash-pair has-pos">AVAX/USDT</span>
+                                    <span class="dash-pair">DOGE/USDT</span>
+                                    <span class="dash-pair has-pos">LINK/USDT</span>
+                                    <span class="dash-pair">ADA/USDT</span>
+                                </div>
+                                <div class="dash-chart-mock">
+                                    <div class="chart-bg-stars"></div>
+                                    <svg viewBox="0 0 700 240" preserveAspectRatio="none" class="candle-svg">
+                                        <!-- Grid lines -->
+                                        <g opacity="0.06" stroke="#fff" stroke-width="0.5">
+                                            <line x1="0" y1="48" x2="700" y2="48"/>
+                                            <line x1="0" y1="96" x2="700" y2="96"/>
+                                            <line x1="0" y1="144" x2="700" y2="144"/>
+                                            <line x1="0" y1="192" x2="700" y2="192"/>
+                                        </g>
+                                        <!-- Price labels right side -->
+                                        <g font-family="JetBrains Mono" font-size="7" fill="#3a3f4f">
+                                            <text x="665" y="51">88,800</text>
+                                            <text x="665" y="99">88,200</text>
+                                            <text x="665" y="147">87,600</text>
+                                            <text x="665" y="195">87,000</text>
+                                        </g>
+                                        <!-- Volume bars at bottom -->
+                                        <g opacity="0.25">
+                                            <rect x="18" y="220" width="9" height="14" fill="#ff5252" rx="1"/>
+                                            <rect x="33" y="216" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <rect x="48" y="222" width="9" height="12" fill="#ff5252" rx="1"/>
+                                            <rect x="63" y="218" width="9" height="16" fill="#00e676" rx="1"/>
+                                            <rect x="78" y="210" width="9" height="24" fill="#00e676" rx="1"/>
+                                            <rect x="93" y="214" width="9" height="20" fill="#00e676" rx="1"/>
+                                            <rect x="108" y="224" width="9" height="10" fill="#ff5252" rx="1"/>
+                                            <rect x="123" y="212" width="9" height="22" fill="#00e676" rx="1"/>
+                                            <rect x="138" y="220" width="9" height="14" fill="#ff5252" rx="1"/>
+                                            <rect x="153" y="216" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <rect x="168" y="208" width="9" height="26" fill="#00e676" rx="1"/>
+                                            <rect x="183" y="222" width="9" height="12" fill="#ff5252" rx="1"/>
+                                            <rect x="198" y="204" width="9" height="30" fill="#00e676" rx="1"/>
+                                            <rect x="213" y="218" width="9" height="16" fill="#00e676" rx="1"/>
+                                            <rect x="228" y="206" width="9" height="28" fill="#00e676" rx="1"/>
+                                            <rect x="243" y="210" width="9" height="24" fill="#00e676" rx="1"/>
+                                            <rect x="258" y="220" width="9" height="14" fill="#ff5252" rx="1"/>
+                                            <rect x="273" y="218" width="9" height="16" fill="#ff5252" rx="1"/>
+                                            <rect x="288" y="212" width="9" height="22" fill="#00e676" rx="1"/>
+                                            <rect x="303" y="224" width="9" height="10" fill="#ff5252" rx="1"/>
+                                            <rect x="318" y="216" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <rect x="333" y="202" width="9" height="32" fill="#00e676" rx="1"/>
+                                            <rect x="348" y="210" width="9" height="24" fill="#00e676" rx="1"/>
+                                            <rect x="363" y="218" width="9" height="16" fill="#ff5252" rx="1"/>
+                                            <rect x="378" y="206" width="9" height="28" fill="#00e676" rx="1"/>
+                                            <rect x="393" y="200" width="9" height="34" fill="#00e676" rx="1"/>
+                                            <rect x="408" y="214" width="9" height="20" fill="#ff5252" rx="1"/>
+                                            <rect x="423" y="208" width="9" height="26" fill="#00e676" rx="1"/>
+                                            <rect x="438" y="198" width="9" height="36" fill="#00e676" rx="1"/>
+                                            <rect x="453" y="212" width="9" height="22" fill="#ff5252" rx="1"/>
+                                            <rect x="468" y="204" width="9" height="30" fill="#00e676" rx="1"/>
+                                            <rect x="483" y="210" width="9" height="24" fill="#00e676" rx="1"/>
+                                            <rect x="498" y="216" width="9" height="18" fill="#ff5252" rx="1"/>
+                                            <rect x="513" y="206" width="9" height="28" fill="#00e676" rx="1"/>
+                                            <rect x="528" y="198" width="9" height="36" fill="#00e676" rx="1"/>
+                                            <rect x="543" y="210" width="9" height="24" fill="#00e676" rx="1"/>
+                                            <rect x="558" y="204" width="9" height="30" fill="#ff5252" rx="1"/>
+                                            <rect x="573" y="196" width="9" height="38" fill="#00e676" rx="1"/>
+                                            <rect x="588" y="202" width="9" height="32" fill="#00e676" rx="1"/>
+                                            <rect x="603" y="208" width="9" height="26" fill="#00e676" rx="1"/>
+                                        </g>
+                                        <!-- Candlesticks - realistic pattern with proper wicks -->
+                                        <g>
+                                            <!-- Ranging phase -->
+                                            <line x1="22" y1="160" x2="22" y2="178" stroke="#5a6478" stroke-width="1"/><rect x="18" y="165" width="9" height="8" fill="#ff5252" rx="1"/>
+                                            <line x1="37" y1="155" x2="37" y2="180" stroke="#5a6478" stroke-width="1"/><rect x="33" y="158" width="9" height="14" fill="#00e676" rx="1"/>
+                                            <line x1="52" y1="162" x2="52" y2="182" stroke="#5a6478" stroke-width="1"/><rect x="48" y="164" width="9" height="10" fill="#ff5252" rx="1"/>
+                                            <line x1="67" y1="150" x2="67" y2="175" stroke="#5a6478" stroke-width="1"/><rect x="63" y="154" width="9" height="14" fill="#00e676" rx="1"/>
+                                            <line x1="82" y1="145" x2="82" y2="170" stroke="#5a6478" stroke-width="1"/><rect x="78" y="148" width="9" height="16" fill="#00e676" rx="1"/>
+                                            <line x1="97" y1="140" x2="97" y2="168" stroke="#5a6478" stroke-width="1"/><rect x="93" y="142" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <line x1="112" y1="148" x2="112" y2="170" stroke="#5a6478" stroke-width="1"/><rect x="108" y="150" width="9" height="12" fill="#ff5252" rx="1"/>
+                                            <line x1="127" y1="138" x2="127" y2="165" stroke="#5a6478" stroke-width="1"/><rect x="123" y="140" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <line x1="142" y1="145" x2="142" y2="168" stroke="#5a6478" stroke-width="1"/><rect x="138" y="148" width="9" height="12" fill="#ff5252" rx="1"/>
+                                            <line x1="157" y1="135" x2="157" y2="162" stroke="#5a6478" stroke-width="1"/><rect x="153" y="138" width="9" height="16" fill="#00e676" rx="1"/>
+                                            <!-- Breakout candles -->
+                                            <line x1="172" y1="122" x2="172" y2="155" stroke="#5a6478" stroke-width="1"/><rect x="168" y="125" width="9" height="22" fill="#00e676" rx="1"/>
+                                            <line x1="187" y1="118" x2="187" y2="148" stroke="#5a6478" stroke-width="1"/><rect x="183" y="128" width="9" height="12" fill="#ff5252" rx="1"/>
+                                            <!-- Entry point area -->
+                                            <line x1="202" y1="108" x2="202" y2="142" stroke="#5a6478" stroke-width="1"/><rect x="198" y="110" width="9" height="24" fill="#00e676" rx="1"/>
+                                            <line x1="217" y1="102" x2="217" y2="132" stroke="#5a6478" stroke-width="1"/><rect x="213" y="105" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <line x1="232" y1="95" x2="232" y2="125" stroke="#5a6478" stroke-width="1"/><rect x="228" y="98" width="9" height="20" fill="#00e676" rx="1"/>
+                                            <line x1="247" y1="90" x2="247" y2="118" stroke="#5a6478" stroke-width="1"/><rect x="243" y="92" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <line x1="262" y1="98" x2="262" y2="120" stroke="#5a6478" stroke-width="1"/><rect x="258" y="100" width="9" height="14" fill="#ff5252" rx="1"/>
+                                            <line x1="277" y1="102" x2="277" y2="122" stroke="#5a6478" stroke-width="1"/><rect x="273" y="105" width="9" height="10" fill="#ff5252" rx="1"/>
+                                            <!-- Continuation up -->
+                                            <line x1="292" y1="88" x2="292" y2="118" stroke="#5a6478" stroke-width="1"/><rect x="288" y="90" width="9" height="20" fill="#00e676" rx="1"/>
+                                            <line x1="307" y1="92" x2="307" y2="112" stroke="#5a6478" stroke-width="1"/><rect x="303" y="96" width="9" height="10" fill="#ff5252" rx="1"/>
+                                            <line x1="322" y1="80" x2="322" y2="108" stroke="#5a6478" stroke-width="1"/><rect x="318" y="82" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <line x1="337" y1="70" x2="337" y2="100" stroke="#5a6478" stroke-width="1"/><rect x="333" y="72" width="9" height="22" fill="#00e676" rx="1"/>
+                                            <line x1="352" y1="68" x2="352" y2="94" stroke="#5a6478" stroke-width="1"/><rect x="348" y="70" width="9" height="16" fill="#00e676" rx="1"/>
+                                            <line x1="367" y1="75" x2="367" y2="95" stroke="#5a6478" stroke-width="1"/><rect x="363" y="78" width="9" height="10" fill="#ff5252" rx="1"/>
+                                            <!-- Strong continuation -->
+                                            <line x1="382" y1="60" x2="382" y2="90" stroke="#5a6478" stroke-width="1"/><rect x="378" y="62" width="9" height="22" fill="#00e676" rx="1"/>
+                                            <line x1="397" y1="52" x2="397" y2="82" stroke="#5a6478" stroke-width="1"/><rect x="393" y="55" width="9" height="20" fill="#00e676" rx="1"/>
+                                            <line x1="412" y1="58" x2="412" y2="78" stroke="#5a6478" stroke-width="1"/><rect x="408" y="60" width="9" height="12" fill="#ff5252" rx="1"/>
+                                            <line x1="427" y1="48" x2="427" y2="74" stroke="#5a6478" stroke-width="1"/><rect x="423" y="50" width="9" height="18" fill="#00e676" rx="1"/>
+                                            <line x1="442" y1="38" x2="442" y2="66" stroke="#5a6478" stroke-width="1"/><rect x="438" y="40" width="9" height="20" fill="#00e676" rx="1"/>
+                                            <line x1="457" y1="44" x2="457" y2="62" stroke="#5a6478" stroke-width="1"/><rect x="453" y="46" width="9" height="10" fill="#ff5252" rx="1"/>
+                                            <line x1="472" y1="36" x2="472" y2="58" stroke="#5a6478" stroke-width="1"/><rect x="468" y="38" width="9" height="14" fill="#00e676" rx="1"/>
+                                            <line x1="487" y1="30" x2="487" y2="52" stroke="#5a6478" stroke-width="1"/><rect x="483" y="32" width="9" height="14" fill="#00e676" rx="1"/>
+                                            <!-- Recent candles -->
+                                            <line x1="502" y1="35" x2="502" y2="50" stroke="#5a6478" stroke-width="1"/><rect x="498" y="37" width="9" height="8" fill="#ff5252" rx="1"/>
+                                            <line x1="517" y1="28" x2="517" y2="48" stroke="#5a6478" stroke-width="1"/><rect x="513" y="30" width="9" height="12" fill="#00e676" rx="1"/>
+                                            <line x1="532" y1="22" x2="532" y2="44" stroke="#5a6478" stroke-width="1"/><rect x="528" y="24" width="9" height="14" fill="#00e676" rx="1"/>
+                                            <line x1="547" y1="26" x2="547" y2="42" stroke="#5a6478" stroke-width="1"/><rect x="543" y="28" width="9" height="8" fill="#00e676" rx="1"/>
+                                            <line x1="562" y1="30" x2="562" y2="46" stroke="#5a6478" stroke-width="1"/><rect x="558" y="32" width="9" height="10" fill="#ff5252" rx="1"/>
+                                            <line x1="577" y1="20" x2="577" y2="42" stroke="#5a6478" stroke-width="1"/><rect x="573" y="22" width="9" height="14" fill="#00e676" rx="1"/>
+                                            <line x1="592" y1="16" x2="592" y2="36" stroke="#5a6478" stroke-width="1"/><rect x="588" y="18" width="9" height="12" fill="#00e676" rx="1"/>
+                                            <line x1="607" y1="12" x2="607" y2="30" stroke="#5a6478" stroke-width="1"/><rect x="603" y="14" width="9" height="10" fill="#00e676" rx="1"/>
+                                        </g>
+                                        <!-- Entry marker with glow -->
+                                        <circle cx="202" cy="134" r="4" fill="none" stroke="#448aff" stroke-width="1.5" opacity="0.9"/>
+                                        <circle cx="202" cy="134" r="8" fill="#448aff" opacity="0.08"/>
+                                        <line x1="202" y1="134" x2="202" y2="200" stroke="#448aff" stroke-width="0.7" stroke-dasharray="2,3" opacity="0.3"/>
+                                        <text x="208" y="140" fill="#448aff" font-size="7" font-family="JetBrains Mono" font-weight="500" opacity="0.9">ENTRY $87,240</text>
+                                        <!-- Trailing stop line (stair-step rising) -->
+                                        <path d="M202,175 L232,170 L247,165 L262,162 L277,160 L292,155 L322,148 L337,140 L352,135 L382,125 L397,118 L427,108 L442,100 L472,92 L487,86 L517,80 L532,75 L577,66 L607,60" stroke="#ffc107" stroke-width="1.5" stroke-dasharray="5,3" fill="none" opacity="0.6"/>
+                                        <rect x="612" y="54" width="48" height="14" rx="3" fill="#ffc107" opacity="0.12"/>
+                                        <text x="616" y="64" fill="#ffc107" font-size="7" font-family="JetBrains Mono" font-weight="500">SL $88,490</text>
+                                        <!-- Breakeven line -->
+                                        <line x1="202" y1="134" x2="660" y2="134" stroke="#448aff" stroke-width="0.6" stroke-dasharray="3,5" opacity="0.15"/>
+                                        <text x="612" y="138" fill="#448aff" font-size="6" font-family="JetBrains Mono" opacity="0.3">BREAKEVEN</text>
+                                        <!-- Current price line + label -->
+                                        <line x1="0" y1="14" x2="607" y2="14" stroke="#00e676" stroke-width="0.6" stroke-dasharray="2,3" opacity="0.3"/>
+                                        <rect x="612" y="7" width="50" height="15" rx="3" fill="#00e676" opacity="0.12" stroke="#00e676" stroke-width="0.5" stroke-opacity="0.3"/>
+                                        <text x="618" y="18" fill="#00e676" font-size="8" font-family="JetBrains Mono" font-weight="600">$88,842</text>
+                                        <!-- Chart info top-left -->
+                                        <text x="12" y="16" fill="#6b7080" font-size="7" font-family="JetBrains Mono">BTC/USDT 1m</text>
+                                        <text x="12" y="28" fill="#00e676" font-size="10" font-family="JetBrains Mono" font-weight="700">88,842.0</text>
+                                        <text x="78" y="28" fill="#00e676" font-size="7" font-family="JetBrains Mono">+1.83%</text>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="dash-positions">
+                                <div class="dash-pos-header">
+                                    <span>PAIR</span><span>SIDE</span><span>ENTRY</span><span>P&L</span><span>SL</span>
+                                </div>
+                                <div class="dash-pos-row">
+                                    <span class="dp-pair">BTC/USDT</span>
+                                    <span class="dp-long">LONG</span>
+                                    <span class="dp-entry">$87,240</span>
+                                    <span class="dp-pnl green">+1.35%</span>
+                                    <span class="dp-sl">$87,890 <small>trail</small></span>
+                                </div>
+                                <div class="dash-pos-row">
+                                    <span class="dp-pair">ETH/USDT</span>
+                                    <span class="dp-long">LONG</span>
+                                    <span class="dp-entry">$3,412</span>
+                                    <span class="dp-pnl green">+0.82%</span>
+                                    <span class="dp-sl">$3,412 <small>BE lock</small></span>
+                                </div>
+                                <div class="dash-pos-row">
+                                    <span class="dp-pair">SOL/USDT</span>
+                                    <span class="dp-short">SHORT</span>
+                                    <span class="dp-entry">$188.50</span>
+                                    <span class="dp-pnl green">+0.64%</span>
+                                    <span class="dp-sl">$189.20 <small>trail</small></span>
+                                </div>
+                                <div class="dash-pos-row">
+                                    <span class="dp-pair">LINK/USDT</span>
+                                    <span class="dp-long">LONG</span>
+                                    <span class="dp-entry">$18.42</span>
+                                    <span class="dp-pnl red">-0.31%</span>
+                                    <span class="dp-sl">$17.85 <small>initial</small></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-features">
+                    <div class="dash-feat">
+                        <div class="dash-feat-icon" style="color: var(--accent-green);">&#9679;</div>
+                        <div>
+                            <strong>Real-Time Positions</strong>
+                            <p>See every open trade with live P&L, entry price, and current stop-loss level.</p>
+                        </div>
+                    </div>
+                    <div class="dash-feat">
+                        <div class="dash-feat-icon" style="color: var(--accent-gold);">&#9679;</div>
+                        <div>
+                            <strong>Trailing Stop Visualization</strong>
+                            <p>Watch your stop-loss move up in real-time as the trade goes in your favor.</p>
+                        </div>
+                    </div>
+                    <div class="dash-feat">
+                        <div class="dash-feat-icon" style="color: var(--accent-blue);">&#9679;</div>
+                        <div>
+                            <strong>Entry & Exit Markers</strong>
+                            <p>Every entry and exit plotted on the chart. Full transparency on every decision.</p>
+                        </div>
+                    </div>
+                    <div class="dash-feat">
+                        <div class="dash-feat-icon" style="color: var(--accent-purple);">&#9679;</div>
+                        <div>
+                            <strong>TradingView Charts</strong>
+                            <p>Professional candlestick charts with volume, indicators, and multi-timeframe support.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         HOW IT WORKS
+         ============================================================ -->
+    <section id="how-it-works">
+        <div class="container">
+            <div class="section-header center reveal">
+                <div class="section-label">&mdash; Getting Started</div>
+                <h2 class="section-title">Up and Running in Minutes</h2>
+                <p class="section-subtitle">
+                    Connect your exchange, configure risk, and let the AI handle the rest.
+                </p>
+            </div>
+            <div class="steps-grid reveal">
+                <div class="step">
+                    <div class="step-number">01</div>
+                    <h3>Create Account</h3>
+                    <p>Sign up and choose your plan. Start with a 7-day free trial, no card required.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">02</div>
+                    <h3>Connect Exchange</h3>
+                    <p>Link your Bitget account with API keys. Trade-only permission, never withdrawal access.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">03</div>
+                    <h3>Set Risk Limits</h3>
+                    <p>Configure max positions, pair selection, and position sizing to match your risk tolerance.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">04</div>
+                    <h3>Watch It Trade</h3>
+                    <p>Monitor live performance on your dashboard. The AI trades 24/7 across all time zones.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         PRICING
+         ============================================================ -->
+    <section id="pricing">
+        <div class="container">
+            <div class="section-header center reveal">
+                <div class="section-label">&mdash; Pricing</div>
+                <h2 class="section-title">Simple, Transparent Pricing</h2>
+                <p class="section-subtitle">
+                    No hidden fees. No profit sharing on Starter/Pro/Elite. Cancel anytime.
+                </p>
+            </div>
+            <div class="pricing-grid reveal">
+                <!-- Starter -->
+                <div class="pricing-card">
+                    <div class="pricing-tier">Starter</div>
+                    <div class="pricing-price">$199<span>/mo</span></div>
+                    <div class="pricing-desc">Signals only via Telegram</div>
+                    <ul class="pricing-features">
+                        <li><span class="check">&#10003;</span> Real-time trade signals</li>
+                        <li><span class="check">&#10003;</span> 3 pairs max</li>
+                        <li><span class="check">&#10003;</span> Telegram delivery</li>
+                        <li><span class="check">&#10003;</span> Basic performance stats</li>
+                        <li><span class="check">&#10003;</span> Email support</li>
+                    </ul>
+                    <button class="pricing-btn">Start Free Trial</button>
+                </div>
+                <!-- Pro (Featured) -->
+                <div class="pricing-card featured">
+                    <div class="pricing-tier">Pro</div>
+                    <div class="pricing-price">$499<span>/mo</span></div>
+                    <div class="pricing-desc">Full auto-execution on your account</div>
+                    <ul class="pricing-features">
+                        <li><span class="check">&#10003;</span> Everything in Starter</li>
+                        <li><span class="check">&#10003;</span> All 26 pairs</li>
+                        <li><span class="check">&#10003;</span> Auto-execution via API</li>
+                        <li><span class="check">&#10003;</span> Live dashboard</li>
+                        <li><span class="check">&#10003;</span> Custom risk settings</li>
+                        <li><span class="check">&#10003;</span> Priority support</li>
+                    </ul>
+                    <button class="pricing-btn">Start Free Trial</button>
+                </div>
+                <!-- Elite -->
+                <div class="pricing-card">
+                    <div class="pricing-tier">Elite</div>
+                    <div class="pricing-price">$999<span>/mo</span></div>
+                    <div class="pricing-desc">White-glove service + early access</div>
+                    <ul class="pricing-features">
+                        <li><span class="check">&#10003;</span> Everything in Pro</li>
+                        <li><span class="check">&#10003;</span> 1-on-1 onboarding call</li>
+                        <li><span class="check">&#10003;</span> Custom pair selection</li>
+                        <li><span class="check">&#10003;</span> Early access to upgrades</li>
+                        <li><span class="check">&#10003;</span> Direct Telegram channel</li>
+                        <li><span class="check">&#10003;</span> Weekly performance review</li>
+                    </ul>
+                    <button class="pricing-btn">Start Free Trial</button>
+                </div>
+                <!-- Managed -->
+                <div class="pricing-card">
+                    <div class="pricing-tier">Managed</div>
+                    <div class="pricing-price">20%<span> of profit</span></div>
+                    <div class="pricing-desc">We run everything. You collect returns.</div>
+                    <ul class="pricing-features">
+                        <li><span class="check">&#10003;</span> Fully managed execution</li>
+                        <li><span class="check">&#10003;</span> $5,000 minimum deposit</li>
+                        <li><span class="check">&#10003;</span> Monthly settlement</li>
+                        <li><span class="check">&#10003;</span> Dedicated account manager</li>
+                        <li><span class="check">&#10003;</span> Custom risk profile</li>
+                        <li><span class="check">&#10003;</span> High-water mark</li>
+                    </ul>
+                    <button class="pricing-btn">Apply Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         FUNDED ACCOUNTS
+         ============================================================ -->
+    <section id="funded" class="funded-section">
+        <div class="container">
+            <div class="funded-hero-grid reveal">
+                <div>
+                    <div class="funded-badge">&#9733; New: Funded Account Program</div>
+                    <h2 class="funded-title">
+                        Trade <span class="gold">$100K+</span><br>
+                        With Zero Capital Risk
+                    </h2>
+                    <p class="funded-subtitle">
+                        Our AI passes prop firm challenges for you. Get funded with $25K&ndash;$200K
+                        in trading capital. You keep up to 90% of the profits. If the challenge fails,
+                        <strong style="color: var(--text-primary);">we absorb the entire fee</strong> &mdash;
+                        you pay nothing, you lose nothing. We take the risk so you don't have to.
+                    </p>
+                    <div class="hero-cta-row" style="justify-content: flex-start;">
+                        <a href="#start" class="btn-primary" style="background: linear-gradient(135deg, #ecc94b, #f6ad55);">Apply for Funded Account &rarr;</a>
+                        <a href="#funded-how" class="btn-secondary">How It Works</a>
+                    </div>
+                </div>
+                <div>
+                    <!-- Challenge simulator -->
+                    <div class="challenge-sim">
+                        <div class="challenge-sim-header">
+                            <div class="challenge-sim-title">&#9670; FTMO Challenge &mdash; $100,000</div>
+                            <div class="challenge-sim-status"><span class="dot"></span> Day 14 of 30</div>
+                        </div>
+                        <div class="challenge-sim-body">
+                            <div class="challenge-progress">
+                                <div class="cp-row">
+                                    <span class="cp-label">Profit Target</span>
+                                    <div class="cp-bar-wrap">
+                                        <div class="cp-bar gold" style="width: 87%;"></div>
+                                    </div>
+                                    <span class="cp-value gold">$8,720 / $10K</span>
+                                </div>
+                                <div class="cp-row">
+                                    <span class="cp-label">Daily DD Used</span>
+                                    <div class="cp-bar-wrap">
+                                        <div class="cp-bar safe" style="width: 18%;"></div>
+                                    </div>
+                                    <span class="cp-value green">$912 / $5K</span>
+                                </div>
+                                <div class="cp-row">
+                                    <span class="cp-label">Max DD Used</span>
+                                    <div class="cp-bar-wrap">
+                                        <div class="cp-bar safe" style="width: 31%;"></div>
+                                    </div>
+                                    <span class="cp-value green">$3,120 / $10K</span>
+                                </div>
+                                <div class="cp-row">
+                                    <span class="cp-label">Trading Days</span>
+                                    <div class="cp-bar-wrap">
+                                        <div class="cp-bar green" style="width: 100%;"></div>
+                                    </div>
+                                    <span class="cp-value green">14 / 4 min</span>
+                                </div>
+                            </div>
+                            <div class="challenge-stats">
+                                <div class="cs-item">
+                                    <div class="cs-val" style="color: var(--accent-green);">67.2%</div>
+                                    <div class="cs-label">Win Rate</div>
+                                </div>
+                                <div class="cs-item">
+                                    <div class="cs-val" style="color: var(--accent-blue);">1.94</div>
+                                    <div class="cs-label">Profit Factor</div>
+                                </div>
+                                <div class="cs-item">
+                                    <div class="cs-val" style="color: var(--accent-gold);">142</div>
+                                    <div class="cs-label">Trades Taken</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How it works -->
+            <div class="funded-flow reveal" id="funded-how">
+                <div class="funded-flow-card">
+                    <div class="funded-flow-num">1</div>
+                    <h3>We Buy the Challenge</h3>
+                    <p>Choose your account size ($25K&ndash;$200K). We purchase the prop firm challenge and deploy our AI to trade it. Zero cost to you.</p>
+                </div>
+                <div class="funded-flow-card">
+                    <div class="funded-flow-num">2</div>
+                    <h3>AI Passes the Rules</h3>
+                    <p>Our bot trades within strict drawdown limits, hits the profit target, and meets all minimum trading day requirements. Average pass time: 12&ndash;18 days.</p>
+                </div>
+                <div class="funded-flow-card">
+                    <div class="funded-flow-num">3</div>
+                    <h3>You Collect Profits</h3>
+                    <p>Once funded, the bot continues trading. Prop firm pays out 80&ndash;90% of profits monthly. We take a small performance fee. You keep the rest.</p>
+                </div>
+            </div>
+
+            <!-- Compatible firms -->
+            <div class="funded-firms reveal">
+                <div class="funded-firm">FTMO</div>
+                <div class="funded-firm">MyFundedFX</div>
+                <div class="funded-firm">TopStep</div>
+                <div class="funded-firm">The5%ers</div>
+                <div class="funded-firm">FundedNext</div>
+                <div class="funded-firm">TrueForex</div>
+            </div>
+
+            <!-- Account sizes -->
+            <div class="funded-pricing reveal">
+                <div class="fp-card">
+                    <div class="fp-size">$25,000</div>
+                    <div class="fp-label">Funded Account</div>
+                    <div class="fp-split" style="color: var(--accent-green);">80%</div>
+                    <div class="fp-split-label">Your profit share</div>
+                    <div class="fp-potential">
+                        ~$2,000/mo
+                        <small>Based on 10% monthly return</small>
+                    </div>
+                </div>
+                <div class="fp-card featured">
+                    <div class="fp-size">$100,000</div>
+                    <div class="fp-label">Funded Account</div>
+                    <div class="fp-split" style="color: var(--accent-green);">85%</div>
+                    <div class="fp-split-label">Your profit share</div>
+                    <div class="fp-potential">
+                        ~$8,500/mo
+                        <small>Based on 10% monthly return</small>
+                    </div>
+                </div>
+                <div class="fp-card">
+                    <div class="fp-size">$200,000</div>
+                    <div class="fp-label">Funded Account</div>
+                    <div class="fp-split" style="color: var(--accent-green);">90%</div>
+                    <div class="fp-split-label">Your profit share</div>
+                    <div class="fp-potential">
+                        ~$18,000/mo
+                        <small>Based on 10% monthly return</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         FAQ
+         ============================================================ -->
+    <section id="faq">
+        <div class="container">
+            <div class="section-header center reveal">
+                <div class="section-label">&mdash; FAQ</div>
+                <h2 class="section-title">Common Questions</h2>
+            </div>
+            <div class="faq-list reveal">
+                <div class="faq-item">
+                    <button class="faq-question">How does the system work?</button>
+                    <div class="faq-answer">
+                        <p>Two specialized AI agents work together. The entry agent analyzes 140+ features across 26 crypto pairs to find high-probability trade setups. The exit agent uses reinforcement learning to optimize profit capture and minimize losses. Both run 24/7 with 60-second decision cycles.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">What exchange do I need?</button>
+                    <div class="faq-answer">
+                        <p>We currently support Bitget USDT-M perpetual futures. You create your own Bitget account, deposit funds, and connect via API keys. We never have withdrawal access to your funds.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">What's the minimum capital?</button>
+                    <div class="faq-answer">
+                        <p>We recommend a minimum of $500 for Pro/Elite plans to allow proper position sizing across multiple pairs. For the Managed tier, the minimum is $5,000.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">Is my money safe?</button>
+                    <div class="faq-answer">
+                        <p>Your funds stay on your Bitget account at all times. API keys are encrypted with AES-256 and configured with trade-only permissions. We cannot withdraw, transfer, or access your funds in any way.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">Can I cancel anytime?</button>
+                    <div class="faq-answer">
+                        <p>Yes. Cancel your subscription at any time with no penalty. All open positions will be closed gracefully, and your API keys will be permanently deleted from our systems.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">How does the Funded Account program work?</button>
+                    <div class="faq-answer">
+                        <p>We purchase a prop firm challenge (FTMO, MyFundedFX, etc.), deploy our AI to pass it within the firm's rules, and once funded, the bot continues trading. You receive 80-90% of the profits paid out by the prop firm monthly. If the challenge fails, we absorb the cost, not you.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">What if the challenge fails?</button>
+                    <div class="faq-answer">
+                        <p>We cover all challenge fees. If our AI doesn't pass, you owe nothing. Our current pass rate across all prop firms is above 80%, with an average completion time of 12-18 trading days.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">What kind of returns can I expect?</button>
+                    <div class="faq-answer">
+                        <p>Past performance does not guarantee future results. Our verified track record is publicly available on the performance page. We focus on risk-adjusted returns with strict drawdown controls rather than maximum returns at any cost.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         SOCIAL PROOF
+         ============================================================ -->
+    <section class="proof-section">
+        <div class="container">
+            <div class="section-header center reveal">
+                <div class="section-label">&mdash; Trusted By Traders</div>
+                <h2 class="section-title">What Our Users Say</h2>
+            </div>
+            <div class="proof-grid reveal">
+                <div class="proof-card">
+                    <p class="proof-text">I was skeptical about AI trading bots after getting burned by grid bots. NeuralEdge is fundamentally different. The trailing stop visualization alone is worth the subscription. I can see exactly why every trade was taken.</p>
+                    <div class="proof-author">
+                        <div class="proof-avatar">M</div>
+                        <div>
+                            <div class="proof-name">Marcus T.</div>
+                            <div class="proof-role">Pro subscriber &mdash; 3 months</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="proof-card">
+                    <p class="proof-text">Passed my FTMO challenge in 11 days with the funded account program. The bot stayed well within the drawdown limits. Now running a $100K funded account and collecting payouts monthly.</p>
+                    <div class="proof-author">
+                        <div class="proof-avatar">A</div>
+                        <div>
+                            <div class="proof-name">Alex K.</div>
+                            <div class="proof-role">Funded &mdash; $100K account</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="proof-card">
+                    <p class="proof-text">The regime detection is incredible. During the March crash, the bot automatically reduced position sizes and avoided the worst of the drawdown. My manual trading friends weren't so lucky.</p>
+                    <div class="proof-author">
+                        <div class="proof-avatar">S</div>
+                        <div>
+                            <div class="proof-name">Sarah L.</div>
+                            <div class="proof-role">Elite subscriber &mdash; 5 months</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="proof-stats reveal">
+                <div class="proof-stat">
+                    <div class="ps-val" style="color: var(--accent-green);">$2.4M+</div>
+                    <div class="ps-label">Total Volume Traded</div>
+                </div>
+                <div class="proof-stat">
+                    <div class="ps-val" style="color: var(--accent-blue);">12,400+</div>
+                    <div class="ps-label">Trades Executed</div>
+                </div>
+                <div class="proof-stat">
+                    <div class="ps-val" style="color: var(--accent-purple);">99.7%</div>
+                    <div class="ps-label">Uptime</div>
+                </div>
+                <div class="proof-stat">
+                    <div class="ps-val" style="color: var(--accent-gold);">4.8/5</div>
+                    <div class="ps-label">User Rating</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         CTA
+         ============================================================ -->
+    <section class="cta-section" id="start">
+        <div class="cta-glow"></div>
+        <div class="container reveal">
+            <h2>Ready to Trade <span class="gradient-text">Smarter</span>?</h2>
+            <p>Start your 7-day free trial. No credit card required.</p>
+            <a href="#" class="btn-primary">Create Account &rarr;</a>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="nav-logo" style="margin-bottom: 4px;">
+                        <div class="nav-logo-icon">N</div>
+                        NeuralEdge
+                    </div>
+                    <p>Institutional-grade AI crypto trading, accessible to everyone. Built by traders, powered by research.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <a href="#features">Features</a>
+                    <a href="#performance">Performance</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="#">Documentation</a>
+                    <a href="#">API Status</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Contact</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Risk Disclaimer</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+            <div class="risk-disclaimer">
+                <p><strong>Risk Disclaimer:</strong> Trading cryptocurrency involves significant risk and may not be suitable for all investors. Past performance does not guarantee future results. You should only trade with money you can afford to lose. NeuralEdge is a technology provider and does not provide financial advice. By using our service, you acknowledge and accept all associated risks.</p>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 NeuralEdge AI. All rights reserved.</p>
+                <p>Built with precision in Bucharest.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+         SCRIPTS
+         ============================================================ -->
+    <script>
+        // Navbar scroll effect
+        const nav = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Reveal on scroll
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => entry.target.classList.add('visible'), i * 80);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        reveals.forEach(el => observer.observe(el));
+
+        // Counter animation
+        const counters = document.querySelectorAll('.counter');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseFloat(el.dataset.target);
+                    const isDecimal = target % 1 !== 0;
+                    const duration = 2000;
+                    const start = performance.now();
+                    const tick = (now) => {
+                        const elapsed = now - start;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const eased = 1 - Math.pow(1 - progress, 3);
+                        const current = target * eased;
+                        el.textContent = isDecimal ? current.toFixed(2) : Math.floor(current);
+                        if (progress < 1) requestAnimationFrame(tick);
+                        else el.textContent = isDecimal ? target.toFixed(2) : target;
+                    };
+                    requestAnimationFrame(tick);
+                    counterObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+        counters.forEach(el => counterObserver.observe(el));
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.parentElement;
+                document.querySelectorAll('.faq-item').forEach(other => {
+                    if (other !== item) other.classList.remove('open');
+                });
+                item.classList.toggle('open');
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelector('.nav-links')?.classList.remove('open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
