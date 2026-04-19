@@ -269,18 +269,33 @@
             border: 1px solid var(--border);
             border-radius: 20px;
             overflow: hidden;
-            transition: border-color 0.4s, transform 0.4s cubic-bezier(0.16,1,0.3,1);
             cursor: pointer;
+            transition: border-color 0.4s, box-shadow 0.4s;
+            transform-style: preserve-3d;
+            will-change: transform;
         }
         /* Spotlight effect - radial glow follows mouse */
         .bento-card .card-spotlight {
             position: absolute; inset: 0;
-            background: radial-gradient(400px circle at var(--x, 50%) var(--y, 50%), rgba(59,130,246,0.06), transparent 60%);
+            background: radial-gradient(350px circle at var(--x, 50%) var(--y, 50%), rgba(59,130,246,0.10), transparent 60%);
             pointer-events: none; opacity: 0;
             transition: opacity 0.4s;
         }
         .bento-card:hover .card-spotlight { opacity: 1; }
-        .bento-card:hover { border-color: rgba(255,255,255,0.1); }
+        .bento-card:hover { border-color: rgba(255,255,255,0.12); box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 30px rgba(59,130,246,0.04); }
+        /* Shine sweep on hover */
+        .bento-card .card-shine {
+            position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.04) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 55%, transparent 70%);
+            opacity: 0;
+            transform: translateX(-100%);
+            transition: none;
+        }
+        .bento-card:hover .card-shine {
+            opacity: 1;
+            transform: translateX(100%);
+            transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.15s;
+        }
         /* Beam border - animated light sweep */
         .bento-card::before {
             content: ''; position: absolute; inset: -1px;
@@ -302,8 +317,14 @@
             width: 44px; height: 44px; border-radius: 12px; margin-bottom: 20px;
             background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.1);
             display: flex; align-items: center; justify-content: center;
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
         }
-        .bento-icon svg { width: 20px; height: 20px; stroke: var(--blue); stroke-width: 1.5; fill: none; }
+        .bento-icon svg { width: 20px; height: 20px; stroke: var(--blue); stroke-width: 1.5; fill: none; transition: filter 0.4s; }
+        .bento-card:hover .bento-icon {
+            background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.25);
+            box-shadow: 0 0 20px rgba(59,130,246,0.15), 0 0 40px rgba(59,130,246,0.05);
+        }
+        .bento-card:hover .bento-icon svg { filter: drop-shadow(0 0 4px rgba(59,130,246,0.6)); }
         .bento-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
         .bento-card p { color: var(--text-dim); font-size: 0.88rem; line-height: 1.65; }
         /* Inline mini chart in wide card */
@@ -777,40 +798,40 @@
                 <p class="s-sub">37 AI subsystems. 7 neural architectures. 5 tree-based ensembles. Every component earns its place through demonstrated edge.</p>
             </div>
             <div class="bento">
-                <div class="bento-card wide reveal">
-                    <div class="card-spotlight"></div>
+                <div class="bento-card wide reveal" data-tilt>
+                    <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="currentColor" fill="none"/><path d="M8 12l3 3 5-6" stroke="currentColor" fill="none"/></svg></div>
                     <h3>Alpha Model (68M params)</h3>
                     <p>MambaV2 + Differential Attention hybrid. Predicts direction, uncertainty, magnitude, volatility, and duration across all 24 pairs simultaneously with cross-pair attention.</p>
                     <div class="bento-code"><span class="ck">model</span>: <span class="cs">"MambaV2 x3 -> DiffTransformer x2 -> MambaV2 x3"</span><br><span class="ck">params</span>: <span class="cv">68_000_000</span><br><span class="ck">accuracy</span>: <span class="cv">67.4%</span> <span class="t-cmt">// cross-validated</span></div>
                 </div>
-                <div class="bento-card tall reveal rd1">
-                    <div class="card-spotlight"></div>
+                <div class="bento-card tall reveal rd1" data-tilt>
+                    <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" fill="none"/><path d="M9 12l2 2 4-4" stroke="currentColor" fill="none"/></svg></div>
-                    <h3>33 Verification Gates</h3>
+                    <h3>37 Verification Gates</h3>
                     <p>Every signal passes through 37 independent systems: regime filter, adversarial validator, circuit breaker, portfolio guardian, gradient attribution, and 32 more.</p>
                     <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-muted)">A false positive costs real money. We verify obsessively.</p>
                 </div>
-                <div class="bento-card reveal rd2">
-                    <div class="card-spotlight"></div>
+                <div class="bento-card reveal rd2" data-tilt>
+                    <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke="currentColor"/><path d="M7 17l4-8 4 4 5-9" stroke="currentColor"/></svg></div>
                     <h3>LightGBM Ensemble</h3>
                     <p>5 learners + neural meta-learner at 84%+ accuracy. 23 per-pair models. Compensates where neural nets are weak.</p>
                 </div>
-                <div class="bento-card reveal">
-                    <div class="card-spotlight"></div>
+                <div class="bento-card reveal" data-tilt>
+                    <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" fill="none"/></svg></div>
                     <h3>Microstructure L3/4/5</h3>
                     <p>30 proprietary features. Detects smart money flow, spoofing, iceberg orders, adverse selection.</p>
                 </div>
-                <div class="bento-card reveal rd1">
-                    <div class="card-spotlight"></div>
+                <div class="bento-card reveal rd1" data-tilt>
+                    <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4" stroke="currentColor"/></svg></div>
                     <h3>Exit Agent (4.5M params)</h3>
                     <p>C51 distributional RL (101 atoms) + counterfactual regret + 4-expert MoE. Learns from what COULD have happened.</p>
                 </div>
-                <div class="bento-card wide reveal rd2">
-                    <div class="card-spotlight"></div>
+                <div class="bento-card wide reveal rd2" data-tilt>
+                    <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" fill="none"/></svg></div>
                     <h3>5 Live Learning Systems</h3>
                     <p>Performance Genome, Dynamic Threshold, Alpha Decay, Pair Ranker, and Execution Model all learn from every trade in real-time. No retraining needed. The system evolves 24/7.</p>
@@ -1261,14 +1282,42 @@
         render();
     })();
 
-    // ---- CARD SPOTLIGHT (per card, subtle hover glow) ----
+    // ---- CARD SPOTLIGHT + 3D TILT (per card) ----
     document.querySelectorAll('.card-spotlight').forEach(spot => {
         const card = spot.parentElement;
         card.addEventListener('mousemove', e => {
             const r = card.getBoundingClientRect();
-            spot.style.setProperty('--x', (e.clientX - r.left) + 'px');
-            spot.style.setProperty('--y', (e.clientY - r.top) + 'px');
+            const x = e.clientX - r.left;
+            const y = e.clientY - r.top;
+            spot.style.setProperty('--x', x + 'px');
+            spot.style.setProperty('--y', y + 'px');
         });
+    });
+
+    // ---- 3D TILT on [data-tilt] cards ----
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+        let raf = null;
+        let currentRx = 0, currentRy = 0, targetRx = 0, targetRy = 0;
+
+        card.addEventListener('mousemove', e => {
+            const r = card.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width;
+            const y = (e.clientY - r.top) / r.height;
+            targetRx = (y - 0.5) * -10; // max 5deg tilt
+            targetRy = (x - 0.5) * 10;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            targetRx = 0; targetRy = 0;
+        });
+
+        function animateTilt() {
+            currentRx += (targetRx - currentRx) * 0.08;
+            currentRy += (targetRy - currentRy) * 0.08;
+            card.style.transform = `perspective(800px) rotateX(${currentRx}deg) rotateY(${currentRy}deg)`;
+            raf = requestAnimationFrame(animateTilt);
+        }
+        animateTilt();
     });
 
     // ---- BEAM BORDER (animated angle on bento cards) ----
