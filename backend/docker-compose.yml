@@ -1,0 +1,109 @@
+version: "3.9"
+
+services:
+  # === PostgreSQL 16 ===
+  postgres:
+    image: postgres:16-alpine
+    container_name: neuraledge-db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: neuraledge
+      POSTGRES_USER: neuraledge
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-neuraledge_dev_2026}
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neuraledge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  # === Redis 7 ===
+  redis:
+    image: redis:7-alpine
+    container_name: neuraledge-redis
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --appendonly yes
+    volumes:
+      - redisdata:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # === FastAPI Backend ===
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neuraledge-api
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers ${WORKERS:-4} --loop uvloop
+    volumes:
+      - ../../models:/app/models:ro
+      - ../../data:/app/data:ro
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://neuraledge:${DB_PASSWORD:-neuraledge_dev_2026}@postgres:5432/neuraledge
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # === Celery Worker (trade execution) ===
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neuraledge-worker
+    command: celery -A workers.celery_app worker -l info -c 8 -Q trades,snapshots,health
+    volumes:
+      - ../../models:/app/models:ro
+      - ../../data:/app/data:ro
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://neuraledge:${DB_PASSWORD:-neuraledge_dev_2026}@postgres:5432/neuraledge
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # === Celery Beat (scheduled tasks) ===
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: neuraledge-beat
+    command: celery -A workers.celery_app beat -l info --schedule /tmp/celerybeat-schedule
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local
+  redisdata:
+    driver: local
