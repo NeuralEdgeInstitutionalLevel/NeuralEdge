@@ -65,15 +65,7 @@
             background-size: 256px;
         }
 
-        /* ---- GLOBAL CURSOR SPOTLIGHT ---- */
-        .cursor-glow {
-            position: fixed; width: 600px; height: 600px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
-            pointer-events: none; z-index: 1;
-            transform: translate(-50%, -50%);
-            transition: opacity 0.3s;
-        }
+        /* cursor-glow removed - mouse interaction disabled */
 
         /* ---- LAYOUT ---- */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
@@ -714,7 +706,7 @@
     <!-- Dust particles + shooting stars overlay -->
     <canvas id="bgCanvas"></canvas>
     <div class="grain"></div>
-    <div class="cursor-glow" id="cursorGlow"></div>
+    <!-- cursor glow removed -->
 
     <!-- NAV -->
     <nav id="nav">
@@ -1025,8 +1017,7 @@
         let W, H, particles = [], shootingStars = [], mouseX = -9999, mouseY = -9999;
         const PARTICLE_COUNT = 220;
         const CONNECT_DIST = 100;
-        const MOUSE_RADIUS = 180;
-        const MOUSE_FORCE = 0.8;
+        // mouse repulsion removed
 
         function resize() { W = canvas.width = window.innerWidth; H = canvas.height = document.documentElement.scrollHeight; }
         window.addEventListener('resize', resize);
@@ -1068,17 +1059,7 @@
             update(t) {
                 // Twinkle
                 this.alpha = this.baseAlpha * (0.6 + 0.4 * Math.sin(t * this.twinkleSpeed + this.twinkleOffset));
-                // Mouse repulsion (screen coords -> page coords)
-                const mxPage = mouseX;
-                const myPage = mouseY;
-                const dx = this.x - mxPage;
-                const dy = this.y - myPage;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < MOUSE_RADIUS && dist > 0) {
-                    const force = (1 - dist / MOUSE_RADIUS) * MOUSE_FORCE;
-                    this.vx += (dx / dist) * force;
-                    this.vy += (dy / dist) * force;
-                }
+                // (mouse repulsion removed)
                 // Apply velocity with damping
                 this.vx *= 0.98;
                 this.vy *= 0.98;
@@ -1332,12 +1313,7 @@
                 // Scale for nice detail level
                 p *= 2.5;
 
-                // Mouse warp: gently distort space near cursor
-                vec2 mouseP = vec2(uMouse.x * aspect, uMouse.y) * 2.5;
-                float mouseDist = length(p - mouseP);
-                float mouseInfluence = smoothstep(1.5, 0.0, mouseDist) * 0.3;
-                vec2 mouseDir = normalize(p - mouseP + 0.001);
-                p += mouseDir * mouseInfluence;
+                // (mouse warp removed for cleaner look)
 
                 // Layer 1: Primary domain-warped nebula
                 float n1 = domainWarp(p * 0.7, t);
@@ -1368,9 +1344,7 @@
                 float vignette = 1.0 - length((uv - 0.5) * 1.4);
                 vignette = smoothstep(0.0, 0.7, vignette);
 
-                // Mouse glow: subtle bright spot near cursor
-                float mouseGlow = smoothstep(0.6, 0.0, mouseDist) * 0.14;
-                color += mouseGlow * vec3(0.4, 0.2, 0.8);
+                // (mouse glow removed for cleaner look)
 
                 // ---- GOLD ZONE (reacts to $15K card hover) ----
                 vec2 goldP = vec2(uGoldPos.x * aspect, uGoldPos.y) * 2.5;
@@ -1485,18 +1459,7 @@
         render();
     })();
 
-    // ---- CURSOR SPOTLIGHT (follows mouse globally) ----
-    const glow = document.getElementById('cursorGlow');
-    let mx = 0, my = 0, gx = 0, gy = 0;
-    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-    function animateGlow() {
-        gx += (mx - gx) * 0.08; gy += (my - gy) * 0.08;
-        glow.style.left = gx + 'px'; glow.style.top = gy + 'px';
-        requestAnimationFrame(animateGlow);
-    }
-    animateGlow();
-
-    // ---- CARD SPOTLIGHT (per card) ----
+    // ---- CARD SPOTLIGHT (per card, subtle hover glow) ----
     document.querySelectorAll('.card-spotlight').forEach(spot => {
         const card = spot.parentElement;
         card.addEventListener('mousemove', e => {
