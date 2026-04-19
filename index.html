@@ -341,7 +341,43 @@
         @media (max-width: 768px) {
             .bento { grid-template-columns: 1fr; }
             .bento-card.wide { grid-column: span 1; }
+            [data-tilt] { transform: none !important; }
         }
+
+        /* ---- UNIVERSAL CARD EFFECTS (shine, tilt, glow for ALL cards) ---- */
+        [data-tilt] { transform-style: preserve-3d; will-change: transform; }
+        .card-shine {
+            position: absolute; inset: 0; pointer-events: none; z-index: 2;
+            background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 55%, transparent 70%);
+            opacity: 0; transform: translateX(-100%); transition: none;
+        }
+        [data-tilt]:hover .card-shine, .sec-card:hover .card-shine, .perf-stat:hover .card-shine,
+        .price-card:hover .card-shine, .fc:hover .card-shine, .proof-card:hover .card-shine {
+            opacity: 1; transform: translateX(100%);
+            transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), opacity 0.15s;
+        }
+        /* Value glow on hover (for stat numbers) */
+        .perf-stat:hover .ps-val { text-shadow: 0 0 20px currentColor; transition: text-shadow 0.4s; }
+        /* Pricing card scale on hover */
+        .price-card:hover { transform: translateY(-8px) scale(1.02); }
+        .price-card.pop:hover { transform: translateY(-10px) scale(1.03); }
+        /* Quote mark glow */
+        .proof-card:hover .pq { opacity: 0.25; transition: opacity 0.4s; }
+        /* Step number ring pulse */
+        .step-n { position: relative; }
+        .step:hover .step-n::after {
+            content: ''; position: absolute; inset: -6px; border-radius: 50%;
+            border: 1px solid var(--blue); opacity: 0.3;
+            animation: ring-pulse 1.5s ease-out infinite;
+        }
+        @keyframes ring-pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+        /* Funded card gold glow */
+        .fc:hover { box-shadow: 0 12px 40px rgba(245,158,11,0.08); }
+        /* Security icon lift */
+        .sec-card:hover .sec-icon { transform: translateY(-4px) scale(1.05); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
 
         /* ---- SECURITY ---- */
         .security-section { background: linear-gradient(180deg, var(--bg) 0%, var(--bg-subtle) 50%, var(--bg) 100%); }
@@ -351,9 +387,10 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 20px;
-            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+            transition: border-color 0.4s, box-shadow 0.4s, transform 0.4s cubic-bezier(0.16,1,0.3,1);
             cursor: pointer; position: relative; overflow: hidden;
         }
+        .sec-card:hover { box-shadow: 0 16px 50px rgba(0,0,0,0.3), 0 0 20px rgba(59,130,246,0.03); }
         .sec-card .card-spotlight {
             position: absolute; inset: 0;
             background: radial-gradient(300px circle at var(--x, 50%) var(--y, 50%), rgba(59,130,246,0.05), transparent 60%);
@@ -846,10 +883,10 @@
         <div class="container">
             <div class="s-header center reveal"><div class="s-label">Security First</div><h2 class="s-title">Enterprise-Grade <span class="gradient-text">Protection</span></h2><p class="s-sub">Your capital stays on your exchange. We never touch your funds.</p></div>
             <div class="security-grid reveal">
-                <div class="sec-card"><div class="card-spotlight"></div><div class="sec-icon i-green"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor"/></svg></div><h3>AES-256 Encryption</h3><p>API keys encrypted at rest. Decrypted only in memory during execution.</p></div>
-                <div class="sec-card"><div class="card-spotlight"></div><div class="sec-icon i-blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor"/></svg></div><h3>No Withdrawal Access</h3><p>Trade-only API permissions. We cannot withdraw or transfer your funds. Ever.</p></div>
-                <div class="sec-card"><div class="card-spotlight"></div><div class="sec-icon i-purple"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor"/></svg></div><h3>Isolated Execution</h3><p>Each user runs in an isolated sandbox. No shared state or cross-contamination.</p></div>
-                <div class="sec-card"><div class="card-spotlight"></div><div class="sec-icon i-cyan"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor"/></svg></div><h3>Full Transparency</h3><p>Every trade logged with entry reason, confidence, risk params, and exit logic.</p></div>
+                <div class="sec-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="sec-icon i-green"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor"/></svg></div><h3>AES-256 Encryption</h3><p>API keys encrypted at rest. Decrypted only in memory during execution.</p></div>
+                <div class="sec-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="sec-icon i-blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor"/></svg></div><h3>No Withdrawal Access</h3><p>Trade-only API permissions. We cannot withdraw or transfer your funds. Ever.</p></div>
+                <div class="sec-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="sec-icon i-purple"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor"/></svg></div><h3>Isolated Execution</h3><p>Each user runs in an isolated sandbox. No shared state or cross-contamination.</p></div>
+                <div class="sec-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="sec-icon i-cyan"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor"/></svg></div><h3>Full Transparency</h3><p>Every trade logged with entry reason, confidence, risk params, and exit logic.</p></div>
             </div>
             <div class="exchange-row reveal">
                 <div class="ex-badge"><span class="ex-dot live"></span> Bitget <span class="ex-status s-live">Live</span></div>
@@ -865,19 +902,19 @@
         <div class="container">
             <div class="s-header reveal"><div class="s-label">Live Track Record</div><h2 class="s-title">Numbers Don't Lie</h2><p class="s-sub">Verified performance from live trading. Updated daily.</p></div>
             <div class="perf-grid">
-                <div class="perf-chart-card reveal">
-                    <div class="card-spotlight"></div>
+                <div class="perf-chart-card reveal" data-tilt>
+                    <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="chart-header"><div class="chart-title">Equity Curve</div><div class="chart-tabs"><button>1M</button><button>3M</button><button class="active">ALL</button></div></div>
                     <div class="chart-svg-wrap"><svg viewBox="0 0 500 200" preserveAspectRatio="none"><defs><linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient></defs><path class="area" d="M0,180 C30,175 60,160 90,155 C120,150 150,135 180,120 C210,105 240,100 270,90 C300,80 330,65 360,55 C390,50 420,40 450,30 C470,25 490,20 500,18 L500,200 L0,200 Z"/><path class="line" d="M0,180 C30,175 60,160 90,155 C120,150 150,135 180,120 C210,105 240,100 270,90 C300,80 330,65 360,55 C390,50 420,40 450,30 C470,25 490,20 500,18"/></svg></div>
                     <div class="terminal-block"><span class="t-cmt">// Latest cycle -- live</span><br><span class="t-k">status</span>: <span class="t-v">RUNNING</span><br><span class="t-k">open_positions</span>: <span class="t-v">4</span><br><span class="t-k">last_signal</span>: <span class="t-s">"SOL/USDT LONG @ $187.42"</span><br><span class="t-k">cycle_time</span>: <span class="t-v">58s</span></div>
                 </div>
                 <div class="perf-stats-grid reveal">
-                    <div class="perf-stat"><div class="card-spotlight"></div><div class="ps-label">Total Return</div><div class="ps-val" style="color:var(--green)">+47.2%</div><div class="ps-sub">Since inception</div></div>
-                    <div class="perf-stat"><div class="card-spotlight"></div><div class="ps-label">Sharpe Ratio</div><div class="ps-val" style="color:var(--blue)">2.41</div><div class="ps-sub">Annualized</div></div>
-                    <div class="perf-stat"><div class="card-spotlight"></div><div class="ps-label">Max Drawdown</div><div class="ps-val" style="color:var(--red)">-8.3%</div><div class="ps-sub">Peak-to-trough</div></div>
-                    <div class="perf-stat"><div class="card-spotlight"></div><div class="ps-label">Win Rate</div><div class="ps-val" style="color:var(--green)">67.4%</div><div class="ps-sub">All pairs</div></div>
-                    <div class="perf-stat"><div class="card-spotlight"></div><div class="ps-label">Profit Factor</div><div class="ps-val" style="color:var(--purple)">1.89</div><div class="ps-sub">Gross P / Gross L</div></div>
-                    <div class="perf-stat"><div class="card-spotlight"></div><div class="ps-label">Avg Hold</div><div class="ps-val" style="color:var(--cyan)">42m</div><div class="ps-sub">Per trade</div></div>
+                    <div class="perf-stat" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="ps-label">Total Return</div><div class="ps-val" style="color:var(--green)">+47.2%</div><div class="ps-sub">Since inception</div></div>
+                    <div class="perf-stat" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="ps-label">Sharpe Ratio</div><div class="ps-val" style="color:var(--blue)">2.41</div><div class="ps-sub">Annualized</div></div>
+                    <div class="perf-stat" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="ps-label">Max Drawdown</div><div class="ps-val" style="color:var(--red)">-8.3%</div><div class="ps-sub">Peak-to-trough</div></div>
+                    <div class="perf-stat" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="ps-label">Win Rate</div><div class="ps-val" style="color:var(--green)">67.4%</div><div class="ps-sub">All pairs</div></div>
+                    <div class="perf-stat" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="ps-label">Profit Factor</div><div class="ps-val" style="color:var(--purple)">1.89</div><div class="ps-sub">Gross P / Gross L</div></div>
+                    <div class="perf-stat" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="ps-label">Avg Hold</div><div class="ps-val" style="color:var(--cyan)">42m</div><div class="ps-sub">Per trade</div></div>
                 </div>
             </div>
         </div>
@@ -942,10 +979,10 @@
         <div class="container">
             <div class="s-header center reveal"><div class="s-label">Pricing</div><h2 class="s-title">Simple, Transparent Pricing</h2><p class="s-sub">Subscribe for signals and auto-execution, or acquire the system outright.</p></div>
             <div class="pricing-grid reveal">
-                <div class="price-card"><div class="card-spotlight"></div><div class="pc-tier">Starter</div><div class="pc-price">$199<span>/mo</span></div><div class="pc-desc">Signals via Telegram</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Real-time signals</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>3 pairs max</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Telegram delivery</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Basic stats</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Email support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
-                <div class="price-card pop"><div class="card-spotlight"></div><div class="pc-tier">Pro</div><div class="pc-price">$499<span>/mo</span></div><div class="pc-desc">Full auto-execution</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All 24 pairs</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Automated execution</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live dashboard</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Custom risk params</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
-                <div class="price-card"><div class="card-spotlight"></div><div class="pc-tier">Elite</div><div class="pc-price">$999<span>/mo</span></div><div class="pc-desc">White-glove service</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Everything in Pro</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Custom strategies</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Dedicated server</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>1-on-1 onboarding</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Direct Telegram</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
-                <div class="price-card"><div class="card-spotlight"></div><div class="pc-tier">Full System</div><div class="pc-price">$15K<span> one-time</span></div><div class="pc-desc">Own the entire bot outright</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Complete source code</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All 37 AI subsystems</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All trained models</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Self-hosted, yours forever</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>90 days setup support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Contact Us</a></div>
+                <div class="price-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Starter</div><div class="pc-price">$199<span>/mo</span></div><div class="pc-desc">Signals via Telegram</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Real-time signals</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>3 pairs max</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Telegram delivery</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Basic stats</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Email support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
+                <div class="price-card pop" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Pro</div><div class="pc-price">$499<span>/mo</span></div><div class="pc-desc">Full auto-execution</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All 24 pairs</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Automated execution</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live dashboard</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Custom risk params</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
+                <div class="price-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Elite</div><div class="pc-price">$999<span>/mo</span></div><div class="pc-desc">White-glove service</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Everything in Pro</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Custom strategies</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Dedicated server</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>1-on-1 onboarding</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Direct Telegram</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
+                <div class="price-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Full System</div><div class="pc-price">$15K<span> one-time</span></div><div class="pc-desc">Own the entire bot outright</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Complete source code</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All 37 AI subsystems</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All trained models</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Self-hosted, yours forever</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>90 days setup support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Contact Us</a></div>
             </div>
         </div>
     </section>
@@ -958,9 +995,9 @@
                 <div class="challenge-box"><div class="cb-head"><div class="cb-title">FTMO CHALLENGE -- DAY 18/30</div><div class="cb-status"><span class="live-dot"></span> On Track</div></div><div class="cb-body"><div class="cb-row"><span class="cb-label">Profit Target</span><div class="cb-bar"><div class="cb-fill fg" style="width:78%"></div></div><span class="cb-val vg">78%</span></div><div class="cb-row"><span class="cb-label">Days Traded</span><div class="cb-bar"><div class="cb-fill fy" style="width:60%"></div></div><span class="cb-val vy">18/30</span></div><div class="cb-row"><span class="cb-label">Max Drawdown</span><div class="cb-bar"><div class="cb-fill fg" style="width:25%"></div></div><span class="cb-val vg">2.5%/10%</span></div><div class="cb-stats"><div class="cbs"><div class="cbs-v" style="color:var(--green)">+7.8%</div><div class="cbs-l">P&L</div></div><div class="cbs"><div class="cbs-v" style="color:var(--blue)">67%</div><div class="cbs-l">Win Rate</div></div><div class="cbs"><div class="cbs-v" style="color:var(--gold)">1.94</div><div class="cbs-l">PF</div></div></div></div></div>
             </div>
             <div class="funded-cards reveal">
-                <div class="fc"><div class="card-spotlight"></div><div class="fc-size">$25K</div><div class="fc-label">Funded Account</div><div class="fc-split">80/20</div><div class="fc-split-l">Your Split / Our Split</div><div class="fc-potential">$2,000+/mo<small>at 10% monthly return</small></div></div>
-                <div class="fc featured"><div class="card-spotlight"></div><div class="fc-size">$100K</div><div class="fc-label">Funded Account</div><div class="fc-split">85/15</div><div class="fc-split-l">Your Split / Our Split</div><div class="fc-potential">$8,500+/mo<small>at 10% monthly return</small></div></div>
-                <div class="fc"><div class="card-spotlight"></div><div class="fc-size">$200K</div><div class="fc-label">Funded Account</div><div class="fc-split">90/10</div><div class="fc-split-l">Your Split / Our Split</div><div class="fc-potential">$18,000+/mo<small>at 10% monthly return</small></div></div>
+                <div class="fc" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="fc-size">$25K</div><div class="fc-label">Funded Account</div><div class="fc-split">80/20</div><div class="fc-split-l">Your Split / Our Split</div><div class="fc-potential">$2,000+/mo<small>at 10% monthly return</small></div></div>
+                <div class="fc featured" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="fc-size">$100K</div><div class="fc-label">Funded Account</div><div class="fc-split">85/15</div><div class="fc-split-l">Your Split / Our Split</div><div class="fc-potential">$8,500+/mo<small>at 10% monthly return</small></div></div>
+                <div class="fc" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="fc-size">$200K</div><div class="fc-label">Funded Account</div><div class="fc-split">90/10</div><div class="fc-split-l">Your Split / Our Split</div><div class="fc-potential">$18,000+/mo<small>at 10% monthly return</small></div></div>
             </div>
         </div>
     </section>
@@ -970,9 +1007,9 @@
         <div class="container">
             <div class="s-header center reveal"><div class="s-label">Social Proof</div><h2 class="s-title">Trusted by Traders <span class="gradient-text">Worldwide</span></h2></div>
             <div class="proof-grid reveal">
-                <div class="proof-card"><div class="card-spotlight"></div><div class="pq">"</div><p class="pt">I've tried 12 different trading bots. NeuralEdge is the first one that actually makes money consistently. The exit agent is genuinely next-level.</p><div class="pa"><div class="pa-av">M</div><div><div class="pa-name">Marcus R.</div><div class="pa-role">Crypto Trader, 4 years</div></div></div></div>
-                <div class="proof-card"><div class="card-spotlight"></div><div class="pq">"</div><p class="pt">The funded account program changed everything. Trading $100K with zero personal risk. Last month's payout was $6,800. This is real.</p><div class="pa"><div class="pa-av">S</div><div><div class="pa-name">Sarah K.</div><div class="pa-role">Funded Account Trader</div></div></div></div>
-                <div class="proof-card"><div class="card-spotlight"></div><div class="pq">"</div><p class="pt">As a developer, I appreciate the engineering. 37 subsystems, proper risk management, real ML -- not just moving averages with a fancy UI.</p><div class="pa"><div class="pa-av">A</div><div><div class="pa-name">Alex T.</div><div class="pa-role">Software Engineer & Trader</div></div></div></div>
+                <div class="proof-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pq">"</div><p class="pt">I've tried 12 different trading bots. NeuralEdge is the first one that actually makes money consistently. The exit agent is genuinely next-level.</p><div class="pa"><div class="pa-av">M</div><div><div class="pa-name">Marcus R.</div><div class="pa-role">Crypto Trader, 4 years</div></div></div></div>
+                <div class="proof-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pq">"</div><p class="pt">The funded account program changed everything. Trading $100K with zero personal risk. Last month's payout was $6,800. This is real.</p><div class="pa"><div class="pa-av">S</div><div><div class="pa-name">Sarah K.</div><div class="pa-role">Funded Account Trader</div></div></div></div>
+                <div class="proof-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pq">"</div><p class="pt">As a developer, I appreciate the engineering. 37 subsystems, proper risk management, real ML -- not just moving averages with a fancy UI.</p><div class="pa"><div class="pa-av">A</div><div><div class="pa-name">Alex T.</div><div class="pa-role">Software Engineer & Trader</div></div></div></div>
             </div>
             <div class="proof-numbers reveal">
                 <div class="pn"><div class="pn-v" style="color:var(--green)">$2.4M+</div><div class="pn-l">Volume Traded</div></div>
@@ -1038,42 +1075,54 @@
         const TICKERS = ['BTC','ETH','SOL','XRP','ADA','AVAX','DOGE','LINK','SUI','INJ','HBAR','PEPE','ARB','OP','APT','NEAR','LTC','AAVE','TIA','ETC'];
         const t0 = performance.now();
 
-        // === 1. FLOWING PRICE CURVES ===
+        // === 1. FLOWING PRICE CURVES (3 depth layers: far, mid, close) ===
         const curves = [];
-        for (let i = 0; i < 7; i++) {
-            const hues = [[59,130,246],[139,92,246],[6,182,212],[16,185,129],[236,72,153],[245,158,11],[99,102,241]];
-            curves.push({
-                color: hues[i],
-                speed: 0.15 + Math.random() * 0.25,
-                amp: 30 + Math.random() * 60,
-                yBase: 0.15 + (i / 7) * 0.7,
-                freq: 0.003 + Math.random() * 0.004,
-                phase: Math.random() * 1000,
-                alpha: 0.04 + Math.random() * 0.06,
-                width: 1 + Math.random() * 1.5,
-                depth: 0.3 + Math.random() * 0.7
-            });
+        const depthLayers = [
+            { count: 5, alphaBase: 0.015, widthBase: 0.5, speedMul: 0.5, ampMul: 0.5 },  // FAR (barely visible, slow)
+            { count: 5, alphaBase: 0.035, widthBase: 1.0, speedMul: 1.0, ampMul: 0.8 },  // MID
+            { count: 4, alphaBase: 0.06,  widthBase: 1.5, speedMul: 1.5, ampMul: 1.2 },  // CLOSE (bright, fast)
+        ];
+        const hues = [[59,130,246],[139,92,246],[6,182,212],[16,185,129],[236,72,153],[245,158,11],[99,102,241],[34,211,238],[168,85,247],[249,115,22],[20,184,166],[244,63,94],[56,189,248],[147,51,234]];
+        let ci = 0;
+        for (const layer of depthLayers) {
+            for (let i = 0; i < layer.count; i++) {
+                curves.push({
+                    color: hues[ci % hues.length],
+                    speed: (0.1 + Math.random() * 0.2) * layer.speedMul,
+                    amp: (25 + Math.random() * 50) * layer.ampMul,
+                    yBase: 0.1 + Math.random() * 0.8,
+                    freq: 0.002 + Math.random() * 0.004,
+                    phase: Math.random() * 2000,
+                    alpha: layer.alphaBase + Math.random() * 0.02,
+                    width: layer.widthBase + Math.random() * 0.5,
+                    depth: ci / 14
+                });
+                ci++;
+            }
         }
 
-        // === 2. FLOATING CANDLESTICKS ===
+        // === 2. FLOATING CANDLESTICKS (3 depth layers) ===
         const candles = [];
-        for (let i = 0; i < 55; i++) {
+        for (let i = 0; i < 80; i++) {
+            const depth = Math.random();
             candles.push({
-                x: Math.random() * 1.2 - 0.1,
+                x: Math.random() * 1.3 - 0.15,
                 y: Math.random(),
-                vx: -0.0002 - Math.random() * 0.0004,
-                vy: (Math.random() - 0.5) * 0.0001,
+                vx: (-0.0001 - Math.random() * 0.0003) * (0.3 + depth * 1.2),
+                vy: (Math.random() - 0.5) * 0.00008,
                 bull: Math.random() > 0.4,
-                bodyH: 4 + Math.random() * 12,
-                bodyW: 2 + Math.random() * 4,
-                wickTop: 2 + Math.random() * 8,
-                wickBot: 2 + Math.random() * 6,
-                depth: 0.2 + Math.random() * 0.8,
-                rot: (Math.random() - 0.5) * 0.15,
-                rotV: (Math.random() - 0.5) * 0.0003,
+                bodyH: (3 + Math.random() * 8) * (0.4 + depth * 1.2),
+                bodyW: (1.5 + Math.random() * 2.5) * (0.4 + depth * 1.0),
+                wickTop: (1.5 + Math.random() * 6) * (0.4 + depth),
+                wickBot: (1.5 + Math.random() * 5) * (0.4 + depth),
+                depth: depth,
+                rot: (Math.random() - 0.5) * 0.12,
+                rotV: (Math.random() - 0.5) * 0.0002,
                 alpha: 0
             });
         }
+        // Sort by depth so far candles render first
+        candles.sort((a, b) => a.depth - b.depth);
 
         // === 3. DATA RAIN COLUMNS ===
         const columns = [];
@@ -1176,8 +1225,8 @@
                 c.rot += c.rotV;
                 // Wrap
                 if (c.x < -0.1) { c.x = 1.1; c.y = Math.random(); c.bull = Math.random() > 0.4; }
-                // Fade based on depth
-                const targetAlpha = c.depth * 0.35;
+                // Fade based on depth (far = dim, close = bright)
+                const targetAlpha = 0.06 + c.depth * 0.4;
                 c.alpha += (targetAlpha - c.alpha) * 0.02;
 
                 const cx = c.x * W, cy = c.y * H;
@@ -1191,10 +1240,10 @@
                 ctx.rotate(c.rot);
                 ctx.globalAlpha = c.alpha;
 
-                // Glow for close candles
-                if (c.depth > 0.6) {
-                    ctx.shadowBlur = 8 * c.depth;
-                    ctx.shadowColor = `rgba(${color[0]},${color[1]},${color[2]},0.3)`;
+                // Glow for close candles (more intense for depth feel)
+                if (c.depth > 0.5) {
+                    ctx.shadowBlur = 6 + c.depth * 12;
+                    ctx.shadowColor = `rgba(${color[0]},${color[1]},${color[2]},${0.15 + c.depth * 0.25})`;
                 }
 
                 // Wick
