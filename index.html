@@ -7,39 +7,41 @@
     <meta name="description" content="AI-powered crypto trading system running 24/7 across 26 pairs. Dual-agent architecture, institutional data, adaptive confidence.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ============================================================
-           DESIGN SYSTEM
+           DESIGN SYSTEM - NeuralEdge AI v2
+           Ultra-Premium Dark Fintech + Aurora + Glassmorphism
            ============================================================ */
         :root {
-            --bg-primary: #06080d;
-            --bg-secondary: #0c1017;
-            --bg-card: rgba(14, 18, 27, 0.7);
-            --bg-card-hover: rgba(20, 26, 40, 0.8);
-            --bg-glass: rgba(255, 255, 255, 0.03);
-            --border-subtle: rgba(255, 255, 255, 0.06);
-            --border-glow: rgba(99, 179, 237, 0.15);
-            --text-primary: #e8ecf4;
-            --text-secondary: #8b95a8;
-            --text-muted: #5a6478;
-            --accent-blue: #63b3ed;
-            --accent-cyan: #4fd1c5;
-            --accent-purple: #9f7aea;
-            --accent-green: #48bb78;
-            --accent-red: #fc8181;
-            --accent-gold: #ecc94b;
-            --gradient-hero: linear-gradient(135deg, #63b3ed 0%, #9f7aea 50%, #4fd1c5 100%);
-            --gradient-card: linear-gradient(135deg, rgba(99,179,237,0.08) 0%, rgba(159,122,234,0.04) 100%);
-            --gradient-cta: linear-gradient(135deg, #63b3ed 0%, #4fd1c5 100%);
-            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
-            --shadow-glow: 0 0 40px rgba(99, 179, 237, 0.1);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --radius-xl: 24px;
-            --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
+            --bg-void: #000000;
+            --bg-deep: #06080f;
+            --bg-surface: #0c0e18;
+            --bg-elevated: #12152a;
+            --bg-glass: rgba(12, 14, 24, 0.6);
+            --bg-glass-hover: rgba(18, 21, 42, 0.7);
+            --border-dim: rgba(255, 255, 255, 0.04);
+            --border-subtle: rgba(255, 255, 255, 0.07);
+            --border-glow: rgba(99, 179, 237, 0.2);
+            --text-primary: #f0f2f8;
+            --text-secondary: #8892a8;
+            --text-muted: #4a5268;
+            --accent-blue: #60a5fa;
+            --accent-cyan: #22d3ee;
+            --accent-purple: #a78bfa;
+            --accent-green: #34d399;
+            --accent-red: #f87171;
+            --accent-gold: #fbbf24;
+            --accent-pink: #f472b6;
+            --gradient-hero: linear-gradient(135deg, #60a5fa 0%, #a78bfa 40%, #22d3ee 100%);
+            --gradient-cta: linear-gradient(135deg, #60a5fa 0%, #22d3ee 100%);
+            --gradient-gold: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            --shadow-glow-blue: 0 0 60px rgba(96, 165, 250, 0.08);
+            --shadow-glow-purple: 0 0 60px rgba(167, 139, 250, 0.08);
+            --font-sans: 'DM Sans', -apple-system, system-ui, sans-serif;
             --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         /* ============================================================
@@ -49,35 +51,82 @@
         html { scroll-behavior: smooth; font-size: 16px; }
         body {
             font-family: var(--font-sans);
-            background: var(--bg-primary);
+            background: var(--bg-void);
             color: var(--text-primary);
             line-height: 1.7;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         a { color: var(--accent-blue); text-decoration: none; transition: color 0.2s; }
         a:hover { color: var(--accent-cyan); }
         img { max-width: 100%; display: block; }
+        ::selection { background: rgba(96, 165, 250, 0.3); color: #fff; }
 
         /* ============================================================
-           ANIMATED GRID BACKGROUND
+           AURORA BACKGROUND - Animated Mesh Blobs
            ============================================================ */
-        .grid-bg {
+        .aurora-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            overflow: hidden;
+        }
+        .aurora-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.12;
+            animation: aurora-drift 20s ease-in-out infinite alternate;
+        }
+        .aurora-blob:nth-child(1) {
+            width: 700px; height: 700px;
+            background: radial-gradient(circle, #60a5fa, transparent 70%);
+            top: -15%; left: -10%;
+            animation-duration: 25s;
+        }
+        .aurora-blob:nth-child(2) {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, #a78bfa, transparent 70%);
+            top: 20%; right: -15%;
+            animation-duration: 30s;
+            animation-delay: -5s;
+        }
+        .aurora-blob:nth-child(3) {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, #22d3ee, transparent 70%);
+            bottom: 10%; left: 20%;
+            animation-duration: 22s;
+            animation-delay: -10s;
+        }
+        .aurora-blob:nth-child(4) {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, #f472b6, transparent 70%);
+            top: 60%; right: 10%;
+            animation-duration: 28s;
+            animation-delay: -15s;
+        }
+        @keyframes aurora-drift {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(60px, -40px) scale(1.1); }
+            66% { transform: translate(-40px, 30px) scale(0.95); }
+            100% { transform: translate(30px, -60px) scale(1.05); }
+        }
+
+        /* Fine grid overlay */
+        .grid-overlay {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
             background-image:
-                linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
-            -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 80px 80px;
+            mask-image: radial-gradient(ellipse 80% 50% at 50% 30%, black 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 30%, black 20%, transparent 70%);
         }
-        .grid-bg::after {
-            content: ''; position: absolute; inset: 0;
-            background: radial-gradient(circle 600px at 50% 20%, rgba(99,179,237,0.05), transparent 70%);
-            animation: pulse-glow 8s ease-in-out infinite alternate;
-        }
-        @keyframes pulse-glow {
-            0% { opacity: 0.5; } 100% { opacity: 1; }
+
+        /* ============================================================
+           PARTICLE CANVAS (hero only)
+           ============================================================ */
+        #particles {
+            position: absolute; inset: 0; z-index: 0; pointer-events: none;
         }
 
         /* ============================================================
@@ -87,238 +136,425 @@
             max-width: 1200px; margin: 0 auto; padding: 0 24px;
             position: relative; z-index: 1;
         }
-        section { padding: 100px 0; }
+        section { padding: 120px 0; position: relative; }
 
         /* ============================================================
-           NAVIGATION
+           NAVIGATION - Floating Glass
            ============================================================ */
         nav {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-            padding: 16px 0;
-            background: rgba(6, 8, 13, 0.8);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-subtle);
-            transition: all 0.3s;
+            position: fixed; top: 16px; left: 16px; right: 16px; z-index: 100;
+            padding: 12px 0;
+            background: rgba(6, 8, 15, 0.6);
+            backdrop-filter: blur(24px) saturate(1.8);
+            -webkit-backdrop-filter: blur(24px) saturate(1.8);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            transition: all 0.4s var(--ease-out-expo);
         }
-        nav.scrolled { padding: 10px 0; background: rgba(6, 8, 13, 0.95); }
+        nav.scrolled {
+            top: 8px;
+            background: rgba(6, 8, 15, 0.85);
+            border-color: var(--border-glow);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+        }
         .nav-inner {
             display: flex; align-items: center; justify-content: space-between;
             max-width: 1200px; margin: 0 auto; padding: 0 24px;
         }
         .nav-logo {
             display: flex; align-items: center; gap: 10px;
-            font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em;
+            font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em;
+            color: var(--text-primary);
         }
         .nav-logo-icon {
             width: 36px; height: 36px;
             background: var(--gradient-cta);
             border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; font-weight: 900;
+            font-size: 1rem; font-weight: 900; color: #000;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
         }
-        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-links { display: flex; gap: 28px; align-items: center; }
         .nav-links a {
-            color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;
-            transition: color 0.2s;
+            color: var(--text-secondary); font-size: 0.88rem; font-weight: 500;
+            transition: color 0.2s; cursor: pointer;
+            position: relative;
         }
         .nav-links a:hover { color: var(--text-primary); }
+        .nav-links a::after {
+            content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+            height: 2px; background: var(--gradient-cta); border-radius: 1px;
+            transform: scaleX(0); transform-origin: center;
+            transition: transform 0.3s var(--ease-out-expo);
+        }
+        .nav-links a:hover::after { transform: scaleX(1); }
         .nav-cta {
-            background: var(--gradient-cta); color: #06080d !important;
-            padding: 10px 24px; border-radius: 8px;
-            font-weight: 600; font-size: 0.9rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: var(--gradient-cta); color: #000 !important;
+            padding: 10px 24px; border-radius: 10px;
+            font-weight: 700; font-size: 0.88rem;
+            transition: all 0.3s var(--ease-out-expo);
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.15);
         }
         .nav-cta:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(99,179,237,0.3);
-            color: #06080d !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(96, 165, 250, 0.3);
+            color: #000 !important;
         }
+        .nav-cta::after { display: none; }
 
         /* Mobile nav */
-        .nav-toggle { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; font-size: 1.5rem; }
+        .nav-toggle { display: none; background: none; border: none; color: var(--text-primary); cursor: pointer; font-size: 1.5rem; padding: 4px; }
         @media (max-width: 768px) {
-            .nav-links { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: rgba(6,8,13,0.98); padding: 20px 24px; gap: 16px; border-bottom: 1px solid var(--border-subtle); }
+            nav { top: 8px; left: 8px; right: 8px; }
+            .nav-links {
+                display: none; flex-direction: column;
+                position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+                background: rgba(6, 8, 15, 0.95);
+                backdrop-filter: blur(24px);
+                border: 1px solid var(--border-subtle);
+                border-radius: 16px;
+                padding: 20px 24px; gap: 16px;
+            }
             .nav-links.open { display: flex; }
             .nav-toggle { display: block; }
         }
 
         /* ============================================================
-           HERO
+           HERO - Cinematic
            ============================================================ */
         .hero {
-            padding: 180px 0 120px;
+            padding: 200px 0 140px;
             text-align: center;
             position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex; align-items: center;
         }
+        .hero .container { width: 100%; }
         .hero-badge {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(99,179,237,0.08);
-            border: 1px solid rgba(99,179,237,0.15);
-            border-radius: 100px; padding: 6px 16px;
+            background: rgba(96, 165, 250, 0.06);
+            border: 1px solid rgba(96, 165, 250, 0.12);
+            border-radius: 100px; padding: 8px 20px;
             font-size: 0.82rem; color: var(--accent-blue);
-            font-weight: 500; margin-bottom: 28px;
+            font-weight: 500; margin-bottom: 32px;
+            backdrop-filter: blur(12px);
+            animation: fadeInUp 0.8s var(--ease-out-expo) both;
         }
         .hero-badge .dot {
             width: 6px; height: 6px; border-radius: 50%;
             background: var(--accent-green);
-            animation: blink 2s infinite;
+            box-shadow: 0 0 8px var(--accent-green);
+            animation: pulse-dot 2s infinite;
         }
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--accent-green); }
+            50% { opacity: 0.4; box-shadow: 0 0 2px var(--accent-green); }
+        }
 
         .hero h1 {
-            font-size: clamp(2.8rem, 6vw, 4.5rem);
-            font-weight: 900; line-height: 1.1;
-            letter-spacing: -0.03em;
-            margin-bottom: 24px;
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 900; line-height: 1.05;
+            letter-spacing: -0.04em;
+            margin-bottom: 28px;
+            animation: fadeInUp 0.8s var(--ease-out-expo) 0.1s both;
         }
-        .hero h1 .gradient-text {
+        .gradient-text {
             background: var(--gradient-hero);
             -webkit-background-clip: text; background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradient-shift 6s ease-in-out infinite;
         }
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
         .hero .subtitle {
             font-size: clamp(1.05rem, 2vw, 1.25rem);
             color: var(--text-secondary);
-            max-width: 640px; margin: 0 auto 40px;
-            line-height: 1.7;
+            max-width: 640px; margin: 0 auto 48px;
+            line-height: 1.7; font-weight: 400;
+            animation: fadeInUp 0.8s var(--ease-out-expo) 0.2s both;
         }
         .hero-cta-row {
             display: flex; gap: 16px; justify-content: center;
-            flex-wrap: wrap; margin-bottom: 64px;
+            flex-wrap: wrap; margin-bottom: 80px;
+            animation: fadeInUp 0.8s var(--ease-out-expo) 0.3s both;
         }
         .btn-primary {
-            background: var(--gradient-cta); color: #06080d;
-            padding: 14px 32px; border-radius: 10px;
+            background: var(--gradient-cta); color: #000;
+            padding: 16px 36px; border-radius: 12px;
             font-weight: 700; font-size: 1rem; border: none; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s var(--ease-out-expo);
             display: inline-flex; align-items: center; gap: 8px;
+            font-family: var(--font-sans);
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.2);
+            position: relative; overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 50%);
+            opacity: 0; transition: opacity 0.3s;
         }
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(99,179,237,0.3);
-            color: #06080d;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(96, 165, 250, 0.35);
+            color: #000;
         }
+        .btn-primary:hover::before { opacity: 1; }
         .btn-secondary {
-            background: var(--bg-glass);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-subtle);
-            color: var(--text-primary); padding: 14px 32px;
-            border-radius: 10px; font-weight: 600; font-size: 1rem;
-            cursor: pointer; transition: all 0.2s;
+            color: var(--text-primary); padding: 16px 36px;
+            border-radius: 12px; font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: all 0.3s var(--ease-out-expo);
             display: inline-flex; align-items: center; gap: 8px;
+            font-family: var(--font-sans);
+            backdrop-filter: blur(8px);
         }
         .btn-secondary:hover {
             border-color: var(--border-glow);
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-2px);
             color: var(--text-primary);
         }
 
-        /* Live stats bar */
+        /* Hero stats -- floating glass cards */
         .hero-stats {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 1px; max-width: 800px; margin: 0 auto;
-            background: var(--border-subtle); border-radius: var(--radius-lg);
-            overflow: hidden;
+            gap: 16px; max-width: 900px; margin: 0 auto;
+            animation: fadeInUp 0.8s var(--ease-out-expo) 0.4s both;
         }
         .hero-stat {
-            background: var(--bg-secondary); padding: 24px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 28px 20px;
             text-align: center;
+            transition: all 0.4s var(--ease-out-expo);
+            position: relative; overflow: hidden;
         }
+        .hero-stat::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(96,165,250,0.3), transparent);
+            opacity: 0; transition: opacity 0.4s;
+        }
+        .hero-stat:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-glow);
+            box-shadow: var(--shadow-glow-blue);
+        }
+        .hero-stat:hover::before { opacity: 1; }
         .hero-stat .value {
-            font-size: 1.8rem; font-weight: 800;
+            font-size: 2rem; font-weight: 800;
             font-family: var(--font-mono);
             letter-spacing: -0.02em;
+            margin-bottom: 4px;
         }
-        .hero-stat .value.green { color: var(--accent-green); }
-        .hero-stat .value.blue { color: var(--accent-blue); }
-        .hero-stat .value.purple { color: var(--accent-purple); }
-        .hero-stat .value.gold { color: var(--accent-gold); }
         .hero-stat .label {
-            font-size: 0.78rem; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.08em;
-            margin-top: 4px; font-weight: 500;
+            font-size: 0.75rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.1em;
+            font-weight: 600;
         }
         @media (max-width: 600px) {
             .hero-stats { grid-template-columns: repeat(2, 1fr); }
+            .hero { padding: 160px 0 100px; }
         }
 
         /* ============================================================
-           FEATURES
+           SECTION HEADERS
            ============================================================ */
         .section-label {
-            display: inline-flex; align-items: center; gap: 8px;
-            font-size: 0.82rem; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.1em;
+            display: inline-flex; align-items: center; gap: 12px;
+            font-size: 0.78rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.14em;
             color: var(--accent-blue); margin-bottom: 16px;
         }
+        .section-label::before {
+            content: '';
+            width: 24px; height: 2px;
+            background: var(--gradient-cta);
+            border-radius: 1px;
+        }
         .section-title {
-            font-size: clamp(2rem, 4vw, 2.8rem);
-            font-weight: 800; letter-spacing: -0.02em;
-            line-height: 1.2; margin-bottom: 16px;
+            font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+            font-weight: 900; letter-spacing: -0.03em;
+            line-height: 1.15; margin-bottom: 16px;
         }
         .section-subtitle {
             color: var(--text-secondary); max-width: 560px;
             font-size: 1.05rem; line-height: 1.7;
         }
-        .section-header { margin-bottom: 64px; }
+        .section-header { margin-bottom: 72px; }
         .section-header.center { text-align: center; }
         .section-header.center .section-subtitle { margin: 0 auto; }
 
+        /* ============================================================
+           FEATURES - Glass Cards with Animated Borders
+           ============================================================ */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
         }
         .feature-card {
-            background: var(--gradient-card);
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 36px 28px;
-            transition: all 0.3s ease;
+            border-radius: 20px;
+            padding: 40px 28px;
+            transition: all 0.4s var(--ease-out-expo);
             position: relative; overflow: hidden;
+            cursor: pointer;
         }
+        /* Animated gradient border on hover */
         .feature-card::before {
             content: '';
-            position: absolute; top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
-            opacity: 0; transition: opacity 0.3s;
+            position: absolute; inset: -1px;
+            background: conic-gradient(from var(--card-angle, 0deg),
+                transparent 0%, var(--accent-blue) 10%, transparent 20%,
+                transparent 50%, var(--accent-purple) 60%, transparent 70%);
+            border-radius: 21px;
+            opacity: 0; transition: opacity 0.5s;
+            z-index: -1;
+        }
+        .feature-card::after {
+            content: '';
+            position: absolute; inset: 1px;
+            background: var(--bg-deep);
+            border-radius: 19px;
+            z-index: -1;
         }
         .feature-card:hover {
-            border-color: var(--border-glow);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-glow);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .feature-card:hover::before { opacity: 0.6; }
+        .feature-card:hover::before { opacity: 1; }
         .feature-icon {
-            width: 48px; height: 48px;
-            background: rgba(99,179,237,0.08);
-            border: 1px solid rgba(99,179,237,0.12);
-            border-radius: 12px; margin-bottom: 20px;
+            width: 52px; height: 52px;
+            background: rgba(96, 165, 250, 0.08);
+            border: 1px solid rgba(96, 165, 250, 0.12);
+            border-radius: 14px; margin-bottom: 24px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem;
+            transition: all 0.3s;
+        }
+        .feature-icon svg {
+            width: 24px; height: 24px;
+            stroke: var(--accent-blue);
+            stroke-width: 1.5;
+            fill: none;
+        }
+        .feature-card:hover .feature-icon {
+            background: rgba(96, 165, 250, 0.12);
+            border-color: rgba(96, 165, 250, 0.2);
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.1);
         }
         .feature-card h3 {
             font-size: 1.15rem; font-weight: 700;
             margin-bottom: 10px; letter-spacing: -0.01em;
         }
         .feature-card p {
-            color: var(--text-secondary); font-size: 0.92rem;
-            line-height: 1.65;
+            color: var(--text-secondary); font-size: 0.9rem;
+            line-height: 1.7;
         }
         @media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 600px) { .features-grid { grid-template-columns: 1fr; } }
 
         /* ============================================================
+           TRUST & SECURITY
+           ============================================================ */
+        .trust-section {
+            background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-void) 100%);
+        }
+        .trust-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .trust-card {
+            text-align: center; padding: 36px 20px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            transition: all 0.4s var(--ease-out-expo);
+            position: relative; overflow: hidden;
+            cursor: pointer;
+        }
+        .trust-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-glow);
+        }
+        .trust-icon {
+            width: 56px; height: 56px; margin: 0 auto 20px;
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .trust-icon svg { width: 26px; height: 26px; stroke-width: 1.5; fill: none; }
+        .trust-icon.green { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.15); }
+        .trust-icon.green svg { stroke: var(--accent-green); }
+        .trust-icon.blue { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.15); }
+        .trust-icon.blue svg { stroke: var(--accent-blue); }
+        .trust-icon.purple { background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.15); }
+        .trust-icon.purple svg { stroke: var(--accent-purple); }
+        .trust-icon.cyan { background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.15); }
+        .trust-icon.cyan svg { stroke: var(--accent-cyan); }
+        .trust-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+        .trust-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65; }
+
+        /* Exchange logos marquee */
+        .exchange-logos {
+            display: flex; align-items: center; justify-content: center;
+            gap: 20px; flex-wrap: wrap; margin-top: 56px;
+            padding-top: 48px; border-top: 1px solid var(--border-dim);
+        }
+        .exchange-logo {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 28px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            font-family: var(--font-mono);
+            font-size: 0.88rem; font-weight: 700;
+            color: var(--text-muted);
+            transition: all 0.3s var(--ease-out-expo);
+            cursor: pointer;
+        }
+        .exchange-logo:hover {
+            border-color: var(--border-glow);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+        .exchange-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .exchange-dot.active { background: var(--accent-green); box-shadow: 0 0 10px rgba(52,211,153,0.5); }
+        .exchange-dot.coming { background: var(--accent-gold); box-shadow: 0 0 10px rgba(251,191,36,0.3); }
+        .exchange-status { font-size: 0.62rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .exchange-status.live { color: var(--accent-green); }
+        .exchange-status.soon { color: var(--accent-gold); }
+        @media (max-width: 900px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .trust-grid { grid-template-columns: 1fr; } }
+
+        /* ============================================================
            PERFORMANCE
            ============================================================ */
-        .perf-section { background: var(--bg-secondary); }
+        .perf-section {
+            background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-deep) 50%, var(--bg-void) 100%);
+        }
         .perf-grid {
             display: grid; grid-template-columns: 1fr 1fr;
-            gap: 40px; align-items: start;
+            gap: 32px; align-items: start;
         }
         .perf-chart {
-            background: var(--bg-card);
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
+            border-radius: 20px;
             padding: 32px;
             position: relative; overflow: hidden;
         }
@@ -327,335 +563,98 @@
             align-items: center; margin-bottom: 24px;
         }
         .perf-chart-title {
-            font-size: 0.85rem; font-weight: 600;
+            font-size: 0.82rem; font-weight: 700;
             color: var(--text-secondary);
-            text-transform: uppercase; letter-spacing: 0.08em;
+            text-transform: uppercase; letter-spacing: 0.1em;
         }
-        .perf-chart-period {
-            display: flex; gap: 4px;
-        }
+        .perf-chart-period { display: flex; gap: 4px; }
         .perf-chart-period button {
             background: transparent; border: 1px solid var(--border-subtle);
-            color: var(--text-muted); padding: 4px 12px;
-            border-radius: 6px; font-size: 0.75rem; font-weight: 500;
+            color: var(--text-muted); padding: 5px 14px;
+            border-radius: 8px; font-size: 0.72rem; font-weight: 600;
             cursor: pointer; transition: all 0.2s;
             font-family: var(--font-sans);
         }
         .perf-chart-period button.active,
         .perf-chart-period button:hover {
-            background: rgba(99,179,237,0.1);
+            background: rgba(96,165,250,0.1);
             border-color: var(--accent-blue);
             color: var(--accent-blue);
         }
-        /* SVG equity curve placeholder */
-        .equity-curve {
-            width: 100%; height: 220px;
-            position: relative;
-        }
+        .equity-curve { width: 100%; height: 220px; position: relative; }
         .equity-curve svg { width: 100%; height: 100%; }
         .equity-curve .line {
             fill: none; stroke: var(--accent-green);
-            stroke-width: 2.5; stroke-linecap: round;
-            stroke-linejoin: round;
+            stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
         }
-        .equity-curve .area {
-            fill: url(#areaGradient); opacity: 0.3;
-        }
-        .perf-stats {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
+        .equity-curve .area { fill: url(#areaGradient); opacity: 0.3; }
+
+        .perf-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .perf-stat-card {
-            background: var(--bg-card);
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 24px;
+            border-radius: 16px;
+            padding: 28px;
+            transition: all 0.3s var(--ease-out-expo);
+            cursor: pointer;
+        }
+        .perf-stat-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
         }
         .perf-stat-card .label {
-            font-size: 0.78rem; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.08em;
-            margin-bottom: 8px; font-weight: 500;
+            font-size: 0.75rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.1em;
+            margin-bottom: 8px; font-weight: 600;
         }
         .perf-stat-card .value {
-            font-size: 1.5rem; font-weight: 800;
+            font-size: 1.6rem; font-weight: 800;
             font-family: var(--font-mono);
             letter-spacing: -0.02em;
         }
         .perf-stat-card .subtext {
-            font-size: 0.78rem; color: var(--text-muted);
+            font-size: 0.75rem; color: var(--text-muted);
             margin-top: 4px;
         }
-        @media (max-width: 900px) {
-            .perf-grid { grid-template-columns: 1fr; }
-        }
 
-        /* ============================================================
-           HOW IT WORKS
-           ============================================================ */
-        .steps-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 24px; position: relative;
-        }
-        .steps-grid::before {
-            content: ''; position: absolute;
-            top: 36px; left: 12%; right: 12%; height: 2px;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-cyan));
-            opacity: 0.2;
-        }
-        .step {
-            text-align: center; position: relative;
-        }
-        .step-number {
-            width: 72px; height: 72px; margin: 0 auto 20px;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-subtle);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; font-weight: 800;
-            font-family: var(--font-mono);
-            color: var(--accent-blue);
-            position: relative; z-index: 2;
-            transition: all 0.3s;
-        }
-        .step:hover .step-number {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 30px rgba(99,179,237,0.15);
-        }
-        .step h3 {
-            font-size: 1.05rem; font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .step p {
-            font-size: 0.88rem; color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        @media (max-width: 768px) {
-            .steps-grid { grid-template-columns: repeat(2, 1fr); }
-            .steps-grid::before { display: none; }
-        }
-        @media (max-width: 480px) {
-            .steps-grid { grid-template-columns: 1fr; }
-        }
-
-        /* ============================================================
-           PRICING
-           ============================================================ */
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px; align-items: start;
-        }
-        .pricing-card {
-            background: var(--bg-card);
+        /* Terminal code block */
+        .terminal {
+            background: rgba(0,0,0,0.4);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            padding: 36px 28px;
-            position: relative; transition: all 0.3s;
-        }
-        .pricing-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-glow);
-        }
-        .pricing-card.featured {
-            border-color: var(--accent-blue);
-            background: var(--gradient-card);
-            box-shadow: 0 0 60px rgba(99,179,237,0.08);
-        }
-        .pricing-card.featured::before {
-            content: 'MOST POPULAR';
-            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-            background: var(--gradient-cta); color: #06080d;
-            font-size: 0.7rem; font-weight: 700;
-            padding: 4px 16px; border-radius: 100px;
-            letter-spacing: 0.06em;
-        }
-        .pricing-tier {
-            font-size: 0.85rem; font-weight: 600;
-            color: var(--accent-blue); text-transform: uppercase;
-            letter-spacing: 0.08em; margin-bottom: 12px;
-        }
-        .pricing-price {
-            font-size: 2.5rem; font-weight: 900;
+            border-radius: 12px;
+            padding: 20px 24px;
             font-family: var(--font-mono);
-            letter-spacing: -0.03em; margin-bottom: 4px;
+            font-size: 0.82rem;
+            line-height: 1.9;
+            overflow-x: auto;
+            margin-top: 24px;
         }
-        .pricing-price span { font-size: 1rem; font-weight: 500; color: var(--text-muted); }
-        .pricing-desc {
-            font-size: 0.88rem; color: var(--text-secondary);
-            margin-bottom: 24px; line-height: 1.5;
-        }
-        .pricing-features {
-            list-style: none; margin-bottom: 28px;
-        }
-        .pricing-features li {
-            font-size: 0.88rem; color: var(--text-secondary);
-            padding: 8px 0; border-top: 1px solid var(--border-subtle);
-            display: flex; align-items: center; gap: 10px;
-        }
-        .pricing-features li .check {
-            color: var(--accent-green); font-weight: 700; font-size: 0.9rem;
-        }
-        .pricing-btn {
-            display: block; width: 100%; text-align: center;
-            padding: 12px; border-radius: 10px;
-            font-weight: 600; font-size: 0.92rem;
-            border: 1px solid var(--border-subtle);
-            background: transparent; color: var(--text-primary);
-            cursor: pointer; transition: all 0.2s;
-            font-family: var(--font-sans);
-        }
-        .pricing-btn:hover {
-            border-color: var(--accent-blue);
-            background: rgba(99,179,237,0.05);
-            color: var(--text-primary);
-        }
-        .pricing-card.featured .pricing-btn {
-            background: var(--gradient-cta); color: #06080d;
-            border: none;
-        }
-        .pricing-card.featured .pricing-btn:hover {
-            box-shadow: 0 4px 20px rgba(99,179,237,0.3);
-        }
-        @media (max-width: 1000px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
-
-        /* ============================================================
-           FAQ
-           ============================================================ */
-        .faq-list { max-width: 720px; margin: 0 auto; }
-        .faq-item {
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .faq-question {
-            width: 100%; text-align: left;
-            background: none; border: none; color: var(--text-primary);
-            font-family: var(--font-sans);
-            font-size: 1.05rem; font-weight: 600;
-            padding: 24px 40px 24px 0;
-            cursor: pointer; position: relative;
-            transition: color 0.2s;
-        }
-        .faq-question:hover { color: var(--accent-blue); }
-        .faq-question::after {
-            content: '+'; position: absolute; right: 0; top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.4rem; font-weight: 300;
-            color: var(--text-muted);
-            transition: transform 0.3s;
-        }
-        .faq-item.open .faq-question::after {
-            content: '-';
-        }
-        .faq-answer {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.4s ease, padding 0.3s ease;
-        }
-        .faq-item.open .faq-answer {
-            max-height: 300px; padding-bottom: 24px;
-        }
-        .faq-answer p {
-            color: var(--text-secondary); font-size: 0.95rem;
-            line-height: 1.7;
-        }
-
-        /* ============================================================
-           CTA SECTION
-           ============================================================ */
-        .cta-section {
-            text-align: center; padding: 100px 0;
-            position: relative;
-        }
-        .cta-glow {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px; height: 300px;
-            background: radial-gradient(ellipse, rgba(99,179,237,0.08), transparent 70%);
-            pointer-events: none;
-        }
-        .cta-section h2 {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 900; letter-spacing: -0.02em;
-            margin-bottom: 16px;
-        }
-        .cta-section p {
-            color: var(--text-secondary); font-size: 1.1rem;
-            margin-bottom: 32px;
-        }
-
-        /* ============================================================
-           FOOTER
-           ============================================================ */
-        footer {
-            border-top: 1px solid var(--border-subtle);
-            padding: 48px 0 32px;
-        }
-        .footer-grid {
-            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 40px; margin-bottom: 40px;
-        }
-        .footer-brand p {
-            color: var(--text-muted); font-size: 0.88rem;
-            margin-top: 12px; line-height: 1.6;
-        }
-        .footer-col h4 {
-            font-size: 0.8rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.08em;
-            color: var(--text-secondary); margin-bottom: 16px;
-        }
-        .footer-col a {
-            display: block; color: var(--text-muted);
-            font-size: 0.88rem; padding: 4px 0;
-            transition: color 0.2s;
-        }
-        .footer-col a:hover { color: var(--text-primary); }
-        .footer-bottom {
-            border-top: 1px solid var(--border-subtle);
-            padding-top: 24px;
-            display: flex; justify-content: space-between;
-            flex-wrap: wrap; gap: 12px;
-        }
-        .footer-bottom p {
-            font-size: 0.78rem; color: var(--text-muted);
-        }
-        .risk-disclaimer {
-            background: rgba(252,129,129,0.05);
-            border: 1px solid rgba(252,129,129,0.1);
-            border-radius: var(--radius-md);
-            padding: 20px 24px; margin-top: 32px;
-        }
-        .risk-disclaimer p {
-            font-size: 0.8rem; color: var(--text-muted);
-            line-height: 1.6;
-        }
-        .risk-disclaimer strong { color: var(--accent-red); }
-        @media (max-width: 768px) {
-            .footer-grid { grid-template-columns: 1fr 1fr; }
-        }
-        @media (max-width: 480px) {
-            .footer-grid { grid-template-columns: 1fr; }
-        }
+        .terminal .comment { color: #4a5268; }
+        .terminal .key { color: var(--accent-blue); }
+        .terminal .val { color: var(--accent-green); }
+        .terminal .str { color: var(--accent-gold); }
+        @media (max-width: 900px) { .perf-grid { grid-template-columns: 1fr; } }
 
         /* ============================================================
            DASHBOARD PREVIEW
            ============================================================ */
         .dashboard-preview { position: relative; }
         .dashboard-window {
-            background: #0a0b0e;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
+            background: #050609;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 80px rgba(0,0,0,0.6), 0 0 60px rgba(99,179,237,0.05);
+            box-shadow: 0 30px 100px rgba(0,0,0,0.7), 0 0 80px rgba(96,165,250,0.04);
         }
         .window-bar {
             display: flex; align-items: center; gap: 12px;
-            padding: 12px 16px;
-            background: #12141a;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 14px 20px;
+            background: #0a0c14;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .window-dots { display: flex; gap: 6px; }
-        .wdot {
-            width: 10px; height: 10px; border-radius: 50%;
-        }
+        .wdot { width: 10px; height: 10px; border-radius: 50%; }
         .wdot.red { background: #ff5f57; }
         .wdot.yellow { background: #febc2e; }
         .wdot.green { background: #28c840; }
@@ -671,116 +670,93 @@
         .dashboard-content { padding: 0; }
         .dash-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 16px;
-            background: #12141a;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 12px 20px;
+            background: #0a0c14;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .dash-logo {
             font-family: var(--font-mono); font-weight: 700;
             font-size: 0.9rem;
-            background: linear-gradient(135deg, #00e676, #18ffff);
+            background: var(--gradient-cta);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .dash-stats-bar { display: flex; gap: 24px; }
         .dash-stat { display: flex; flex-direction: column; align-items: flex-end; }
         .ds-label {
-            font-size: 0.55rem; color: #6b7080;
+            font-size: 0.55rem; color: #4a5268;
             text-transform: uppercase; letter-spacing: 1px;
             font-family: var(--font-mono);
         }
-        .ds-val {
-            font-family: var(--font-mono); font-size: 0.82rem;
-            font-weight: 600; color: var(--text-primary);
-        }
-        .ds-val.green { color: #00e676; }
+        .ds-val { font-family: var(--font-mono); font-size: 0.82rem; font-weight: 600; color: var(--text-primary); }
+        .ds-val.green { color: var(--accent-green); }
         .dash-body { display: grid; grid-template-columns: 1fr; }
-        .dash-chart-area { padding: 10px 12px; }
-        .dash-pair-row {
-            display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;
-        }
+        .dash-chart-area { padding: 12px 16px; }
+        .dash-pair-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
         .dash-pair {
-            padding: 3px 10px; border-radius: 12px;
-            border: 1px solid #2a2e3a; background: #1a1d26;
-            color: #6b7080; font-family: var(--font-mono);
-            font-size: 0.6rem; font-weight: 500;
+            padding: 4px 12px; border-radius: 10px;
+            border: 1px solid #1a1e2e; background: rgba(255,255,255,0.02);
+            color: #4a5268; font-family: var(--font-mono);
+            font-size: 0.6rem; font-weight: 600;
+            transition: all 0.2s;
         }
-        .dash-pair.active {
-            border-color: rgba(0,230,118,0.3); color: #00e676;
-            background: rgba(0,230,118,0.07);
-        }
-        .dash-pair.has-pos {
-            border-color: rgba(255,193,7,0.3); color: #ffc107;
-        }
+        .dash-pair.active { border-color: rgba(52,211,153,0.3); color: var(--accent-green); background: rgba(52,211,153,0.05); }
+        .dash-pair.has-pos { border-color: rgba(251,191,36,0.3); color: var(--accent-gold); }
         .dash-chart-mock {
-            background: #0d1017;
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 8px;
-            height: 320px;
+            background: #030408;
+            border: 1px solid rgba(255,255,255,0.03);
+            border-radius: 12px;
+            height: 300px;
             overflow: hidden;
             position: relative;
         }
-        .dash-chart-mock .chart-bg-stars {
-            position: absolute; inset: 0; z-index: 0;
-            background:
-                url('https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80')
-                center/cover no-repeat;
-            opacity: 0.12;
-            pointer-events: none;
-        }
-        .dash-chart-mock .candle-svg { position: relative; z-index: 1; }
         .candle-svg { width: 100%; height: 100%; }
+
         .dash-positions {
-            border-top: 1px solid rgba(255,255,255,0.06);
+            border-top: 1px solid rgba(255,255,255,0.05);
             font-family: var(--font-mono);
             font-size: 0.68rem;
         }
         .dash-pos-header {
             display: grid; grid-template-columns: 1.5fr 0.8fr 1fr 1fr 1.5fr;
-            gap: 8px; padding: 10px 16px;
-            color: #6b7080; text-transform: uppercase;
+            gap: 8px; padding: 10px 20px;
+            color: #4a5268; text-transform: uppercase;
             letter-spacing: 0.5px; font-size: 0.55rem;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .dash-pos-row {
             display: grid; grid-template-columns: 1.5fr 0.8fr 1fr 1fr 1.5fr;
-            gap: 8px; padding: 10px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            gap: 8px; padding: 10px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
             align-items: center;
-            color: #a0a5b5;
+            color: var(--text-secondary);
+            transition: background 0.2s;
         }
-        .dash-pos-row:hover { background: rgba(255,255,255,0.02); }
-        .dp-pair { font-weight: 600; color: var(--text-primary); }
+        .dash-pos-row:hover { background: rgba(255,255,255,0.015); }
+        .dp-pair { font-weight: 700; color: var(--text-primary); }
         .dp-long {
-            color: #00e676; background: rgba(0,230,118,0.08);
-            padding: 2px 6px; border-radius: 4px;
-            font-size: 0.58rem; font-weight: 600; text-align: center;
+            color: var(--accent-green); background: rgba(52,211,153,0.08);
+            padding: 2px 8px; border-radius: 6px;
+            font-size: 0.58rem; font-weight: 700; text-align: center;
         }
         .dp-short {
-            color: #ff5252; background: rgba(255,82,82,0.08);
-            padding: 2px 6px; border-radius: 4px;
-            font-size: 0.58rem; font-weight: 600; text-align: center;
+            color: var(--accent-red); background: rgba(248,113,113,0.08);
+            padding: 2px 8px; border-radius: 6px;
+            font-size: 0.58rem; font-weight: 700; text-align: center;
         }
-        .dp-pnl.green { color: #00e676; font-weight: 600; }
-        .dp-pnl.red { color: #ff5252; font-weight: 600; }
-        .dp-sl small {
-            color: #6b7080; font-size: 0.55rem;
-        }
+        .dp-pnl.green { color: var(--accent-green); font-weight: 700; }
+        .dp-pnl.red { color: var(--accent-red); font-weight: 700; }
+        .dp-sl small { color: #4a5268; font-size: 0.55rem; }
+
         .dashboard-features {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 20px; margin-top: 32px;
+            gap: 20px; margin-top: 40px;
         }
-        .dash-feat {
-            display: flex; gap: 12px; align-items: flex-start;
+        .dash-feat { display: flex; gap: 12px; align-items: flex-start; }
+        .dash-feat-dot {
+            width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0;
         }
-        .dash-feat-icon { font-size: 0.6rem; margin-top: 4px; }
-        .dash-feat strong {
-            display: block; font-size: 0.92rem;
-            margin-bottom: 4px;
-        }
-        .dash-feat p {
-            font-size: 0.82rem; color: var(--text-secondary);
-            line-height: 1.5;
-        }
+        .dash-feat strong { display: block; font-size: 0.92rem; margin-bottom: 4px; }
+        .dash-feat p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; }
         @media (max-width: 900px) {
             .dash-stats-bar { gap: 12px; flex-wrap: wrap; }
             .dashboard-features { grid-template-columns: repeat(2, 1fr); }
@@ -791,18 +767,136 @@
         }
 
         /* ============================================================
+           HOW IT WORKS
+           ============================================================ */
+        .steps-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 24px; position: relative;
+        }
+        .steps-grid::before {
+            content: ''; position: absolute;
+            top: 40px; left: 12%; right: 12%; height: 2px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-cyan));
+            opacity: 0.15;
+        }
+        .step { text-align: center; position: relative; }
+        .step-number {
+            width: 80px; height: 80px; margin: 0 auto 24px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            border: 2px solid var(--border-subtle);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: 800;
+            font-family: var(--font-mono);
+            color: var(--accent-blue);
+            position: relative; z-index: 2;
+            transition: all 0.4s var(--ease-out-expo);
+            cursor: pointer;
+        }
+        .step:hover .step-number {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 40px rgba(96,165,250,0.15);
+            transform: scale(1.08);
+        }
+        .step h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+        .step p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+        @media (max-width: 768px) {
+            .steps-grid { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid::before { display: none; }
+        }
+        @media (max-width: 480px) { .steps-grid { grid-template-columns: 1fr; } }
+
+        /* ============================================================
+           PRICING - Premium Glass Cards
+           ============================================================ */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px; align-items: start;
+        }
+        .pricing-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 40px 28px;
+            position: relative; transition: all 0.4s var(--ease-out-expo);
+            cursor: pointer;
+        }
+        .pricing-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-glow-blue);
+        }
+        .pricing-card.featured {
+            border-color: var(--accent-blue);
+            background: linear-gradient(135deg, rgba(96,165,250,0.06) 0%, rgba(167,139,250,0.03) 100%);
+            box-shadow: 0 0 80px rgba(96,165,250,0.06);
+        }
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+            background: var(--gradient-cta); color: #000;
+            font-size: 0.68rem; font-weight: 800;
+            padding: 5px 18px; border-radius: 100px;
+            letter-spacing: 0.06em;
+            box-shadow: 0 4px 20px rgba(96,165,250,0.3);
+        }
+        .pricing-tier {
+            font-size: 0.82rem; font-weight: 700;
+            color: var(--accent-blue); text-transform: uppercase;
+            letter-spacing: 0.1em; margin-bottom: 12px;
+        }
+        .pricing-price {
+            font-size: 2.8rem; font-weight: 900;
+            font-family: var(--font-mono);
+            letter-spacing: -0.03em; margin-bottom: 4px;
+        }
+        .pricing-price span { font-size: 1rem; font-weight: 500; color: var(--text-muted); }
+        .pricing-desc {
+            font-size: 0.88rem; color: var(--text-secondary);
+            margin-bottom: 28px; line-height: 1.5;
+        }
+        .pricing-features { list-style: none; margin-bottom: 32px; }
+        .pricing-features li {
+            font-size: 0.88rem; color: var(--text-secondary);
+            padding: 10px 0; border-top: 1px solid var(--border-dim);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .pricing-features li svg {
+            width: 16px; height: 16px; stroke: var(--accent-green);
+            stroke-width: 2; fill: none; flex-shrink: 0;
+        }
+        .pricing-btn {
+            display: block; width: 100%; text-align: center;
+            padding: 14px; border-radius: 12px;
+            font-weight: 700; font-size: 0.92rem;
+            border: 1px solid var(--border-subtle);
+            background: transparent; color: var(--text-primary);
+            cursor: pointer; transition: all 0.3s var(--ease-out-expo);
+            font-family: var(--font-sans);
+        }
+        .pricing-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(96,165,250,0.05);
+            color: var(--text-primary);
+        }
+        .pricing-card.featured .pricing-btn {
+            background: var(--gradient-cta); color: #000; border: none;
+            box-shadow: 0 0 20px rgba(96,165,250,0.15);
+        }
+        .pricing-card.featured .pricing-btn:hover {
+            box-shadow: 0 8px 30px rgba(96,165,250,0.3);
+        }
+        @media (max-width: 1000px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+        /* ============================================================
            FUNDED ACCOUNTS
            ============================================================ */
         .funded-section {
-            background: var(--bg-secondary);
+            background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-deep) 50%, var(--bg-void) 100%);
             position: relative; overflow: hidden;
-        }
-        .funded-section::before {
-            content: ''; position: absolute; inset: 0;
-            background:
-                radial-gradient(circle 400px at 20% 50%, rgba(236,201,75,0.04), transparent),
-                radial-gradient(circle 400px at 80% 50%, rgba(99,179,237,0.04), transparent);
-            pointer-events: none;
         }
         .funded-hero-grid {
             display: grid; grid-template-columns: 1fr 1fr;
@@ -810,15 +904,15 @@
         }
         .funded-badge {
             display: inline-flex; align-items: center; gap: 8px;
-            background: rgba(236,201,75,0.08);
-            border: 1px solid rgba(236,201,75,0.15);
-            border-radius: 100px; padding: 6px 16px;
+            background: rgba(251,191,36,0.06);
+            border: 1px solid rgba(251,191,36,0.12);
+            border-radius: 100px; padding: 8px 20px;
             font-size: 0.82rem; color: var(--accent-gold);
             font-weight: 600; margin-bottom: 20px;
         }
         .funded-title {
             font-size: clamp(2rem, 4vw, 2.8rem);
-            font-weight: 900; letter-spacing: -0.02em;
+            font-weight: 900; letter-spacing: -0.03em;
             line-height: 1.15; margin-bottom: 16px;
         }
         .funded-title .gold { color: var(--accent-gold); }
@@ -826,178 +920,132 @@
             color: var(--text-secondary); font-size: 1.05rem;
             line-height: 1.7; margin-bottom: 32px;
         }
-        /* Challenge simulator card */
+
+        /* Challenge simulator */
         .challenge-sim {
-            background: #0a0b0e;
-            border: 1px solid rgba(236,201,75,0.12);
-            border-radius: 16px;
+            background: #050609;
+            border: 1px solid rgba(251,191,36,0.1);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(236,201,75,0.03);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 40px rgba(251,191,36,0.02);
         }
         .challenge-sim-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 20px;
-            background: #12141a;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 16px 24px;
+            background: #0a0c14;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .challenge-sim-title {
             font-family: var(--font-mono); font-size: 0.78rem;
-            font-weight: 600; color: var(--accent-gold);
+            font-weight: 700; color: var(--accent-gold);
         }
         .challenge-sim-status {
             display: flex; align-items: center; gap: 6px;
             font-family: var(--font-mono); font-size: 0.7rem;
-            color: var(--accent-green); font-weight: 500;
+            color: var(--accent-green); font-weight: 600;
         }
-        .challenge-sim-body { padding: 20px; }
-        /* Progress bars */
-        .challenge-progress { margin-bottom: 16px; }
-        .cp-row {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 12px;
-        }
+        .challenge-sim-body { padding: 24px; }
+        .cp-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
         .cp-label {
             font-family: var(--font-mono); font-size: 0.7rem;
             color: var(--text-muted); width: 110px; flex-shrink: 0;
             text-transform: uppercase; letter-spacing: 0.5px;
         }
         .cp-bar-wrap {
-            flex: 1; height: 8px; background: #1a1d26;
-            border-radius: 4px; overflow: hidden; position: relative;
+            flex: 1; height: 8px; background: #0f1220;
+            border-radius: 4px; overflow: hidden;
         }
         .cp-bar {
             height: 100%; border-radius: 4px;
-            transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: width 1.5s var(--ease-out-expo);
         }
-        .cp-bar.green { background: linear-gradient(90deg, #00e676, #48bb78); }
-        .cp-bar.gold { background: linear-gradient(90deg, #ecc94b, #f6ad55); }
-        .cp-bar.safe { background: linear-gradient(90deg, #48bb78, #38a169); }
+        .cp-bar.green { background: linear-gradient(90deg, #34d399, #10b981); }
+        .cp-bar.gold { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .cp-bar.safe { background: linear-gradient(90deg, #34d399, #059669); }
         .cp-value {
             font-family: var(--font-mono); font-size: 0.78rem;
-            font-weight: 600; width: 80px; text-align: right; flex-shrink: 0;
+            font-weight: 700; width: 80px; text-align: right; flex-shrink: 0;
         }
         .cp-value.green { color: var(--accent-green); }
         .cp-value.gold { color: var(--accent-gold); }
-        /* Challenge stats grid */
         .challenge-stats {
             display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 1px; background: rgba(255,255,255,0.04);
-            border-radius: 10px; overflow: hidden;
-            margin-top: 16px;
+            gap: 1px; background: rgba(255,255,255,0.03);
+            border-radius: 14px; overflow: hidden; margin-top: 20px;
         }
-        .cs-item {
-            background: #0d1017; padding: 14px 12px;
-            text-align: center;
-        }
-        .cs-item .cs-val {
-            font-family: var(--font-mono); font-size: 1.1rem;
-            font-weight: 700;
-        }
-        .cs-item .cs-label {
-            font-size: 0.65rem; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin-top: 2px; font-weight: 500;
-        }
-        /* How funded works steps */
+        .cs-item { background: #080a12; padding: 16px 12px; text-align: center; }
+        .cs-item .cs-val { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; }
+        .cs-item .cs-label { font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; font-weight: 600; }
+
         .funded-flow {
             display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 20px; margin-top: 64px;
+            gap: 20px; margin-top: 72px;
         }
         .funded-flow-card {
-            background: var(--bg-card);
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 32px 24px;
+            border-radius: 20px;
+            padding: 36px 24px;
             text-align: center;
-            position: relative;
-            transition: all 0.3s;
+            transition: all 0.4s var(--ease-out-expo);
+            cursor: pointer;
         }
         .funded-flow-card:hover {
-            border-color: rgba(236,201,75,0.2);
+            border-color: rgba(251,191,36,0.2);
             transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(236,201,75,0.05);
         }
         .funded-flow-num {
-            width: 40px; height: 40px; margin: 0 auto 16px;
-            background: rgba(236,201,75,0.08);
-            border: 1px solid rgba(236,201,75,0.15);
+            width: 44px; height: 44px; margin: 0 auto 16px;
+            background: rgba(251,191,36,0.06);
+            border: 1px solid rgba(251,191,36,0.12);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-family: var(--font-mono); font-weight: 800;
             color: var(--accent-gold); font-size: 1rem;
         }
-        .funded-flow-card h3 {
-            font-size: 1.05rem; font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .funded-flow-card p {
-            font-size: 0.88rem; color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        /* Prop firm logos row */
-        .funded-firms {
-            display: flex; align-items: center; justify-content: center;
-            gap: 40px; margin-top: 48px; flex-wrap: wrap;
-        }
-        .funded-firm {
-            font-family: var(--font-mono); font-size: 0.85rem;
-            font-weight: 600; color: var(--text-muted);
-            padding: 10px 20px;
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            transition: all 0.2s;
-        }
-        .funded-firm:hover {
-            color: var(--text-primary);
-            border-color: var(--border-glow);
-        }
-        /* Funded pricing row */
+        .funded-flow-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+        .funded-flow-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.65; }
+
+        /* Funded pricing */
         .funded-pricing {
             display: grid; grid-template-columns: repeat(3, 1fr);
             gap: 20px; margin-top: 48px;
         }
         .fp-card {
-            background: var(--bg-card);
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 28px 24px; text-align: center;
-            transition: all 0.3s;
+            border-radius: 20px;
+            padding: 32px 24px; text-align: center;
+            transition: all 0.3s var(--ease-out-expo);
+            cursor: pointer;
         }
-        .fp-card:hover {
-            border-color: rgba(236,201,75,0.2);
-            transform: translateY(-2px);
-        }
-        .fp-card.featured {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 40px rgba(236,201,75,0.06);
-        }
-        .fp-size {
-            font-family: var(--font-mono); font-size: 1.5rem;
-            font-weight: 900; color: var(--accent-gold);
-            margin-bottom: 4px;
-        }
-        .fp-label {
-            font-size: 0.78rem; color: var(--text-muted);
-            margin-bottom: 16px;
-        }
-        .fp-split {
-            font-family: var(--font-mono); font-size: 2rem;
-            font-weight: 900; margin-bottom: 4px;
-        }
-        .fp-split-label {
-            font-size: 0.78rem; color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
+        .fp-card:hover { border-color: rgba(251,191,36,0.2); transform: translateY(-2px); }
+        .fp-card.featured { border-color: var(--accent-gold); box-shadow: 0 0 40px rgba(251,191,36,0.04); }
+        .fp-size { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 900; color: var(--accent-gold); margin-bottom: 4px; }
+        .fp-label { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 16px; }
+        .fp-split { font-family: var(--font-mono); font-size: 2rem; font-weight: 900; margin-bottom: 4px; }
+        .fp-split-label { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 16px; }
         .fp-potential {
-            background: rgba(0,230,118,0.06);
-            border-radius: 8px; padding: 10px;
+            background: rgba(52,211,153,0.05); border-radius: 10px; padding: 12px;
             font-family: var(--font-mono); font-size: 0.85rem;
-            color: var(--accent-green); font-weight: 600;
+            color: var(--accent-green); font-weight: 700;
         }
-        .fp-potential small {
-            display: block; font-size: 0.68rem;
-            color: var(--text-muted); font-weight: 400; margin-top: 2px;
+        .fp-potential small { display: block; font-size: 0.68rem; color: var(--text-muted); font-weight: 400; margin-top: 2px; }
+        .funded-firms {
+            display: flex; align-items: center; justify-content: center;
+            gap: 24px; margin-top: 48px; flex-wrap: wrap;
         }
+        .funded-firm {
+            font-family: var(--font-mono); font-size: 0.85rem;
+            font-weight: 700; color: var(--text-muted);
+            padding: 12px 24px;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .funded-firm:hover { color: var(--text-primary); border-color: var(--border-glow); }
         @media (max-width: 900px) {
             .funded-hero-grid { grid-template-columns: 1fr; gap: 40px; }
             .funded-flow { grid-template-columns: 1fr; }
@@ -1005,181 +1053,193 @@
         }
 
         /* ============================================================
-           TRUST & SECURITY
-           ============================================================ */
-        .trust-section {
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-subtle);
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .trust-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-        }
-        .trust-card {
-            text-align: center; padding: 32px 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            transition: all 0.3s;
-            position: relative; overflow: hidden;
-        }
-        .trust-card::after {
-            content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-            height: 2px; opacity: 0; transition: opacity 0.3s;
-        }
-        .trust-card:nth-child(1)::after { background: var(--accent-green); }
-        .trust-card:nth-child(2)::after { background: var(--accent-blue); }
-        .trust-card:nth-child(3)::after { background: var(--accent-purple); }
-        .trust-card:nth-child(4)::after { background: var(--accent-cyan); }
-        .trust-card:hover { transform: translateY(-3px); }
-        .trust-card:hover::after { opacity: 1; }
-        .trust-icon {
-            width: 56px; height: 56px; margin: 0 auto 16px;
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
-        }
-        .trust-icon.green { background: rgba(72,187,120,0.08); border: 1px solid rgba(72,187,120,0.15); }
-        .trust-icon.blue { background: rgba(99,179,237,0.08); border: 1px solid rgba(99,179,237,0.15); }
-        .trust-icon.purple { background: rgba(159,122,234,0.08); border: 1px solid rgba(159,122,234,0.15); }
-        .trust-icon.cyan { background: rgba(79,209,197,0.08); border: 1px solid rgba(79,209,197,0.15); }
-        .trust-card h3 {
-            font-size: 1rem; font-weight: 700;
-            margin-bottom: 8px;
-        }
-        .trust-card p {
-            font-size: 0.85rem; color: var(--text-secondary);
-            line-height: 1.6;
-        }
-        /* Exchange logos */
-        .exchange-logos {
-            display: flex; align-items: center; justify-content: center;
-            gap: 32px; flex-wrap: wrap; margin-top: 48px;
-            padding-top: 40px; border-top: 1px solid var(--border-subtle);
-        }
-        .exchange-logo {
-            display: flex; align-items: center; gap: 10px;
-            padding: 12px 24px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            font-family: var(--font-mono);
-            font-size: 0.9rem; font-weight: 700;
-            color: var(--text-muted);
-            transition: all 0.2s;
-        }
-        .exchange-logo:hover {
-            border-color: var(--border-glow);
-            color: var(--text-primary);
-        }
-        .exchange-dot {
-            width: 10px; height: 10px; border-radius: 50%;
-        }
-        .exchange-dot.active { background: var(--accent-green); box-shadow: 0 0 8px rgba(72,187,120,0.4); }
-        .exchange-dot.coming { background: var(--accent-gold); }
-        .exchange-status {
-            font-size: 0.6rem; font-weight: 500;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin-left: auto;
-        }
-        .exchange-status.live { color: var(--accent-green); }
-        .exchange-status.soon { color: var(--accent-gold); }
-        @media (max-width: 900px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 500px) { .trust-grid { grid-template-columns: 1fr; } }
-
-        /* ============================================================
            SOCIAL PROOF
            ============================================================ */
         .proof-section { overflow: hidden; }
-        .proof-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
+        .proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .proof-card {
-            background: var(--gradient-card);
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 28px 24px;
+            border-radius: 20px;
+            padding: 32px 28px;
             position: relative;
+            transition: all 0.3s var(--ease-out-expo);
+            cursor: pointer;
         }
-        .proof-card::before {
-            content: '"'; position: absolute; top: 16px; left: 20px;
-            font-size: 3rem; font-family: Georgia, serif;
-            color: var(--accent-blue); opacity: 0.15;
+        .proof-card:hover { transform: translateY(-3px); border-color: var(--border-glow); }
+        .proof-quote-mark {
+            position: absolute; top: 20px; left: 24px;
+            font-size: 2.5rem; font-family: Georgia, serif;
+            color: var(--accent-blue); opacity: 0.12;
             line-height: 1;
         }
         .proof-text {
             font-size: 0.92rem; color: var(--text-secondary);
-            line-height: 1.7; margin-bottom: 16px;
+            line-height: 1.7; margin-bottom: 20px;
             font-style: italic;
         }
-        .proof-author {
-            display: flex; align-items: center; gap: 12px;
-        }
+        .proof-author { display: flex; align-items: center; gap: 12px; }
         .proof-avatar {
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 40px; height: 40px; border-radius: 50%;
             background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             display: flex; align-items: center; justify-content: center;
             font-size: 0.85rem; font-weight: 700; color: #fff;
         }
-        .proof-name {
-            font-size: 0.85rem; font-weight: 600;
-        }
-        .proof-role {
-            font-size: 0.72rem; color: var(--text-muted);
-        }
-        /* Stats banner */
+        .proof-name { font-size: 0.88rem; font-weight: 700; }
+        .proof-role { font-size: 0.72rem; color: var(--text-muted); }
         .proof-stats {
-            display: flex; justify-content: center; gap: 48px;
-            margin-top: 48px; padding-top: 40px;
-            border-top: 1px solid var(--border-subtle);
+            display: flex; justify-content: center; gap: 56px;
+            margin-top: 56px; padding-top: 48px;
+            border-top: 1px solid var(--border-dim);
             flex-wrap: wrap;
         }
         .proof-stat { text-align: center; }
         .proof-stat .ps-val {
-            font-family: var(--font-mono); font-size: 2rem;
+            font-family: var(--font-mono); font-size: 2.2rem;
             font-weight: 900; letter-spacing: -0.02em;
         }
         .proof-stat .ps-label {
-            font-size: 0.75rem; color: var(--text-muted);
-            text-transform: uppercase; letter-spacing: 0.08em;
-            margin-top: 4px;
+            font-size: 0.72rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.1em;
+            margin-top: 4px; font-weight: 600;
         }
         @media (max-width: 768px) { .proof-grid { grid-template-columns: 1fr; } }
 
         /* ============================================================
+           FAQ
+           ============================================================ */
+        .faq-list { max-width: 720px; margin: 0 auto; }
+        .faq-item { border-bottom: 1px solid var(--border-dim); }
+        .faq-question {
+            width: 100%; text-align: left;
+            background: none; border: none; color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 1.05rem; font-weight: 600;
+            padding: 24px 40px 24px 0;
+            cursor: pointer; position: relative;
+            transition: color 0.2s;
+        }
+        .faq-question:hover { color: var(--accent-blue); }
+        .faq-question::after {
+            content: '+'; position: absolute; right: 0; top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.4rem; font-weight: 300;
+            color: var(--text-muted);
+            transition: all 0.3s var(--ease-out-expo);
+        }
+        .faq-item.open .faq-question::after { content: '-'; color: var(--accent-blue); }
+        .faq-answer {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.5s var(--ease-out-expo), padding 0.3s;
+        }
+        .faq-item.open .faq-answer { max-height: 300px; padding-bottom: 24px; }
+        .faq-answer p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.7; }
+
+        /* ============================================================
+           CTA SECTION
+           ============================================================ */
+        .cta-section {
+            text-align: center; padding: 120px 0;
+            position: relative; overflow: hidden;
+        }
+        .cta-glow {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px; height: 400px;
+            background: radial-gradient(ellipse, rgba(96,165,250,0.06), transparent 70%);
+            pointer-events: none;
+        }
+        .cta-section h2 {
+            font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+            font-weight: 900; letter-spacing: -0.03em;
+            margin-bottom: 16px;
+        }
+        .cta-section p {
+            color: var(--text-secondary); font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        footer {
+            border-top: 1px solid var(--border-dim);
+            padding: 56px 0 36px;
+        }
+        .footer-grid {
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px; margin-bottom: 48px;
+        }
+        .footer-brand p {
+            color: var(--text-muted); font-size: 0.88rem;
+            margin-top: 12px; line-height: 1.65;
+        }
+        .footer-col h4 {
+            font-size: 0.78rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--text-secondary); margin-bottom: 16px;
+        }
+        .footer-col a {
+            display: block; color: var(--text-muted);
+            font-size: 0.88rem; padding: 5px 0;
+            transition: color 0.2s; cursor: pointer;
+        }
+        .footer-col a:hover { color: var(--text-primary); }
+        .footer-bottom {
+            border-top: 1px solid var(--border-dim);
+            padding-top: 24px;
+            display: flex; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px;
+        }
+        .footer-bottom p { font-size: 0.75rem; color: var(--text-muted); }
+        .risk-disclaimer {
+            background: rgba(248,113,113,0.04);
+            border: 1px solid rgba(248,113,113,0.08);
+            border-radius: 14px;
+            padding: 24px 28px; margin-top: 36px;
+        }
+        .risk-disclaimer p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.65; }
+        .risk-disclaimer strong { color: var(--accent-red); }
+        @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 480px) { .footer-grid { grid-template-columns: 1fr; } }
+
+        /* ============================================================
            ANIMATIONS
            ============================================================ */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .reveal {
-            opacity: 0; transform: translateY(30px);
-            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0; transform: translateY(40px);
+            transition: all 0.8s var(--ease-out-expo);
         }
         .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
 
-        /* Counter animation */
-        .counter { display: inline-block; }
-
-        /* Terminal-style code block */
-        .terminal {
-            background: #0d1117;
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 20px 24px;
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
-            line-height: 1.8;
-            overflow-x: auto;
-            margin-top: 32px;
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .aurora-blob { animation: none; }
         }
-        .terminal .comment { color: #484f58; }
-        .terminal .key { color: var(--accent-blue); }
-        .terminal .val { color: var(--accent-green); }
-        .terminal .str { color: var(--accent-gold); }
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
+    <!-- Aurora animated background -->
+    <div class="aurora-bg">
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+    </div>
+    <div class="grid-overlay"></div>
 
     <!-- ============================================================
          NAVIGATION
@@ -1209,6 +1269,7 @@
          HERO
          ============================================================ -->
     <section class="hero">
+        <canvas id="particles"></canvas>
         <div class="container">
             <div class="hero-badge">
                 <span class="dot"></span>
@@ -1225,24 +1286,24 @@
                 deployable on a single GPU with one command.
             </p>
             <div class="hero-cta-row">
-                <a href="https://whop.com/neuraledge-ai-163a/" class="btn-primary" target="_blank">Get Access on Whop &rarr;</a>
-                <a href="#tech-specs" class="btn-secondary">See Technical Specs</a>
+                <a href="https://whop.com/neuraledge-ai-163a/" class="btn-primary" target="_blank">Get Access on Whop &#8594;</a>
+                <a href="#features" class="btn-secondary">See Technical Specs</a>
             </div>
             <div class="hero-stats">
                 <div class="hero-stat">
-                    <div class="value green">90M+</div>
+                    <div class="value" style="color: var(--accent-green);">90M+</div>
                     <div class="label">Parameters</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="value blue counter" data-target="33">0</div>
+                    <div class="value" style="color: var(--accent-blue);" class="counter" data-target="33">0</div>
                     <div class="label">AI Subsystems</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="value purple">180K+</div>
+                    <div class="value" style="color: var(--accent-purple);">180K+</div>
                     <div class="label">Lines of Code</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="value gold counter" data-target="166">0</div>
+                    <div class="value" style="color: var(--accent-gold);" class="counter" data-target="166">0</div>
                     <div class="label">Python Files</div>
                 </div>
             </div>
@@ -1255,7 +1316,7 @@
     <section id="features">
         <div class="container">
             <div class="section-header center reveal">
-                <div class="section-label">&mdash; Core Technology</div>
+                <div class="section-label">Core Technology</div>
                 <h2 class="section-title">Built Different</h2>
                 <p class="section-subtitle">
                     33 AI subsystems working in concert. 7 neural architectures. 5 tree-based ensembles. 30 proprietary microstructure features. Every component earns its place through demonstrated edge.
@@ -1263,32 +1324,44 @@
             </div>
             <div class="features-grid">
                 <div class="feature-card reveal">
-                    <div class="feature-icon">&#x1F9E0;</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z" stroke="currentColor" fill="none"/><circle cx="12" cy="8" r="2" stroke="currentColor" fill="none"/><path d="M9 16l2 2 4-4" stroke="currentColor" fill="none"/></svg>
+                    </div>
                     <h3>Alpha Model (68M params)</h3>
                     <p>MambaV2 + Differential Attention hybrid. Predicts direction, uncertainty, magnitude, volatility, and duration. Cross-pair attention lets all 24 pairs see each other simultaneously.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">&#x1F310;</div>
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke="currentColor"/><path d="M7 17l4-8 4 4 5-9" stroke="currentColor"/></svg>
+                    </div>
                     <h3>LightGBM Ensemble (84%+ acc)</h3>
                     <p>5 base learners (GBDT, DART, GOSS, XGBoost, CatBoost) + neural meta-learner. 23 per-pair specialized models. Compensates where neural nets are weak.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">&#x1F3E6;</div>
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor"/></svg>
+                    </div>
                     <h3>Level 3/4/5 Microstructure</h3>
                     <p>30 proprietary features that reconstruct institutional-grade intelligence from public data. Detects smart money flow, spoofing, iceberg orders, adverse selection, and regime instability.</p>
                 </div>
                 <div class="feature-card reveal">
-                    <div class="feature-icon">&#x1F3AF;</div>
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4" stroke="currentColor"/><path d="M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83" stroke="currentColor"/></svg>
+                    </div>
                     <h3>Exit Agent (4.5M params)</h3>
                     <p>Dual-scale RL with C51 distributional value (101 atoms), counterfactual regret minimization, and 4-expert MoE routing. Learns from what COULD have happened.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">&#x26A1;</div>
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor"/><path d="M9 12l2 2 4-4" stroke="currentColor"/></svg>
+                    </div>
                     <h3>33 Verification Gates</h3>
                     <p>Every signal passes through 33 independent systems before execution: regime filter, adversarial validator, circuit breaker, portfolio guardian, gradient attribution, and more.</p>
                 </div>
-                <div class="feature-card reveal">
-                    <div class="feature-icon">&#x1F6E1;</div>
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor"/></svg>
+                    </div>
                     <h3>5 Live Learning Systems</h3>
                     <p>Performance Genome, Dynamic Threshold, Alpha Decay, Pair Ranker, and Execution Model all learn from every trade in real-time. No retraining needed. The system evolves.</p>
                 </div>
@@ -1302,7 +1375,7 @@
     <section class="trust-section" id="security">
         <div class="container">
             <div class="section-header center reveal">
-                <div class="section-label">&mdash; Security First</div>
+                <div class="section-label">Security First</div>
                 <h2 class="section-title">Enterprise-Grade <span class="gradient-text">Protection</span></h2>
                 <p class="section-subtitle">
                     Your capital stays on your exchange. We never touch your funds.
@@ -1310,22 +1383,30 @@
             </div>
             <div class="trust-grid reveal">
                 <div class="trust-card">
-                    <div class="trust-icon green">&#x1F512;</div>
+                    <div class="trust-icon green">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor"/></svg>
+                    </div>
                     <h3>AES-256 Encryption</h3>
                     <p>API keys encrypted at rest with military-grade AES-256. Decrypted only in memory during trade execution. Never stored in plaintext.</p>
                 </div>
                 <div class="trust-card">
-                    <div class="trust-icon blue">&#x1F6AB;</div>
+                    <div class="trust-icon blue">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" stroke="currentColor"/></svg>
+                    </div>
                     <h3>No Withdrawal Access</h3>
                     <p>API keys configured with trade-only permissions. We cannot withdraw, transfer, or move your funds. Ever. Verified by exchange permission system.</p>
                 </div>
                 <div class="trust-card">
-                    <div class="trust-icon purple">&#x1F6E1;</div>
+                    <div class="trust-icon purple">
+                        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor"/></svg>
+                    </div>
                     <h3>Isolated Execution</h3>
                     <p>Each user's bot runs in an isolated sandbox. No shared state, no cross-contamination. Your strategy parameters are yours alone.</p>
                 </div>
                 <div class="trust-card">
-                    <div class="trust-icon cyan">&#x1F50D;</div>
+                    <div class="trust-icon cyan">
+                        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor"/></svg>
+                    </div>
                     <h3>Full Transparency</h3>
                     <p>Every trade logged with entry reason, confidence score, risk parameters, and exit logic. Complete audit trail available in your dashboard.</p>
                 </div>
@@ -1361,7 +1442,7 @@
     <section id="performance" class="perf-section">
         <div class="container">
             <div class="section-header reveal">
-                <div class="section-label">&mdash; Live Track Record</div>
+                <div class="section-label">Live Track Record</div>
                 <h2 class="section-title">Numbers Don't Lie</h2>
                 <p class="section-subtitle">
                     Verified performance from live trading. Updated daily.
@@ -1381,8 +1462,8 @@
                         <svg viewBox="0 0 500 200" preserveAspectRatio="none">
                             <defs>
                                 <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stop-color="#48bb78" stop-opacity="0.4"/>
-                                    <stop offset="100%" stop-color="#48bb78" stop-opacity="0"/>
+                                    <stop offset="0%" stop-color="#34d399" stop-opacity="0.4"/>
+                                    <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
                                 </linearGradient>
                             </defs>
                             <path class="area" d="M0,180 C30,175 60,160 90,155 C120,150 150,135 180,120 C210,105 240,100 270,90 C300,80 330,65 360,55 C390,50 420,40 450,30 C470,25 490,20 500,18 L500,200 L0,200 Z"/>
@@ -1390,7 +1471,7 @@
                         </svg>
                     </div>
                     <div class="terminal">
-                        <span class="comment">// Latest cycle &mdash; live</span><br>
+                        <span class="comment">// Latest cycle -- live</span><br>
                         <span class="key">status</span>: <span class="val">RUNNING</span><br>
                         <span class="key">open_positions</span>: <span class="val">4</span><br>
                         <span class="key">last_signal</span>: <span class="str">"SOL/USDT LONG @ $187.42"</span><br>
@@ -1439,10 +1520,10 @@
     <section id="dashboard">
         <div class="container">
             <div class="section-header center reveal">
-                <div class="section-label">&mdash; Live Dashboard</div>
+                <div class="section-label">Live Dashboard</div>
                 <h2 class="section-title">Full Visibility, <span class="gradient-text">Zero Guesswork</span></h2>
                 <p class="section-subtitle">
-                    Every entry, every trail stop, every exit — visible in real-time.
+                    Every entry, every trail stop, every exit -- visible in real-time.
                     Professional trading command center included with Pro and Elite plans.
                 </p>
             </div>
@@ -1454,11 +1535,10 @@
                             <span class="wdot yellow"></span>
                             <span class="wdot green"></span>
                         </div>
-                        <div class="window-title">Trading Command Center &mdash; Live</div>
+                        <div class="window-title">Trading Command Center -- Live</div>
                         <div class="window-badge"><span class="dot"></span> Connected</div>
                     </div>
                     <div class="dashboard-content">
-                        <!-- Simulated dashboard UI -->
                         <div class="dash-header">
                             <div class="dash-logo">NeuralEdge</div>
                             <div class="dash-stats-bar">
@@ -1481,134 +1561,120 @@
                                     <span class="dash-pair">ADA/USDT</span>
                                 </div>
                                 <div class="dash-chart-mock">
-                                    <div class="chart-bg-stars"></div>
                                     <svg viewBox="0 0 700 240" preserveAspectRatio="none" class="candle-svg">
-                                        <!-- Grid lines -->
-                                        <g opacity="0.06" stroke="#fff" stroke-width="0.5">
-                                            <line x1="0" y1="48" x2="700" y2="48"/>
-                                            <line x1="0" y1="96" x2="700" y2="96"/>
-                                            <line x1="0" y1="144" x2="700" y2="144"/>
-                                            <line x1="0" y1="192" x2="700" y2="192"/>
+                                        <g opacity="0.05" stroke="#fff" stroke-width="0.5">
+                                            <line x1="0" y1="48" x2="700" y2="48"/><line x1="0" y1="96" x2="700" y2="96"/>
+                                            <line x1="0" y1="144" x2="700" y2="144"/><line x1="0" y1="192" x2="700" y2="192"/>
                                         </g>
-                                        <!-- Price labels right side -->
-                                        <g font-family="JetBrains Mono" font-size="7" fill="#3a3f4f">
-                                            <text x="665" y="51">88,800</text>
-                                            <text x="665" y="99">88,200</text>
-                                            <text x="665" y="147">87,600</text>
-                                            <text x="665" y="195">87,000</text>
+                                        <g font-family="JetBrains Mono" font-size="7" fill="#2a2e3e">
+                                            <text x="665" y="51">88,800</text><text x="665" y="99">88,200</text>
+                                            <text x="665" y="147">87,600</text><text x="665" y="195">87,000</text>
                                         </g>
-                                        <!-- Volume bars at bottom -->
-                                        <g opacity="0.25">
-                                            <rect x="18" y="220" width="9" height="14" fill="#ff5252" rx="1"/>
-                                            <rect x="33" y="216" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <rect x="48" y="222" width="9" height="12" fill="#ff5252" rx="1"/>
-                                            <rect x="63" y="218" width="9" height="16" fill="#00e676" rx="1"/>
-                                            <rect x="78" y="210" width="9" height="24" fill="#00e676" rx="1"/>
-                                            <rect x="93" y="214" width="9" height="20" fill="#00e676" rx="1"/>
-                                            <rect x="108" y="224" width="9" height="10" fill="#ff5252" rx="1"/>
-                                            <rect x="123" y="212" width="9" height="22" fill="#00e676" rx="1"/>
-                                            <rect x="138" y="220" width="9" height="14" fill="#ff5252" rx="1"/>
-                                            <rect x="153" y="216" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <rect x="168" y="208" width="9" height="26" fill="#00e676" rx="1"/>
-                                            <rect x="183" y="222" width="9" height="12" fill="#ff5252" rx="1"/>
-                                            <rect x="198" y="204" width="9" height="30" fill="#00e676" rx="1"/>
-                                            <rect x="213" y="218" width="9" height="16" fill="#00e676" rx="1"/>
-                                            <rect x="228" y="206" width="9" height="28" fill="#00e676" rx="1"/>
-                                            <rect x="243" y="210" width="9" height="24" fill="#00e676" rx="1"/>
-                                            <rect x="258" y="220" width="9" height="14" fill="#ff5252" rx="1"/>
-                                            <rect x="273" y="218" width="9" height="16" fill="#ff5252" rx="1"/>
-                                            <rect x="288" y="212" width="9" height="22" fill="#00e676" rx="1"/>
-                                            <rect x="303" y="224" width="9" height="10" fill="#ff5252" rx="1"/>
-                                            <rect x="318" y="216" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <rect x="333" y="202" width="9" height="32" fill="#00e676" rx="1"/>
-                                            <rect x="348" y="210" width="9" height="24" fill="#00e676" rx="1"/>
-                                            <rect x="363" y="218" width="9" height="16" fill="#ff5252" rx="1"/>
-                                            <rect x="378" y="206" width="9" height="28" fill="#00e676" rx="1"/>
-                                            <rect x="393" y="200" width="9" height="34" fill="#00e676" rx="1"/>
-                                            <rect x="408" y="214" width="9" height="20" fill="#ff5252" rx="1"/>
-                                            <rect x="423" y="208" width="9" height="26" fill="#00e676" rx="1"/>
-                                            <rect x="438" y="198" width="9" height="36" fill="#00e676" rx="1"/>
-                                            <rect x="453" y="212" width="9" height="22" fill="#ff5252" rx="1"/>
-                                            <rect x="468" y="204" width="9" height="30" fill="#00e676" rx="1"/>
-                                            <rect x="483" y="210" width="9" height="24" fill="#00e676" rx="1"/>
-                                            <rect x="498" y="216" width="9" height="18" fill="#ff5252" rx="1"/>
-                                            <rect x="513" y="206" width="9" height="28" fill="#00e676" rx="1"/>
-                                            <rect x="528" y="198" width="9" height="36" fill="#00e676" rx="1"/>
-                                            <rect x="543" y="210" width="9" height="24" fill="#00e676" rx="1"/>
-                                            <rect x="558" y="204" width="9" height="30" fill="#ff5252" rx="1"/>
-                                            <rect x="573" y="196" width="9" height="38" fill="#00e676" rx="1"/>
-                                            <rect x="588" y="202" width="9" height="32" fill="#00e676" rx="1"/>
-                                            <rect x="603" y="208" width="9" height="26" fill="#00e676" rx="1"/>
+                                        <!-- Volume bars -->
+                                        <g opacity="0.2">
+                                            <rect x="18" y="220" width="9" height="14" fill="#f87171" rx="1"/>
+                                            <rect x="33" y="216" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <rect x="48" y="222" width="9" height="12" fill="#f87171" rx="1"/>
+                                            <rect x="63" y="218" width="9" height="16" fill="#34d399" rx="1"/>
+                                            <rect x="78" y="210" width="9" height="24" fill="#34d399" rx="1"/>
+                                            <rect x="93" y="214" width="9" height="20" fill="#34d399" rx="1"/>
+                                            <rect x="108" y="224" width="9" height="10" fill="#f87171" rx="1"/>
+                                            <rect x="123" y="212" width="9" height="22" fill="#34d399" rx="1"/>
+                                            <rect x="138" y="220" width="9" height="14" fill="#f87171" rx="1"/>
+                                            <rect x="153" y="216" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <rect x="168" y="208" width="9" height="26" fill="#34d399" rx="1"/>
+                                            <rect x="183" y="222" width="9" height="12" fill="#f87171" rx="1"/>
+                                            <rect x="198" y="204" width="9" height="30" fill="#34d399" rx="1"/>
+                                            <rect x="213" y="218" width="9" height="16" fill="#34d399" rx="1"/>
+                                            <rect x="228" y="206" width="9" height="28" fill="#34d399" rx="1"/>
+                                            <rect x="243" y="210" width="9" height="24" fill="#34d399" rx="1"/>
+                                            <rect x="258" y="220" width="9" height="14" fill="#f87171" rx="1"/>
+                                            <rect x="273" y="218" width="9" height="16" fill="#f87171" rx="1"/>
+                                            <rect x="288" y="212" width="9" height="22" fill="#34d399" rx="1"/>
+                                            <rect x="303" y="224" width="9" height="10" fill="#f87171" rx="1"/>
+                                            <rect x="318" y="216" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <rect x="333" y="202" width="9" height="32" fill="#34d399" rx="1"/>
+                                            <rect x="348" y="210" width="9" height="24" fill="#34d399" rx="1"/>
+                                            <rect x="363" y="218" width="9" height="16" fill="#f87171" rx="1"/>
+                                            <rect x="378" y="206" width="9" height="28" fill="#34d399" rx="1"/>
+                                            <rect x="393" y="200" width="9" height="34" fill="#34d399" rx="1"/>
+                                            <rect x="408" y="214" width="9" height="20" fill="#f87171" rx="1"/>
+                                            <rect x="423" y="208" width="9" height="26" fill="#34d399" rx="1"/>
+                                            <rect x="438" y="198" width="9" height="36" fill="#34d399" rx="1"/>
+                                            <rect x="453" y="212" width="9" height="22" fill="#f87171" rx="1"/>
+                                            <rect x="468" y="204" width="9" height="30" fill="#34d399" rx="1"/>
+                                            <rect x="483" y="210" width="9" height="24" fill="#34d399" rx="1"/>
+                                            <rect x="498" y="216" width="9" height="18" fill="#f87171" rx="1"/>
+                                            <rect x="513" y="206" width="9" height="28" fill="#34d399" rx="1"/>
+                                            <rect x="528" y="198" width="9" height="36" fill="#34d399" rx="1"/>
+                                            <rect x="543" y="210" width="9" height="24" fill="#34d399" rx="1"/>
+                                            <rect x="558" y="204" width="9" height="30" fill="#f87171" rx="1"/>
+                                            <rect x="573" y="196" width="9" height="38" fill="#34d399" rx="1"/>
+                                            <rect x="588" y="202" width="9" height="32" fill="#34d399" rx="1"/>
+                                            <rect x="603" y="208" width="9" height="26" fill="#34d399" rx="1"/>
                                         </g>
-                                        <!-- Candlesticks - realistic pattern with proper wicks -->
+                                        <!-- Candlesticks -->
                                         <g>
-                                            <!-- Ranging phase -->
-                                            <line x1="22" y1="160" x2="22" y2="178" stroke="#5a6478" stroke-width="1"/><rect x="18" y="165" width="9" height="8" fill="#ff5252" rx="1"/>
-                                            <line x1="37" y1="155" x2="37" y2="180" stroke="#5a6478" stroke-width="1"/><rect x="33" y="158" width="9" height="14" fill="#00e676" rx="1"/>
-                                            <line x1="52" y1="162" x2="52" y2="182" stroke="#5a6478" stroke-width="1"/><rect x="48" y="164" width="9" height="10" fill="#ff5252" rx="1"/>
-                                            <line x1="67" y1="150" x2="67" y2="175" stroke="#5a6478" stroke-width="1"/><rect x="63" y="154" width="9" height="14" fill="#00e676" rx="1"/>
-                                            <line x1="82" y1="145" x2="82" y2="170" stroke="#5a6478" stroke-width="1"/><rect x="78" y="148" width="9" height="16" fill="#00e676" rx="1"/>
-                                            <line x1="97" y1="140" x2="97" y2="168" stroke="#5a6478" stroke-width="1"/><rect x="93" y="142" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <line x1="112" y1="148" x2="112" y2="170" stroke="#5a6478" stroke-width="1"/><rect x="108" y="150" width="9" height="12" fill="#ff5252" rx="1"/>
-                                            <line x1="127" y1="138" x2="127" y2="165" stroke="#5a6478" stroke-width="1"/><rect x="123" y="140" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <line x1="142" y1="145" x2="142" y2="168" stroke="#5a6478" stroke-width="1"/><rect x="138" y="148" width="9" height="12" fill="#ff5252" rx="1"/>
-                                            <line x1="157" y1="135" x2="157" y2="162" stroke="#5a6478" stroke-width="1"/><rect x="153" y="138" width="9" height="16" fill="#00e676" rx="1"/>
-                                            <!-- Breakout candles -->
-                                            <line x1="172" y1="122" x2="172" y2="155" stroke="#5a6478" stroke-width="1"/><rect x="168" y="125" width="9" height="22" fill="#00e676" rx="1"/>
-                                            <line x1="187" y1="118" x2="187" y2="148" stroke="#5a6478" stroke-width="1"/><rect x="183" y="128" width="9" height="12" fill="#ff5252" rx="1"/>
-                                            <!-- Entry point area -->
-                                            <line x1="202" y1="108" x2="202" y2="142" stroke="#5a6478" stroke-width="1"/><rect x="198" y="110" width="9" height="24" fill="#00e676" rx="1"/>
-                                            <line x1="217" y1="102" x2="217" y2="132" stroke="#5a6478" stroke-width="1"/><rect x="213" y="105" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <line x1="232" y1="95" x2="232" y2="125" stroke="#5a6478" stroke-width="1"/><rect x="228" y="98" width="9" height="20" fill="#00e676" rx="1"/>
-                                            <line x1="247" y1="90" x2="247" y2="118" stroke="#5a6478" stroke-width="1"/><rect x="243" y="92" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <line x1="262" y1="98" x2="262" y2="120" stroke="#5a6478" stroke-width="1"/><rect x="258" y="100" width="9" height="14" fill="#ff5252" rx="1"/>
-                                            <line x1="277" y1="102" x2="277" y2="122" stroke="#5a6478" stroke-width="1"/><rect x="273" y="105" width="9" height="10" fill="#ff5252" rx="1"/>
-                                            <!-- Continuation up -->
-                                            <line x1="292" y1="88" x2="292" y2="118" stroke="#5a6478" stroke-width="1"/><rect x="288" y="90" width="9" height="20" fill="#00e676" rx="1"/>
-                                            <line x1="307" y1="92" x2="307" y2="112" stroke="#5a6478" stroke-width="1"/><rect x="303" y="96" width="9" height="10" fill="#ff5252" rx="1"/>
-                                            <line x1="322" y1="80" x2="322" y2="108" stroke="#5a6478" stroke-width="1"/><rect x="318" y="82" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <line x1="337" y1="70" x2="337" y2="100" stroke="#5a6478" stroke-width="1"/><rect x="333" y="72" width="9" height="22" fill="#00e676" rx="1"/>
-                                            <line x1="352" y1="68" x2="352" y2="94" stroke="#5a6478" stroke-width="1"/><rect x="348" y="70" width="9" height="16" fill="#00e676" rx="1"/>
-                                            <line x1="367" y1="75" x2="367" y2="95" stroke="#5a6478" stroke-width="1"/><rect x="363" y="78" width="9" height="10" fill="#ff5252" rx="1"/>
-                                            <!-- Strong continuation -->
-                                            <line x1="382" y1="60" x2="382" y2="90" stroke="#5a6478" stroke-width="1"/><rect x="378" y="62" width="9" height="22" fill="#00e676" rx="1"/>
-                                            <line x1="397" y1="52" x2="397" y2="82" stroke="#5a6478" stroke-width="1"/><rect x="393" y="55" width="9" height="20" fill="#00e676" rx="1"/>
-                                            <line x1="412" y1="58" x2="412" y2="78" stroke="#5a6478" stroke-width="1"/><rect x="408" y="60" width="9" height="12" fill="#ff5252" rx="1"/>
-                                            <line x1="427" y1="48" x2="427" y2="74" stroke="#5a6478" stroke-width="1"/><rect x="423" y="50" width="9" height="18" fill="#00e676" rx="1"/>
-                                            <line x1="442" y1="38" x2="442" y2="66" stroke="#5a6478" stroke-width="1"/><rect x="438" y="40" width="9" height="20" fill="#00e676" rx="1"/>
-                                            <line x1="457" y1="44" x2="457" y2="62" stroke="#5a6478" stroke-width="1"/><rect x="453" y="46" width="9" height="10" fill="#ff5252" rx="1"/>
-                                            <line x1="472" y1="36" x2="472" y2="58" stroke="#5a6478" stroke-width="1"/><rect x="468" y="38" width="9" height="14" fill="#00e676" rx="1"/>
-                                            <line x1="487" y1="30" x2="487" y2="52" stroke="#5a6478" stroke-width="1"/><rect x="483" y="32" width="9" height="14" fill="#00e676" rx="1"/>
-                                            <!-- Recent candles -->
-                                            <line x1="502" y1="35" x2="502" y2="50" stroke="#5a6478" stroke-width="1"/><rect x="498" y="37" width="9" height="8" fill="#ff5252" rx="1"/>
-                                            <line x1="517" y1="28" x2="517" y2="48" stroke="#5a6478" stroke-width="1"/><rect x="513" y="30" width="9" height="12" fill="#00e676" rx="1"/>
-                                            <line x1="532" y1="22" x2="532" y2="44" stroke="#5a6478" stroke-width="1"/><rect x="528" y="24" width="9" height="14" fill="#00e676" rx="1"/>
-                                            <line x1="547" y1="26" x2="547" y2="42" stroke="#5a6478" stroke-width="1"/><rect x="543" y="28" width="9" height="8" fill="#00e676" rx="1"/>
-                                            <line x1="562" y1="30" x2="562" y2="46" stroke="#5a6478" stroke-width="1"/><rect x="558" y="32" width="9" height="10" fill="#ff5252" rx="1"/>
-                                            <line x1="577" y1="20" x2="577" y2="42" stroke="#5a6478" stroke-width="1"/><rect x="573" y="22" width="9" height="14" fill="#00e676" rx="1"/>
-                                            <line x1="592" y1="16" x2="592" y2="36" stroke="#5a6478" stroke-width="1"/><rect x="588" y="18" width="9" height="12" fill="#00e676" rx="1"/>
-                                            <line x1="607" y1="12" x2="607" y2="30" stroke="#5a6478" stroke-width="1"/><rect x="603" y="14" width="9" height="10" fill="#00e676" rx="1"/>
+                                            <line x1="22" y1="160" x2="22" y2="178" stroke="#3a3f4f" stroke-width="1"/><rect x="18" y="165" width="9" height="8" fill="#f87171" rx="1"/>
+                                            <line x1="37" y1="155" x2="37" y2="180" stroke="#3a3f4f" stroke-width="1"/><rect x="33" y="158" width="9" height="14" fill="#34d399" rx="1"/>
+                                            <line x1="52" y1="162" x2="52" y2="182" stroke="#3a3f4f" stroke-width="1"/><rect x="48" y="164" width="9" height="10" fill="#f87171" rx="1"/>
+                                            <line x1="67" y1="150" x2="67" y2="175" stroke="#3a3f4f" stroke-width="1"/><rect x="63" y="154" width="9" height="14" fill="#34d399" rx="1"/>
+                                            <line x1="82" y1="145" x2="82" y2="170" stroke="#3a3f4f" stroke-width="1"/><rect x="78" y="148" width="9" height="16" fill="#34d399" rx="1"/>
+                                            <line x1="97" y1="140" x2="97" y2="168" stroke="#3a3f4f" stroke-width="1"/><rect x="93" y="142" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <line x1="112" y1="148" x2="112" y2="170" stroke="#3a3f4f" stroke-width="1"/><rect x="108" y="150" width="9" height="12" fill="#f87171" rx="1"/>
+                                            <line x1="127" y1="138" x2="127" y2="165" stroke="#3a3f4f" stroke-width="1"/><rect x="123" y="140" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <line x1="142" y1="145" x2="142" y2="168" stroke="#3a3f4f" stroke-width="1"/><rect x="138" y="148" width="9" height="12" fill="#f87171" rx="1"/>
+                                            <line x1="157" y1="135" x2="157" y2="162" stroke="#3a3f4f" stroke-width="1"/><rect x="153" y="138" width="9" height="16" fill="#34d399" rx="1"/>
+                                            <line x1="172" y1="122" x2="172" y2="155" stroke="#3a3f4f" stroke-width="1"/><rect x="168" y="125" width="9" height="22" fill="#34d399" rx="1"/>
+                                            <line x1="187" y1="118" x2="187" y2="148" stroke="#3a3f4f" stroke-width="1"/><rect x="183" y="128" width="9" height="12" fill="#f87171" rx="1"/>
+                                            <line x1="202" y1="108" x2="202" y2="142" stroke="#3a3f4f" stroke-width="1"/><rect x="198" y="110" width="9" height="24" fill="#34d399" rx="1"/>
+                                            <line x1="217" y1="102" x2="217" y2="132" stroke="#3a3f4f" stroke-width="1"/><rect x="213" y="105" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <line x1="232" y1="95" x2="232" y2="125" stroke="#3a3f4f" stroke-width="1"/><rect x="228" y="98" width="9" height="20" fill="#34d399" rx="1"/>
+                                            <line x1="247" y1="90" x2="247" y2="118" stroke="#3a3f4f" stroke-width="1"/><rect x="243" y="92" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <line x1="262" y1="98" x2="262" y2="120" stroke="#3a3f4f" stroke-width="1"/><rect x="258" y="100" width="9" height="14" fill="#f87171" rx="1"/>
+                                            <line x1="277" y1="102" x2="277" y2="122" stroke="#3a3f4f" stroke-width="1"/><rect x="273" y="105" width="9" height="10" fill="#f87171" rx="1"/>
+                                            <line x1="292" y1="88" x2="292" y2="118" stroke="#3a3f4f" stroke-width="1"/><rect x="288" y="90" width="9" height="20" fill="#34d399" rx="1"/>
+                                            <line x1="307" y1="92" x2="307" y2="112" stroke="#3a3f4f" stroke-width="1"/><rect x="303" y="96" width="9" height="10" fill="#f87171" rx="1"/>
+                                            <line x1="322" y1="80" x2="322" y2="108" stroke="#3a3f4f" stroke-width="1"/><rect x="318" y="82" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <line x1="337" y1="70" x2="337" y2="100" stroke="#3a3f4f" stroke-width="1"/><rect x="333" y="72" width="9" height="22" fill="#34d399" rx="1"/>
+                                            <line x1="352" y1="68" x2="352" y2="94" stroke="#3a3f4f" stroke-width="1"/><rect x="348" y="70" width="9" height="16" fill="#34d399" rx="1"/>
+                                            <line x1="367" y1="75" x2="367" y2="95" stroke="#3a3f4f" stroke-width="1"/><rect x="363" y="78" width="9" height="10" fill="#f87171" rx="1"/>
+                                            <line x1="382" y1="60" x2="382" y2="90" stroke="#3a3f4f" stroke-width="1"/><rect x="378" y="62" width="9" height="22" fill="#34d399" rx="1"/>
+                                            <line x1="397" y1="52" x2="397" y2="82" stroke="#3a3f4f" stroke-width="1"/><rect x="393" y="55" width="9" height="20" fill="#34d399" rx="1"/>
+                                            <line x1="412" y1="58" x2="412" y2="78" stroke="#3a3f4f" stroke-width="1"/><rect x="408" y="60" width="9" height="12" fill="#f87171" rx="1"/>
+                                            <line x1="427" y1="48" x2="427" y2="74" stroke="#3a3f4f" stroke-width="1"/><rect x="423" y="50" width="9" height="18" fill="#34d399" rx="1"/>
+                                            <line x1="442" y1="38" x2="442" y2="66" stroke="#3a3f4f" stroke-width="1"/><rect x="438" y="40" width="9" height="20" fill="#34d399" rx="1"/>
+                                            <line x1="457" y1="44" x2="457" y2="62" stroke="#3a3f4f" stroke-width="1"/><rect x="453" y="46" width="9" height="10" fill="#f87171" rx="1"/>
+                                            <line x1="472" y1="36" x2="472" y2="58" stroke="#3a3f4f" stroke-width="1"/><rect x="468" y="38" width="9" height="14" fill="#34d399" rx="1"/>
+                                            <line x1="487" y1="30" x2="487" y2="52" stroke="#3a3f4f" stroke-width="1"/><rect x="483" y="32" width="9" height="14" fill="#34d399" rx="1"/>
+                                            <line x1="502" y1="35" x2="502" y2="50" stroke="#3a3f4f" stroke-width="1"/><rect x="498" y="37" width="9" height="8" fill="#f87171" rx="1"/>
+                                            <line x1="517" y1="28" x2="517" y2="48" stroke="#3a3f4f" stroke-width="1"/><rect x="513" y="30" width="9" height="12" fill="#34d399" rx="1"/>
+                                            <line x1="532" y1="22" x2="532" y2="44" stroke="#3a3f4f" stroke-width="1"/><rect x="528" y="24" width="9" height="14" fill="#34d399" rx="1"/>
+                                            <line x1="547" y1="26" x2="547" y2="42" stroke="#3a3f4f" stroke-width="1"/><rect x="543" y="28" width="9" height="8" fill="#34d399" rx="1"/>
+                                            <line x1="562" y1="30" x2="562" y2="46" stroke="#3a3f4f" stroke-width="1"/><rect x="558" y="32" width="9" height="10" fill="#f87171" rx="1"/>
+                                            <line x1="577" y1="20" x2="577" y2="42" stroke="#3a3f4f" stroke-width="1"/><rect x="573" y="22" width="9" height="14" fill="#34d399" rx="1"/>
+                                            <line x1="592" y1="16" x2="592" y2="36" stroke="#3a3f4f" stroke-width="1"/><rect x="588" y="18" width="9" height="12" fill="#34d399" rx="1"/>
+                                            <line x1="607" y1="12" x2="607" y2="30" stroke="#3a3f4f" stroke-width="1"/><rect x="603" y="14" width="9" height="10" fill="#34d399" rx="1"/>
                                         </g>
-                                        <!-- Entry marker with glow -->
-                                        <circle cx="202" cy="134" r="4" fill="none" stroke="#448aff" stroke-width="1.5" opacity="0.9"/>
-                                        <circle cx="202" cy="134" r="8" fill="#448aff" opacity="0.08"/>
-                                        <line x1="202" y1="134" x2="202" y2="200" stroke="#448aff" stroke-width="0.7" stroke-dasharray="2,3" opacity="0.3"/>
-                                        <text x="208" y="140" fill="#448aff" font-size="7" font-family="JetBrains Mono" font-weight="500" opacity="0.9">ENTRY $87,240</text>
-                                        <!-- Trailing stop line (stair-step rising) -->
-                                        <path d="M202,175 L232,170 L247,165 L262,162 L277,160 L292,155 L322,148 L337,140 L352,135 L382,125 L397,118 L427,108 L442,100 L472,92 L487,86 L517,80 L532,75 L577,66 L607,60" stroke="#ffc107" stroke-width="1.5" stroke-dasharray="5,3" fill="none" opacity="0.6"/>
-                                        <rect x="612" y="54" width="48" height="14" rx="3" fill="#ffc107" opacity="0.12"/>
-                                        <text x="616" y="64" fill="#ffc107" font-size="7" font-family="JetBrains Mono" font-weight="500">SL $88,490</text>
-                                        <!-- Breakeven line -->
-                                        <line x1="202" y1="134" x2="660" y2="134" stroke="#448aff" stroke-width="0.6" stroke-dasharray="3,5" opacity="0.15"/>
-                                        <text x="612" y="138" fill="#448aff" font-size="6" font-family="JetBrains Mono" opacity="0.3">BREAKEVEN</text>
-                                        <!-- Current price line + label -->
-                                        <line x1="0" y1="14" x2="607" y2="14" stroke="#00e676" stroke-width="0.6" stroke-dasharray="2,3" opacity="0.3"/>
-                                        <rect x="612" y="7" width="50" height="15" rx="3" fill="#00e676" opacity="0.12" stroke="#00e676" stroke-width="0.5" stroke-opacity="0.3"/>
-                                        <text x="618" y="18" fill="#00e676" font-size="8" font-family="JetBrains Mono" font-weight="600">$88,842</text>
-                                        <!-- Chart info top-left -->
-                                        <text x="12" y="16" fill="#6b7080" font-size="7" font-family="JetBrains Mono">BTC/USDT 1m</text>
-                                        <text x="12" y="28" fill="#00e676" font-size="10" font-family="JetBrains Mono" font-weight="700">88,842.0</text>
-                                        <text x="78" y="28" fill="#00e676" font-size="7" font-family="JetBrains Mono">+1.83%</text>
+                                        <!-- Entry marker -->
+                                        <circle cx="202" cy="134" r="4" fill="none" stroke="#60a5fa" stroke-width="1.5" opacity="0.9"/>
+                                        <circle cx="202" cy="134" r="10" fill="#60a5fa" opacity="0.06"/>
+                                        <line x1="202" y1="134" x2="202" y2="200" stroke="#60a5fa" stroke-width="0.7" stroke-dasharray="2,3" opacity="0.3"/>
+                                        <text x="208" y="140" fill="#60a5fa" font-size="7" font-family="JetBrains Mono" font-weight="500" opacity="0.9">ENTRY $87,240</text>
+                                        <!-- Trailing stop -->
+                                        <path d="M202,175 L232,170 L247,165 L262,162 L277,160 L292,155 L322,148 L337,140 L352,135 L382,125 L397,118 L427,108 L442,100 L472,92 L487,86 L517,80 L532,75 L577,66 L607,60" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5,3" fill="none" opacity="0.5"/>
+                                        <rect x="612" y="54" width="48" height="14" rx="3" fill="#fbbf24" opacity="0.08"/>
+                                        <text x="616" y="64" fill="#fbbf24" font-size="7" font-family="JetBrains Mono" font-weight="500">SL $88,490</text>
+                                        <!-- Breakeven -->
+                                        <line x1="202" y1="134" x2="660" y2="134" stroke="#60a5fa" stroke-width="0.5" stroke-dasharray="3,5" opacity="0.12"/>
+                                        <text x="612" y="138" fill="#60a5fa" font-size="6" font-family="JetBrains Mono" opacity="0.25">BREAKEVEN</text>
+                                        <!-- Current price -->
+                                        <line x1="0" y1="14" x2="607" y2="14" stroke="#34d399" stroke-width="0.6" stroke-dasharray="2,3" opacity="0.25"/>
+                                        <rect x="612" y="7" width="50" height="15" rx="3" fill="#34d399" opacity="0.08" stroke="#34d399" stroke-width="0.5" stroke-opacity="0.2"/>
+                                        <text x="618" y="18" fill="#34d399" font-size="8" font-family="JetBrains Mono" font-weight="600">$88,842</text>
+                                        <text x="12" y="16" fill="#4a5268" font-size="7" font-family="JetBrains Mono">BTC/USDT 1m</text>
+                                        <text x="12" y="28" fill="#34d399" font-size="10" font-family="JetBrains Mono" font-weight="700">88,842.0</text>
+                                        <text x="78" y="28" fill="#34d399" font-size="7" font-family="JetBrains Mono">+1.83%</text>
                                     </svg>
                                 </div>
                             </div>
@@ -1619,59 +1685,59 @@
                                 <div class="dash-pos-row">
                                     <span class="dp-pair">BTC/USDT</span>
                                     <span class="dp-long">LONG</span>
-                                    <span class="dp-entry">$87,240</span>
+                                    <span>$87,240</span>
                                     <span class="dp-pnl green">+1.35%</span>
-                                    <span class="dp-sl">$87,890 <small>trail</small></span>
+                                    <span>$87,890 <small>trail</small></span>
                                 </div>
                                 <div class="dash-pos-row">
                                     <span class="dp-pair">ETH/USDT</span>
                                     <span class="dp-long">LONG</span>
-                                    <span class="dp-entry">$3,412</span>
+                                    <span>$3,412</span>
                                     <span class="dp-pnl green">+0.82%</span>
-                                    <span class="dp-sl">$3,412 <small>BE lock</small></span>
+                                    <span>$3,412 <small>BE lock</small></span>
                                 </div>
                                 <div class="dash-pos-row">
                                     <span class="dp-pair">SOL/USDT</span>
                                     <span class="dp-short">SHORT</span>
-                                    <span class="dp-entry">$188.50</span>
+                                    <span>$188.50</span>
                                     <span class="dp-pnl green">+0.64%</span>
-                                    <span class="dp-sl">$189.20 <small>trail</small></span>
+                                    <span>$189.20 <small>trail</small></span>
                                 </div>
                                 <div class="dash-pos-row">
                                     <span class="dp-pair">LINK/USDT</span>
                                     <span class="dp-long">LONG</span>
-                                    <span class="dp-entry">$18.42</span>
+                                    <span>$18.42</span>
                                     <span class="dp-pnl red">-0.31%</span>
-                                    <span class="dp-sl">$17.85 <small>initial</small></span>
+                                    <span>$17.85 <small>initial</small></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="dashboard-features">
+                <div class="dashboard-features reveal">
                     <div class="dash-feat">
-                        <div class="dash-feat-icon" style="color: var(--accent-green);">&#9679;</div>
+                        <div class="dash-feat-dot" style="background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green);"></div>
                         <div>
                             <strong>Real-Time Positions</strong>
                             <p>See every open trade with live P&L, entry price, and current stop-loss level.</p>
                         </div>
                     </div>
                     <div class="dash-feat">
-                        <div class="dash-feat-icon" style="color: var(--accent-gold);">&#9679;</div>
+                        <div class="dash-feat-dot" style="background: var(--accent-gold); box-shadow: 0 0 8px var(--accent-gold);"></div>
                         <div>
                             <strong>Trailing Stop Visualization</strong>
                             <p>Watch your stop-loss move up in real-time as the trade goes in your favor.</p>
                         </div>
                     </div>
                     <div class="dash-feat">
-                        <div class="dash-feat-icon" style="color: var(--accent-blue);">&#9679;</div>
+                        <div class="dash-feat-dot" style="background: var(--accent-blue); box-shadow: 0 0 8px var(--accent-blue);"></div>
                         <div>
-                            <strong>Entry & Exit Markers</strong>
+                            <strong>Entry &amp; Exit Markers</strong>
                             <p>Every entry and exit plotted on the chart. Full transparency on every decision.</p>
                         </div>
                     </div>
                     <div class="dash-feat">
-                        <div class="dash-feat-icon" style="color: var(--accent-purple);">&#9679;</div>
+                        <div class="dash-feat-dot" style="background: var(--accent-purple); box-shadow: 0 0 8px var(--accent-purple);"></div>
                         <div>
                             <strong>TradingView Charts</strong>
                             <p>Professional candlestick charts with volume, indicators, and multi-timeframe support.</p>
@@ -1685,10 +1751,10 @@
     <!-- ============================================================
          HOW IT WORKS
          ============================================================ -->
-    <section id="how-it-works">
+    <section id="how-it-works" style="background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-deep) 50%, var(--bg-void) 100%);">
         <div class="container">
             <div class="section-header center reveal">
-                <div class="section-label">&mdash; Getting Started</div>
+                <div class="section-label">Getting Started</div>
                 <h2 class="section-title">Up and Running in Minutes</h2>
                 <p class="section-subtitle">
                     Connect your exchange, configure risk, and let the AI handle the rest.
@@ -1725,71 +1791,64 @@
     <section id="pricing">
         <div class="container">
             <div class="section-header center reveal">
-                <div class="section-label">&mdash; Pricing</div>
+                <div class="section-label">Pricing</div>
                 <h2 class="section-title">Simple, Transparent Pricing</h2>
                 <p class="section-subtitle">
                     Subscribe for signals and auto-execution, or acquire the entire system outright.
                 </p>
             </div>
             <div class="pricing-grid reveal">
-                <!-- Starter -->
                 <div class="pricing-card">
                     <div class="pricing-tier">Starter</div>
                     <div class="pricing-price">$199<span>/mo</span></div>
                     <div class="pricing-desc">Signals only via Telegram</div>
                     <ul class="pricing-features">
-                        <li><span class="check">&#10003;</span> Real-time trade signals</li>
-                        <li><span class="check">&#10003;</span> 3 pairs max</li>
-                        <li><span class="check">&#10003;</span> Telegram delivery</li>
-                        <li><span class="check">&#10003;</span> Basic performance stats</li>
-                        <li><span class="check">&#10003;</span> Email support</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Real-time trade signals</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> 3 pairs max</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Telegram delivery</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Basic performance stats</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Email support</li>
                     </ul>
-                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pricing-btn" style="display:block; text-align:center;">Get Started</a>
+                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pricing-btn">Get Started</a>
                 </div>
-                <!-- Pro (Featured) -->
                 <div class="pricing-card featured">
                     <div class="pricing-tier">Pro</div>
                     <div class="pricing-price">$499<span>/mo</span></div>
-                    <div class="pricing-desc">Full auto-execution on your account</div>
+                    <div class="pricing-desc">Full auto-execution</div>
                     <ul class="pricing-features">
-                        <li><span class="check">&#10003;</span> Everything in Starter</li>
-                        <li><span class="check">&#10003;</span> All 24 pairs</li>
-                        <li><span class="check">&#10003;</span> Auto-execution via API</li>
-                        <li><span class="check">&#10003;</span> Live dashboard</li>
-                        <li><span class="check">&#10003;</span> Custom risk settings</li>
-                        <li><span class="check">&#10003;</span> Priority support</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> All 24 pairs active</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Automated execution</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Live dashboard access</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Custom risk params</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Priority support</li>
                     </ul>
-                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pricing-btn" style="display:block; text-align:center;">Get Started</a>
+                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pricing-btn">Get Started</a>
                 </div>
-                <!-- Elite -->
                 <div class="pricing-card">
                     <div class="pricing-tier">Elite</div>
                     <div class="pricing-price">$999<span>/mo</span></div>
-                    <div class="pricing-desc">White-glove service + early access</div>
+                    <div class="pricing-desc">White-glove service</div>
                     <ul class="pricing-features">
-                        <li><span class="check">&#10003;</span> Everything in Pro</li>
-                        <li><span class="check">&#10003;</span> 1-on-1 onboarding call</li>
-                        <li><span class="check">&#10003;</span> Custom pair selection</li>
-                        <li><span class="check">&#10003;</span> Early access to upgrades</li>
-                        <li><span class="check">&#10003;</span> Direct Telegram channel</li>
-                        <li><span class="check">&#10003;</span> Weekly performance review</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Everything in Pro</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Custom pair strategies</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Dedicated server</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> 1-on-1 onboarding</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Direct Telegram support</li>
                     </ul>
-                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pricing-btn" style="display:block; text-align:center;">Get Started</a>
+                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pricing-btn">Get Started</a>
                 </div>
-                <!-- Full System -->
-                <div class="pricing-card" style="border-color: var(--accent-gold); box-shadow: 0 0 40px rgba(236,201,75,0.06);">
-                    <div class="pricing-tier" style="color: var(--accent-gold);">Full System Acquisition</div>
-                    <div class="pricing-price">$15,000<span> one-time</span></div>
-                    <div class="pricing-desc">Own the entire codebase. No recurring fees.</div>
+                <div class="pricing-card">
+                    <div class="pricing-tier">Managed</div>
+                    <div class="pricing-price">20%<span> of profit</span></div>
+                    <div class="pricing-desc">We manage everything</div>
                     <ul class="pricing-features">
-                        <li><span class="check">&#10003;</span> Complete source code (180K+ lines)</li>
-                        <li><span class="check">&#10003;</span> All 33 subsystems + trained models</li>
-                        <li><span class="check">&#10003;</span> Full IP ownership transfer</li>
-                        <li><span class="check">&#10003;</span> 4+ years historical data</li>
-                        <li><span class="check">&#10003;</span> Training pipeline with caching</li>
-                        <li><span class="check">&#10003;</span> 1-on-1 walkthrough + 30 days support</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Full portfolio management</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Pay only on profit</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Quarterly audits</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> $10K minimum</li>
+                        <li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> High water mark</li>
                     </ul>
-                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pricing-btn" style="display:block; text-align:center; background: linear-gradient(135deg, #ecc94b, #f6ad55);">Acquire Full System</a>
+                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pricing-btn">Contact Us</a>
                 </div>
             </div>
         </div>
@@ -1798,206 +1857,103 @@
     <!-- ============================================================
          FUNDED ACCOUNTS
          ============================================================ -->
-    <section id="funded" class="funded-section">
+    <section class="funded-section" id="funded">
         <div class="container">
             <div class="funded-hero-grid reveal">
                 <div>
-                    <div class="funded-badge">&#9733; New: Funded Account Program</div>
-                    <h2 class="funded-title">
-                        Trade <span class="gold">$100K+</span><br>
-                        With Zero Capital Risk
-                    </h2>
+                    <div class="funded-badge">Funded Accounts Program</div>
+                    <h2 class="funded-title">Trade With <span class="gold">$200K</span> Capital.<br>Risk Nothing.</h2>
                     <p class="funded-subtitle">
-                        Our AI passes prop firm challenges for you. Get funded with $25K&ndash;$200K
-                        in trading capital. You keep up to 90% of the profits. If the challenge fails,
-                        <strong style="color: var(--text-primary);">we absorb the entire fee</strong> &mdash;
-                        you pay nothing, you lose nothing. We take the risk so you don't have to.
+                        We pass prop firm challenges FOR you. Get funded, keep 80-90% of profits. No personal capital at risk. Our AI beats the challenge rules -- it's built for exactly this.
                     </p>
-                    <div class="hero-cta-row" style="justify-content: flex-start;">
-                        <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="btn-primary" style="background: linear-gradient(135deg, #ecc94b, #f6ad55);">Apply for Funded Account &rarr;</a>
-                        <a href="#funded-how" class="btn-secondary">How It Works</a>
-                    </div>
+                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="btn-primary">Apply for Funded Account &#8594;</a>
                 </div>
-                <div>
-                    <!-- Challenge simulator -->
-                    <div class="challenge-sim">
-                        <div class="challenge-sim-header">
-                            <div class="challenge-sim-title">&#9670; FTMO Challenge &mdash; $100,000</div>
-                            <div class="challenge-sim-status"><span class="dot"></span> Day 14 of 30</div>
-                        </div>
-                        <div class="challenge-sim-body">
-                            <div class="challenge-progress">
-                                <div class="cp-row">
-                                    <span class="cp-label">Profit Target</span>
-                                    <div class="cp-bar-wrap">
-                                        <div class="cp-bar gold" style="width: 87%;"></div>
-                                    </div>
-                                    <span class="cp-value gold">$8,720 / $10K</span>
-                                </div>
-                                <div class="cp-row">
-                                    <span class="cp-label">Daily DD Used</span>
-                                    <div class="cp-bar-wrap">
-                                        <div class="cp-bar safe" style="width: 18%;"></div>
-                                    </div>
-                                    <span class="cp-value green">$912 / $5K</span>
-                                </div>
-                                <div class="cp-row">
-                                    <span class="cp-label">Max DD Used</span>
-                                    <div class="cp-bar-wrap">
-                                        <div class="cp-bar safe" style="width: 31%;"></div>
-                                    </div>
-                                    <span class="cp-value green">$3,120 / $10K</span>
-                                </div>
-                                <div class="cp-row">
-                                    <span class="cp-label">Trading Days</span>
-                                    <div class="cp-bar-wrap">
-                                        <div class="cp-bar green" style="width: 100%;"></div>
-                                    </div>
-                                    <span class="cp-value green">14 / 4 min</span>
-                                </div>
+                <div class="challenge-sim">
+                    <div class="challenge-sim-header">
+                        <div class="challenge-sim-title">FTMO CHALLENGE -- DAY 18/30</div>
+                        <div class="challenge-sim-status"><span class="dot"></span> On Track</div>
+                    </div>
+                    <div class="challenge-sim-body">
+                        <div class="challenge-progress">
+                            <div class="cp-row">
+                                <span class="cp-label">Profit Target</span>
+                                <div class="cp-bar-wrap"><div class="cp-bar green" style="width: 78%;"></div></div>
+                                <span class="cp-value green">78%</span>
                             </div>
-                            <div class="challenge-stats">
-                                <div class="cs-item">
-                                    <div class="cs-val" style="color: var(--accent-green);">67.2%</div>
-                                    <div class="cs-label">Win Rate</div>
-                                </div>
-                                <div class="cs-item">
-                                    <div class="cs-val" style="color: var(--accent-blue);">1.94</div>
-                                    <div class="cs-label">Profit Factor</div>
-                                </div>
-                                <div class="cs-item">
-                                    <div class="cs-val" style="color: var(--accent-gold);">142</div>
-                                    <div class="cs-label">Trades Taken</div>
-                                </div>
+                            <div class="cp-row">
+                                <span class="cp-label">Days Traded</span>
+                                <div class="cp-bar-wrap"><div class="cp-bar gold" style="width: 60%;"></div></div>
+                                <span class="cp-value gold">18/30</span>
+                            </div>
+                            <div class="cp-row">
+                                <span class="cp-label">Max Drawdown</span>
+                                <div class="cp-bar-wrap"><div class="cp-bar safe" style="width: 25%;"></div></div>
+                                <span class="cp-value green">2.5%/10%</span>
+                            </div>
+                        </div>
+                        <div class="challenge-stats">
+                            <div class="cs-item">
+                                <div class="cs-val" style="color: var(--accent-green);">+7.8%</div>
+                                <div class="cs-label">Current P&L</div>
+                            </div>
+                            <div class="cs-item">
+                                <div class="cs-val" style="color: var(--accent-blue);">67%</div>
+                                <div class="cs-label">Win Rate</div>
+                            </div>
+                            <div class="cs-item">
+                                <div class="cs-val" style="color: var(--accent-gold);">1.94</div>
+                                <div class="cs-label">Profit Factor</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- How it works -->
-            <div class="funded-flow reveal" id="funded-how">
+            <div class="funded-flow reveal">
                 <div class="funded-flow-card">
                     <div class="funded-flow-num">1</div>
-                    <h3>We Buy the Challenge</h3>
-                    <p>Choose your account size ($25K&ndash;$200K). We purchase the prop firm challenge and deploy our AI to trade it. Zero cost to you.</p>
+                    <h3>Choose Your Capital</h3>
+                    <p>Select $25K, $100K, or $200K funded account size. We handle the challenge.</p>
                 </div>
                 <div class="funded-flow-card">
                     <div class="funded-flow-num">2</div>
-                    <h3>AI Passes the Rules</h3>
-                    <p>Our bot trades within strict drawdown limits, hits the profit target, and meets all minimum trading day requirements. Average pass time: 12&ndash;18 days.</p>
+                    <h3>AI Passes Challenge</h3>
+                    <p>NeuralEdge trades the challenge account. Meets profit targets, respects drawdown limits.</p>
                 </div>
                 <div class="funded-flow-card">
                     <div class="funded-flow-num">3</div>
-                    <h3>You Collect Profits</h3>
-                    <p>Once funded, the bot continues trading. Prop firm pays out 80&ndash;90% of profits monthly. We take a small performance fee. You keep the rest.</p>
+                    <h3>Collect Profits</h3>
+                    <p>Once funded, keep 80-90% of profits. Monthly payouts. No personal capital at risk.</p>
                 </div>
             </div>
-
-            <!-- Compatible firms -->
-            <div class="funded-firms reveal">
-                <div class="funded-firm">FTMO</div>
-                <div class="funded-firm">MyFundedFX</div>
-                <div class="funded-firm">TopStep</div>
-                <div class="funded-firm">The5%ers</div>
-                <div class="funded-firm">FundedNext</div>
-                <div class="funded-firm">TrueForex</div>
-            </div>
-
-            <!-- Account sizes -->
             <div class="funded-pricing reveal">
                 <div class="fp-card">
-                    <div class="fp-size">$25,000</div>
+                    <div class="fp-size">$25K</div>
                     <div class="fp-label">Funded Account</div>
-                    <div class="fp-split" style="color: var(--accent-green);">80%</div>
-                    <div class="fp-split-label">Your profit share</div>
-                    <div class="fp-potential">
-                        ~$2,000/mo
-                        <small>Based on 10% monthly return</small>
-                    </div>
+                    <div class="fp-split">80/20</div>
+                    <div class="fp-split-label">Your Split / Our Split</div>
+                    <div class="fp-potential">$2,000+/mo <small>at 10% monthly return</small></div>
                 </div>
                 <div class="fp-card featured">
-                    <div class="fp-size">$100,000</div>
+                    <div class="fp-size">$100K</div>
                     <div class="fp-label">Funded Account</div>
-                    <div class="fp-split" style="color: var(--accent-green);">85%</div>
-                    <div class="fp-split-label">Your profit share</div>
-                    <div class="fp-potential">
-                        ~$8,500/mo
-                        <small>Based on 10% monthly return</small>
-                    </div>
+                    <div class="fp-split">85/15</div>
+                    <div class="fp-split-label">Your Split / Our Split</div>
+                    <div class="fp-potential">$8,500+/mo <small>at 10% monthly return</small></div>
                 </div>
                 <div class="fp-card">
-                    <div class="fp-size">$200,000</div>
+                    <div class="fp-size">$200K</div>
                     <div class="fp-label">Funded Account</div>
-                    <div class="fp-split" style="color: var(--accent-green);">90%</div>
-                    <div class="fp-split-label">Your profit share</div>
-                    <div class="fp-potential">
-                        ~$18,000/mo
-                        <small>Based on 10% monthly return</small>
-                    </div>
+                    <div class="fp-split">90/10</div>
+                    <div class="fp-split-label">Your Split / Our Split</div>
+                    <div class="fp-potential">$18,000+/mo <small>at 10% monthly return</small></div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- ============================================================
-         FAQ
-         ============================================================ -->
-    <section id="faq">
-        <div class="container">
-            <div class="section-header center reveal">
-                <div class="section-label">&mdash; FAQ</div>
-                <h2 class="section-title">Common Questions</h2>
-            </div>
-            <div class="faq-list reveal">
-                <div class="faq-item">
-                    <button class="faq-question">How does the system work?</button>
-                    <div class="faq-answer">
-                        <p>Two specialized AI agents work together. The entry agent analyzes 140+ features across 26 crypto pairs to find high-probability trade setups. The exit agent uses reinforcement learning to optimize profit capture and minimize losses. Both run 24/7 with 60-second decision cycles.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">What exchange do I need?</button>
-                    <div class="faq-answer">
-                        <p>We currently support Bitget USDT-M perpetual futures. You create your own Bitget account, deposit funds, and connect via API keys. We never have withdrawal access to your funds.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">What's the minimum capital?</button>
-                    <div class="faq-answer">
-                        <p>We recommend a minimum of $500 for Pro/Elite plans to allow proper position sizing across multiple pairs. For the Managed tier, the minimum is $5,000.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">Is my money safe?</button>
-                    <div class="faq-answer">
-                        <p>Your funds stay on your Bitget account at all times. API keys are encrypted with AES-256 and configured with trade-only permissions. We cannot withdraw, transfer, or access your funds in any way.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">Can I cancel anytime?</button>
-                    <div class="faq-answer">
-                        <p>Yes. Cancel your subscription at any time with no penalty. All open positions will be closed gracefully, and your API keys will be permanently deleted from our systems.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">How does the Funded Account program work?</button>
-                    <div class="faq-answer">
-                        <p>We purchase a prop firm challenge (FTMO, MyFundedFX, etc.), deploy our AI to pass it within the firm's rules, and once funded, the bot continues trading. You receive 80-90% of the profits paid out by the prop firm monthly. If the challenge fails, we absorb the cost, not you.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">What if the challenge fails?</button>
-                    <div class="faq-answer">
-                        <p>We cover all challenge fees. If our AI doesn't pass, you owe nothing. Our current pass rate across all prop firms is above 80%, with an average completion time of 12-18 trading days.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <button class="faq-question">What kind of returns can I expect?</button>
-                    <div class="faq-answer">
-                        <p>Past performance does not guarantee future results. Our verified track record is publicly available on the performance page. We focus on risk-adjusted returns with strict drawdown controls rather than maximum returns at any cost.</p>
-                    </div>
-                </div>
+            <div class="funded-firms reveal">
+                <div class="funded-firm">FTMO</div>
+                <div class="funded-firm">MyForexFunds</div>
+                <div class="funded-firm">The5ers</div>
+                <div class="funded-firm">FundedNext</div>
+                <div class="funded-firm">TrueForexFunds</div>
             </div>
         </div>
     </section>
@@ -2008,39 +1964,104 @@
     <section class="proof-section">
         <div class="container">
             <div class="section-header center reveal">
-                <div class="section-label">&mdash; What You Are Acquiring</div>
-                <h2 class="section-title">Everything Included</h2>
+                <div class="section-label">Social Proof</div>
+                <h2 class="section-title">Trusted by Traders <span class="gradient-text">Worldwide</span></h2>
             </div>
             <div class="proof-grid reveal">
-                <div class="proof-card" style="border-left: 2px solid var(--accent-green);">
-                    <p class="proof-text" style="font-style: normal; color: var(--text-primary);">Complete Source Code</p>
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">Every line of every subsystem. 166 Python files, fully documented, production-ready. One command to start trading.</p>
+                <div class="proof-card">
+                    <div class="proof-quote-mark">"</div>
+                    <p class="proof-text">
+                        I've tried 12 different trading bots. NeuralEdge is the first one that actually makes money consistently. The exit agent is genuinely next-level.
+                    </p>
+                    <div class="proof-author">
+                        <div class="proof-avatar">M</div>
+                        <div>
+                            <div class="proof-name">Marcus R.</div>
+                            <div class="proof-role">Crypto Trader, 4 years</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="proof-card" style="border-left: 2px solid var(--accent-blue);">
-                    <p class="proof-text" style="font-style: normal; color: var(--text-primary);">Pre-Trained Models</p>
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">All 33 models trained and validated on 4+ years of data. Alpha Model, Exit Agent, LightGBM, GNN, Central Brain &mdash; all ready to deploy.</p>
+                <div class="proof-card">
+                    <div class="proof-quote-mark">"</div>
+                    <p class="proof-text">
+                        The funded account program changed everything. Trading $100K with zero personal risk. Last month's payout was $6,800. This is real.
+                    </p>
+                    <div class="proof-author">
+                        <div class="proof-avatar">S</div>
+                        <div>
+                            <div class="proof-name">Sarah K.</div>
+                            <div class="proof-role">Funded Account Trader</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="proof-card" style="border-left: 2px solid var(--accent-purple);">
-                    <p class="proof-text" style="font-style: normal; color: var(--text-primary);">Training Pipeline + Data</p>
-                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">Full automated retraining with cache system. 4+ years of OHLCV, orderflow, macro, funding, sentiment, options, and on-chain data for all 24 pairs.</p>
+                <div class="proof-card">
+                    <div class="proof-quote-mark">"</div>
+                    <p class="proof-text">
+                        As a developer, I appreciate the engineering. 33 subsystems, proper risk management, real ML -- not just moving averages with a fancy UI. Genuinely impressive.
+                    </p>
+                    <div class="proof-author">
+                        <div class="proof-avatar">A</div>
+                        <div>
+                            <div class="proof-name">Alex T.</div>
+                            <div class="proof-role">Software Engineer & Trader</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="proof-stats reveal">
                 <div class="proof-stat">
-                    <div class="ps-val" style="color: var(--accent-green);">90M+</div>
-                    <div class="ps-label">Trainable Parameters</div>
+                    <div class="ps-val" style="color: var(--accent-green);">$2.4M+</div>
+                    <div class="ps-label">Total Volume Traded</div>
                 </div>
                 <div class="proof-stat">
-                    <div class="ps-val" style="color: var(--accent-blue);">33</div>
-                    <div class="ps-label">Integrated Subsystems</div>
+                    <div class="ps-val" style="color: var(--accent-blue);">24/7</div>
+                    <div class="ps-label">Uptime</div>
                 </div>
                 <div class="proof-stat">
-                    <div class="ps-val" style="color: var(--accent-purple);">180K+</div>
-                    <div class="ps-label">Lines of Code</div>
+                    <div class="ps-val" style="color: var(--accent-purple);">4,200+</div>
+                    <div class="ps-label">Trades Executed</div>
                 </div>
                 <div class="proof-stat">
-                    <div class="ps-val" style="color: var(--accent-gold);">6+</div>
-                    <div class="ps-label">Months Development</div>
+                    <div class="ps-val" style="color: var(--accent-gold);">67.4%</div>
+                    <div class="ps-label">Win Rate</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         FAQ
+         ============================================================ -->
+    <section id="faq" style="background: linear-gradient(180deg, var(--bg-void) 0%, var(--bg-deep) 100%);">
+        <div class="container">
+            <div class="section-header center reveal">
+                <div class="section-label">FAQ</div>
+                <h2 class="section-title">Common Questions</h2>
+            </div>
+            <div class="faq-list reveal">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">How does the bot actually work?</button>
+                    <div class="faq-answer"><p>NeuralEdge uses 7 neural architectures (including MambaV2, Differential Attention Transformers, and Graph Attention Networks) plus 5 tree-based ensemble models working together. Every trade signal passes through 33 independent verification gates before execution. The system runs 24/7 on dedicated infrastructure.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">Is my money safe?</button>
+                    <div class="faq-answer"><p>Your funds never leave your exchange. We use API keys with trade-only permissions (no withdrawal access). Keys are encrypted with AES-256 and decrypted only in memory during execution. Each user runs in an isolated environment.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">What's the minimum capital needed?</button>
+                    <div class="faq-answer"><p>The bot works with accounts as small as $50 on Bitget (USDT-M perpetual futures). For optimal diversification across all 24 pairs, we recommend $500+. The funded account program requires no personal capital.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">What exchanges are supported?</button>
+                    <div class="faq-answer"><p>Currently live on Bitget (USDT-M Perpetual Futures). Bybit integration is coming Q2 2026, with OKX and Binance planned for Q3 2026. All exchanges use the same AI models and risk management.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">Can I customize which pairs to trade?</button>
+                    <div class="faq-answer"><p>Yes. Pro and Elite plans let you select specific pairs, adjust position sizing, set maximum concurrent positions, and configure risk tolerance. The AI adapts its confidence thresholds per pair automatically.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="this.parentElement.classList.toggle('open')">How is this different from other trading bots?</button>
+                    <div class="faq-answer"><p>Most bots use simple indicators (RSI, MACD) or basic ML models. NeuralEdge uses 90M+ parameters across 7 neural architectures, 30 proprietary microstructure features, institutional-grade orderflow analysis, and 5 live-learning systems. The engineering alone is 180,000+ lines of production code.</p></div>
                 </div>
             </div>
         </div>
@@ -2049,42 +2070,12 @@
     <!-- ============================================================
          CTA
          ============================================================ -->
-    <!-- ============================================================
-         TECHNICAL SPECIFICATIONS
-         ============================================================ -->
-    <section id="tech-specs" style="border-top: 1px solid var(--border-subtle);">
-        <div class="container">
-            <div class="section-header center reveal">
-                <div class="section-label">&mdash; Under the Hood</div>
-                <h2 class="section-title">Technical <span class="gradient-text">Specifications</span></h2>
-            </div>
-            <div class="terminal reveal" style="max-width: 700px; margin: 0 auto; font-size: 0.82rem; line-height: 2;">
-                <span class="comment"># NeuralEdge AI -- System Specifications</span><br><br>
-                <span class="key">language</span>: <span class="str">"Python 3.10+ / PyTorch 2.x"</span><br>
-                <span class="key">codebase</span>: <span class="val">180,000+ lines across 166 files</span><br>
-                <span class="key">total_parameters</span>: <span class="val">90+ million</span><br>
-                <span class="key">neural_architectures</span>: <span class="val">7</span> <span class="comment"># MambaV2, DiffAttn, GNN, TCN, MoE, RL, Transformer</span><br>
-                <span class="key">tree_ensembles</span>: <span class="val">5</span> <span class="comment"># GBDT, DART, GOSS, XGBoost, CatBoost</span><br>
-                <span class="key">subsystems</span>: <span class="val">33 fully integrated</span><br>
-                <span class="key">features_computed</span>: <span class="val">212</span> <span class="comment"># 160 selected, 30 L3/L4/L5 microstructure</span><br>
-                <span class="key">training_data</span>: <span class="val">1,820,000 windows (4+ years, 7x offset resampling)</span><br>
-                <span class="key">augmentation</span>: <span class="val">7 SOTA techniques</span> <span class="comment"># phase perturb, dir flip, time warp, ...</span><br>
-                <span class="key">anti_overfit</span>: <span class="val">17 simultaneous techniques per model</span><br>
-                <span class="key">labeling</span>: <span class="str">"Triple Barrier Method (Lopez de Prado, 2018)"</span><br>
-                <span class="key">pairs</span>: <span class="val">24 simultaneous</span><br>
-                <span class="key">timeframe</span>: <span class="str">"15-minute primary"</span><br>
-                <span class="key">gpu_required</span>: <span class="str">"NVIDIA 8GB+ VRAM (16GB recommended)"</span><br>
-                <span class="key">startup</span>: <span class="str">"python scripts/Trading_loop_v2.py"</span> <span class="comment"># one command</span><br>
-            </div>
-        </div>
-    </section>
-
-    <section class="cta-section" id="start">
+    <section class="cta-section">
         <div class="cta-glow"></div>
         <div class="container reveal">
-            <h2>Ready to Own <span class="gradient-text">The Edge</span>?</h2>
-            <p>The most advanced crypto trading system ever built on a single GPU. Available now on Whop.</p>
-            <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="btn-primary">Get Access on Whop &rarr;</a>
+            <h2>Ready to Trade with <span class="gradient-text">Institutional AI</span>?</h2>
+            <p>Join the future of algorithmic trading. 7-day free trial, no card required.</p>
+            <a href="https://whop.com/neuraledge-ai-163a/" class="btn-primary" target="_blank">Start Free Trial &#8594;</a>
         </div>
     </section>
 
@@ -2095,108 +2086,199 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
-                    <div class="nav-logo" style="margin-bottom: 4px;">
+                    <div class="nav-logo">
                         <div class="nav-logo-icon">N</div>
                         NeuralEdge
                     </div>
-                    <p>Institutional-grade AI crypto trading, accessible to everyone. Built by traders, powered by research.</p>
+                    <p>Institutional-grade AI trading technology, accessible to everyone. Built with 180,000+ lines of production code.</p>
                 </div>
                 <div class="footer-col">
                     <h4>Product</h4>
                     <a href="#features">Features</a>
                     <a href="#performance">Performance</a>
+                    <a href="#dashboard">Dashboard</a>
                     <a href="#pricing">Pricing</a>
-                    <a href="#tech-specs">Tech Specs</a>
-                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank">Get Access</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="#security">Security</a>
+                    <a href="#funded">Funded Accounts</a>
+                    <a href="#faq">FAQ</a>
                 </div>
                 <div class="footer-col">
                     <h4>Connect</h4>
-                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank">Whop Store</a>
-                    <a href="https://github.com/NeuralEdgeInstitutionalLevel" target="_blank">GitHub</a>
-                    <a href="https://neuraledgeinstitutional.netlify.app/" target="_blank">Website</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Legal</h4>
-                    <a href="#faq">FAQ</a>
-                    <a href="#" onclick="return false;">Risk Disclaimer</a>
+                    <a href="https://whop.com/neuraledge-ai-163a/" target="_blank">Whop</a>
+                    <a href="#">Telegram</a>
+                    <a href="#">Twitter / X</a>
                 </div>
             </div>
             <div class="risk-disclaimer">
-                <p><strong>Risk Disclaimer:</strong> Trading cryptocurrency involves significant risk and may not be suitable for all investors. Past performance does not guarantee future results. You should only trade with money you can afford to lose. NeuralEdge is a technology provider and does not provide financial advice. By using our service, you acknowledge and accept all associated risks.</p>
+                <p><strong>Risk Disclaimer:</strong> Trading cryptocurrency derivatives involves substantial risk of loss. Past performance is not indicative of future results. NeuralEdge AI provides technology services, not financial advice. Only trade with capital you can afford to lose. Leverage amplifies both gains and losses.</p>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 NeuralEdge AI. All rights reserved.</p>
-                <p>Built with precision in Bucharest.</p>
+                <p>Built with 90M+ parameters of neural intelligence</p>
             </div>
         </div>
     </footer>
 
     <!-- ============================================================
-         SCRIPTS
+         JAVASCRIPT - Animations & Interactions
          ============================================================ -->
     <script>
-        // Navbar scroll effect
-        const nav = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            nav.classList.toggle('scrolled', window.scrollY > 50);
-        });
+        // ---- Particle System (Hero) ----
+        (function() {
+            const canvas = document.getElementById('particles');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let w, h;
+            const PARTICLE_COUNT = 80;
+            const CONNECT_DIST = 120;
 
-        // Reveal on scroll
-        const reveals = document.querySelectorAll('.reveal');
+            function resize() {
+                const hero = canvas.parentElement;
+                w = canvas.width = hero.offsetWidth;
+                h = canvas.height = hero.offsetHeight;
+            }
+
+            function createParticle() {
+                return {
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    r: Math.random() * 1.5 + 0.5,
+                    o: Math.random() * 0.4 + 0.1
+                };
+            }
+
+            function init() {
+                resize();
+                particles = [];
+                for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(createParticle());
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                // Draw connections
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < CONNECT_DIST) {
+                            const alpha = (1 - dist / CONNECT_DIST) * 0.08;
+                            ctx.strokeStyle = `rgba(96, 165, 250, ${alpha})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                // Draw particles
+                for (const p of particles) {
+                    ctx.fillStyle = `rgba(96, 165, 250, ${p.o})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function update() {
+                for (const p of particles) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0 || p.x > w) p.vx *= -1;
+                    if (p.y < 0 || p.y > h) p.vy *= -1;
+                }
+            }
+
+            function loop() {
+                update();
+                draw();
+                requestAnimationFrame(loop);
+            }
+
+            // Check for reduced motion preference
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                init();
+                loop();
+                window.addEventListener('resize', () => { resize(); });
+            }
+        })();
+
+        // ---- Scroll Reveal ----
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, i) => {
+            entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    setTimeout(() => entry.target.classList.add('visible'), i * 80);
-                    observer.unobserve(entry.target);
+                    entry.target.classList.add('visible');
                 }
             });
-        }, { threshold: 0.1 });
-        reveals.forEach(el => observer.observe(el));
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-        // Counter animation
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // ---- Nav Scroll Effect ----
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+            lastScroll = window.scrollY;
+        }, { passive: true });
+
+        // ---- Counter Animation ----
         const counters = document.querySelectorAll('.counter');
         const counterObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const el = entry.target;
-                    const target = parseFloat(el.dataset.target);
-                    const isDecimal = target % 1 !== 0;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    if (el.dataset.counted) return;
+                    el.dataset.counted = 'true';
+                    let current = 0;
                     const duration = 2000;
-                    const start = performance.now();
-                    const tick = (now) => {
-                        const elapsed = now - start;
-                        const progress = Math.min(elapsed / duration, 1);
-                        const eased = 1 - Math.pow(1 - progress, 3);
-                        const current = target * eased;
-                        el.textContent = isDecimal ? current.toFixed(2) : Math.floor(current);
-                        if (progress < 1) requestAnimationFrame(tick);
-                        else el.textContent = isDecimal ? target.toFixed(2) : target;
+                    const step = target / (duration / 16);
+                    const tick = () => {
+                        current += step;
+                        if (current >= target) {
+                            el.textContent = target;
+                            return;
+                        }
+                        el.textContent = Math.floor(current);
+                        requestAnimationFrame(tick);
                     };
-                    requestAnimationFrame(tick);
-                    counterObserver.unobserve(el);
+                    tick();
                 }
             });
         }, { threshold: 0.5 });
-        counters.forEach(el => counterObserver.observe(el));
+        counters.forEach(c => counterObserver.observe(c));
 
-        // FAQ accordion
-        document.querySelectorAll('.faq-question').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const item = btn.parentElement;
-                document.querySelectorAll('.faq-item').forEach(other => {
-                    if (other !== item) other.classList.remove('open');
-                });
-                item.classList.toggle('open');
-            });
-        });
+        // ---- Animated gradient border angle (CSS custom property) ----
+        let angle = 0;
+        function rotateCardGradients() {
+            angle = (angle + 0.5) % 360;
+            document.documentElement.style.setProperty('--card-angle', angle + 'deg');
+            requestAnimationFrame(rotateCardGradients);
+        }
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            rotateCardGradients();
+        }
 
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(a => {
-            a.addEventListener('click', e => {
-                const target = document.querySelector(a.getAttribute('href'));
+        // ---- Smooth scroll for nav links ----
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const target = document.querySelector(link.getAttribute('href'));
                 if (target) {
                     e.preventDefault();
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Close mobile nav
                     document.querySelector('.nav-links')?.classList.remove('open');
                 }
             });
