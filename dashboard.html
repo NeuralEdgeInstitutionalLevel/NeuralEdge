@@ -306,15 +306,67 @@
                         <button class="btn btn-red" onclick="botStop()">Stop</button>
                     </div>
                 </div>
-                <div class="bot-grid">
-                    <div><div class="bot-info-label">Exchange</div><div class="bot-info-val">Bitget</div></div>
-                    <div><div class="bot-info-label">Leverage</div><div class="bot-info-val">2x Cross</div></div>
-                    <div><div class="bot-info-label">Active Pairs</div><div class="bot-info-val" id="botPairs">24</div></div>
-                    <div><div class="bot-info-label">Max Positions</div><div class="bot-info-val" id="botMaxPos">8</div></div>
-                    <div><div class="bot-info-label">Daily Loss Limit</div><div class="bot-info-val">5%</div></div>
-                    <div><div class="bot-info-label">Sizing Mode</div><div class="bot-info-val">Dynamic</div></div>
+                <!-- Risk Settings -->
+                <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                    <div class="gc" style="padding:16px">
+                        <div class="bot-info-label">Leverage</div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+                            <input type="range" min="1" max="20" value="2" id="slLev" oninput="document.getElementById('slLevVal').textContent=this.value+'x'" style="flex:1;accent-color:var(--accent)">
+                            <span class="bot-info-val" id="slLevVal" style="min-width:30px">2x</span>
+                        </div>
+                        <div style="font-size:0.58rem;color:var(--muted);margin-top:4px">Recommended: 2x. Higher = more risk.</div>
+                    </div>
+                    <div class="gc" style="padding:16px">
+                        <div class="bot-info-label">Max Positions</div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+                            <input type="range" min="1" max="24" value="8" id="slPos" oninput="document.getElementById('slPosVal').textContent=this.value" style="flex:1;accent-color:var(--accent)">
+                            <span class="bot-info-val" id="slPosVal" style="min-width:20px">8</span>
+                        </div>
+                        <div style="font-size:0.58rem;color:var(--muted);margin-top:4px">Simultaneous open positions limit.</div>
+                    </div>
+                    <div class="gc" style="padding:16px">
+                        <div class="bot-info-label">Daily Loss Limit</div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+                            <input type="range" min="1" max="15" value="5" id="slLoss" oninput="document.getElementById('slLossVal').textContent=this.value+'%'" style="flex:1;accent-color:var(--accent)">
+                            <span class="bot-info-val" id="slLossVal" style="min-width:30px">5%</span>
+                        </div>
+                        <div style="font-size:0.58rem;color:var(--muted);margin-top:4px">Bot stops trading if daily loss exceeds this.</div>
+                    </div>
+                    <div class="gc" style="padding:16px">
+                        <div class="bot-info-label">Sizing Mode</div>
+                        <div style="display:flex;gap:6px;margin-top:8px">
+                            <button class="chart-tab active" onclick="setSizing(this,'dynamic')" style="flex:1;font-size:0.68rem">Dynamic</button>
+                            <button class="chart-tab" onclick="setSizing(this,'fixed')" style="flex:1;font-size:0.68rem">Fixed USD</button>
+                            <button class="chart-tab" onclick="setSizing(this,'percent')" style="flex:1;font-size:0.68rem">% Balance</button>
+                        </div>
+                        <div style="font-size:0.58rem;color:var(--muted);margin-top:4px">Dynamic = AI adjusts size by conviction.</div>
+                    </div>
                 </div>
-                <div class="pair-chips" id="pairChips"></div>
+
+                <!-- Exchange info -->
+                <div style="display:flex;gap:12px;margin-top:16px;font-size:0.72rem;color:var(--dim)">
+                    <span>Exchange: <strong style="color:var(--text)">Bitget</strong></span>
+                    <span>Mode: <strong style="color:var(--text)">Cross Margin</strong></span>
+                    <span>Active Pairs: <strong style="color:var(--green)" id="botPairsCount">24</strong></span>
+                </div>
+
+                <!-- Pair Selection -->
+                <div style="margin-top:16px">
+                    <div class="bot-info-label" style="margin-bottom:8px">Trading Pairs <span style="color:var(--muted);font-weight:400">(click to enable/disable)</span></div>
+                    <div class="pair-chips" id="pairChips"></div>
+                </div>
+
+                <!-- Save button -->
+                <div style="margin-top:20px;display:flex;gap:8px">
+                    <button class="btn btn-accent" onclick="saveSettings()">Save Settings</button>
+                    <button class="btn btn-ghost" onclick="resetSettings()">Reset to Default</button>
+                </div>
+
+                <!-- Warning -->
+                <div style="margin-top:14px;padding:12px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.1);border-radius:10px;font-size:0.7rem;color:var(--gold);display:flex;align-items:center;gap:8px">
+                    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Higher leverage increases both profits AND losses. We recommend 2x for safety. Settings changes take effect on the next trading cycle.
+                </div>
             </div>
         </div>
 
@@ -546,8 +598,36 @@ async function loadSignals(){
     </div>`).join('');
 }
 
+let enabledPairs=new Set(PAIRS);
 function loadPairChips(){
-    document.getElementById('pairChips').innerHTML=PAIRS.map(p=>`<button class="pair-chip on">${p}</button>`).join('');
+    document.getElementById('pairChips').innerHTML=PAIRS.map(p=>`<button class="pair-chip ${enabledPairs.has(p)?'on':''}" onclick="togglePair(this,'${p}')">${p}</button>`).join('');
+    document.getElementById('botPairsCount').textContent=enabledPairs.size;
+}
+function togglePair(btn,pair){
+    if(enabledPairs.has(pair)){enabledPairs.delete(pair);btn.classList.remove('on')}
+    else{enabledPairs.add(pair);btn.classList.add('on')}
+    document.getElementById('botPairsCount').textContent=enabledPairs.size;
+}
+function setSizing(btn,mode){
+    btn.parentElement.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+}
+async function saveSettings(){
+    const settings={
+        leverage:parseInt(document.getElementById('slLev').value),
+        max_positions:parseInt(document.getElementById('slPos').value),
+        daily_loss_limit_pct:parseInt(document.getElementById('slLoss').value),
+        pairs:Array.from(enabledPairs).map(p=>p+'/USDT'),
+        disabled_pairs:PAIRS.filter(p=>!enabledPairs.has(p)).map(p=>p+'/USDT'),
+    };
+    const r=await apiFetch('/bot/settings',{method:'POST',body:JSON.stringify(settings)});
+    if(r)alert('Settings saved!');
+}
+function resetSettings(){
+    document.getElementById('slLev').value=2;document.getElementById('slLevVal').textContent='2x';
+    document.getElementById('slPos').value=8;document.getElementById('slPosVal').textContent='8';
+    document.getElementById('slLoss').value=5;document.getElementById('slLossVal').textContent='5%';
+    enabledPairs=new Set(PAIRS);loadPairChips();
 }
 
 async function loadKeys(){
