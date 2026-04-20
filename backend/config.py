@@ -52,10 +52,10 @@ class Settings(BaseSettings):
     WHOP_API_KEY: str = ""
     WHOP_WEBHOOK_SECRET: str = ""
     WHOP_PLAN_MAP: dict = {
-        "plan_starter": "starter",
-        "plan_pro": "pro",
-        "plan_elite": "elite",
-        "plan_system": "system",
+        "plan_LpmZ0hRI9kkLA": "starter",
+        "plan_p6wd08eewHXcB": "pro",
+        "plan_uh3LjEwGQ7VdJ": "elite",
+        "plan_MlKT1jFpmb977": "system",
     }
 
     # === Internal API (Trading bot -> Backend) ===
