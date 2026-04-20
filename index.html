@@ -1067,201 +1067,107 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // -- WebGL BURGUNDY PLASMA + ANOMALIES shader --
+        // -- WebGL BURGUNDY PLASMA shader (optimized for compatibility) --
         const vsrc = `attribute vec2 p;varying vec2 uv;void main(){uv=p*0.5+0.5;gl_Position=vec4(p,0,1);}`;
-        const fsrc = `
-        precision highp float;
-        varying vec2 uv;
-        uniform float t;
-        uniform vec2 res;
-
-        vec3 mod289(vec3 x){return x-floor(x/289.0)*289.0;}
-        vec2 mod289(vec2 x){return x-floor(x/289.0)*289.0;}
-        vec3 permute(vec3 x){return mod289((x*34.0+1.0)*x);}
-        float snoise(vec2 v){
-            const vec4 C=vec4(0.211324865,0.366025403,-0.577350269,0.024390243);
-            vec2 i=floor(v+dot(v,C.yy)),x0=v-i+dot(i,C.xx);
-            vec2 i1=(x0.x>x0.y)?vec2(1,0):vec2(0,1);
-            vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;
-            i=mod289(i);
-            vec3 p=permute(permute(i.y+vec3(0,i1.y,1))+i.x+vec3(0,i1.x,1));
-            vec3 m=max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0);
-            m=m*m;m=m*m;
-            vec3 x=2.0*fract(p*C.www)-1.0;
-            vec3 h=abs(x)-0.5;
-            vec3 a0=x-floor(x+0.5);
-            m*=1.79284-0.85373*(a0*a0+h*h);
-            vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;
-            return 130.0*dot(m,g);
-        }
-
-        float fbm(vec2 p, float tm){
-            float v=0.0,a=0.5;
-            mat2 rot=mat2(0.8,0.6,-0.6,0.8);
-            for(int i=0;i<7;i++){v+=a*snoise(p);p=rot*p*2.0+vec2(tm*0.08);a*=0.5;}
-            return v;
-        }
-
-        float warpedFbm(vec2 p, float tm){
-            vec2 q=vec2(fbm(p,tm),fbm(p+vec2(5.2,1.3),tm));
-            vec2 r=vec2(fbm(p+4.0*q+vec2(1.7,9.2),tm),fbm(p+4.0*q+vec2(8.3,2.8),tm));
-            return fbm(p+3.5*r,tm);
-        }
-
-        // === ANOMALY: Solar flare (bright bloom that fades) ===
-        float flare(vec2 st, vec2 center, float size, float intensity){
-            float d = length(st - center);
-            return intensity * exp(-d*d / (size*size));
-        }
-
-        // === ANOMALY: Vortex (spiral distortion) ===
-        vec2 vortex(vec2 st, vec2 center, float strength, float radius){
-            vec2 d = st - center;
-            float dist = length(d);
-            float angle = strength * smoothstep(radius, 0.0, dist);
-            float s = sin(angle), c = cos(angle);
-            return center + mat2(c,-s,s,c) * d;
-        }
-
-        // === ANOMALY: Energy ripple (expanding ring) ===
-        float ripple(vec2 st, vec2 center, float time, float speed, float width){
-            float d = length(st - center);
-            float ring = abs(d - mod(time * speed, 2.0));
-            return smoothstep(width, 0.0, ring) * smoothstep(2.0, 0.0, d) * 0.5;
-        }
-
-        // === ANOMALY: Filament (bright arc between two points) ===
-        float filament(vec2 st, vec2 a, vec2 b, float thickness, float tm){
-            vec2 ab = b - a;
-            float len = length(ab);
-            vec2 dir = ab / len;
-            vec2 n = vec2(-dir.y, dir.x);
-            vec2 ap = st - a;
-            float along = dot(ap, dir);
-            float perp = dot(ap, n);
-            float tt = clamp(along / len, 0.0, 1.0);
-            // Wavy displacement
-            perp += sin(tt * 12.0 + tm * 3.0) * 0.02 + sin(tt * 25.0 - tm * 5.0) * 0.008;
-            float d = abs(perp);
-            float core = exp(-d*d / (thickness*thickness)) * smoothstep(0.0, 0.15, tt) * smoothstep(1.0, 0.85, tt);
-            return core;
-        }
-
-        void main(){
-            vec2 st = uv;
-            float aspect = res.x / res.y;
-
-            // === VORTEX ANOMALIES (distort UV before plasma) ===
-            // Slow-moving vortex points
-            vec2 v1 = vec2(0.3 + sin(t*0.05)*0.15, 0.4 + cos(t*0.07)*0.2);
-            vec2 v2 = vec2(0.7 + cos(t*0.04)*0.12, 0.6 + sin(t*0.06)*0.15);
-            vec2 v3 = vec2(0.5 + sin(t*0.03+2.0)*0.2, 0.3 + cos(t*0.05+1.0)*0.2);
-            vec2 warpSt = st;
-            warpSt = vortex(warpSt, v1, 0.8 + sin(t*0.2)*0.3, 0.25);
-            warpSt = vortex(warpSt, v2, -0.6 + cos(t*0.15)*0.2, 0.2);
-            warpSt = vortex(warpSt, v3, 0.4 * sin(t*0.1), 0.18);
-
-            // === BASE PLASMA (3 layers, domain-warped) ===
-            vec2 p1 = warpSt * vec2(aspect*2.0, 2.0);
-            float plasma1 = warpedFbm(p1 + vec2(t*0.03, t*0.02), t*0.4);
-            plasma1 = plasma1*0.5+0.5;
-
-            vec2 p2 = warpSt * vec2(aspect*3.5, 3.5) + vec2(3.0, 7.0);
-            float plasma2 = warpedFbm(p2 - vec2(t*0.04, -t*0.025), t*0.6);
-            plasma2 = plasma2*0.5+0.5;
-
-            vec2 p3 = warpSt * vec2(aspect*6.0, 6.0) + vec2(10.0, 2.0);
-            float plasma3 = fbm(p3 + vec2(t*0.06, t*0.04), t*0.8);
-            plasma3 = plasma3*0.5+0.5;
-
-            float plasma = plasma1*0.5 + plasma2*0.3 + plasma3*0.2;
-
-            // === COLOR PALETTE ===
-            vec3 col0 = vec3(0.03, 0.01, 0.04);
-            vec3 col1 = vec3(0.18, 0.04, 0.08);
-            vec3 col2 = vec3(0.38, 0.08, 0.14);
-            vec3 col3 = vec3(0.52, 0.12, 0.18);
-            vec3 col4 = vec3(0.65, 0.28, 0.25);
-            vec3 col5 = vec3(0.15, 0.04, 0.20);
-            vec3 colFlare = vec3(0.85, 0.45, 0.35);  // hot flare color
-            vec3 colFilament = vec3(0.9, 0.35, 0.5);  // bright filament
-
-            vec3 color;
-            float p = clamp(plasma, 0.0, 1.0);
-            if(p<0.2) color=mix(col0,col1,p/0.2);
-            else if(p<0.4) color=mix(col1,col2,(p-0.2)/0.2);
-            else if(p<0.6) color=mix(col2,col3,(p-0.4)/0.2);
-            else if(p<0.8) color=mix(col3,col4,(p-0.6)/0.2);
-            else color=mix(col4,col3,(p-0.8)/0.2);
-
-            // Purple vein accents
-            float purpleVein = smoothstep(0.48,0.52, fbm(st*vec2(aspect*5.0,5.0)+vec2(t*0.02),t*0.3)*0.5+0.5);
-            color = mix(color, col5, purpleVein*0.3*(1.0-plasma));
-
-            // === ANOMALY 1: SOLAR FLARES (3 wandering hotspots) ===
-            float flareTime1 = sin(t*0.15)*0.5+0.5;  // intensity breathes
-            float flareTime2 = sin(t*0.12+2.0)*0.5+0.5;
-            float flareTime3 = sin(t*0.18+4.0)*0.5+0.5;
-            vec2 fc1 = vec2(0.25+sin(t*0.07)*0.2, 0.5+cos(t*0.09)*0.3);
-            vec2 fc2 = vec2(0.75+cos(t*0.06)*0.15, 0.4+sin(t*0.08)*0.25);
-            vec2 fc3 = vec2(0.5+sin(t*0.05+1.0)*0.25, 0.7+cos(t*0.07+2.0)*0.2);
-            float f1 = flare(st, fc1, 0.12+flareTime1*0.06, flareTime1*0.4);
-            float f2 = flare(st, fc2, 0.10+flareTime2*0.05, flareTime2*0.3);
-            float f3 = flare(st, fc3, 0.08+flareTime3*0.04, flareTime3*0.25);
-            color += colFlare * f1 + colFlare * 0.8 * f2 + col4 * f3;
-
-            // === ANOMALY 2: ENERGY RIPPLES (emanate from flare centers) ===
-            float rip1 = ripple(st, fc1, t, 0.15, 0.015) * flareTime1;
-            float rip2 = ripple(st, fc2, t+5.0, 0.12, 0.012) * flareTime2;
-            float rip3 = ripple(st, v1, t+10.0, 0.1, 0.01);
-            color += col4 * (rip1 + rip2) * 0.4;
-            color += vec3(0.4, 0.15, 0.25) * rip3 * 0.3;
-
-            // === ANOMALY 3: FILAMENTS (plasma arcs between hotspots) ===
-            // Only appear when flares are active
-            float fil1 = filament(st, fc1, fc2, 0.004, t) * min(flareTime1, flareTime2);
-            float fil2 = filament(st, fc2, fc3, 0.003, t*1.3) * min(flareTime2, flareTime3);
-            float fil3 = filament(st, fc3, fc1, 0.0035, t*0.7) * min(flareTime3, flareTime1);
-            color += colFilament * fil1 * 0.6;
-            color += colFilament * 0.7 * fil2 * 0.5;
-            color += col4 * fil3 * 0.4;
-
-            // === ANOMALY 4: PULSE NODES (small bright points that breathe) ===
-            for(float i=0.0; i<5.0; i++){
-                vec2 nc = vec2(
-                    fract(sin(i*127.1+3.7)*43758.5453) * 0.8 + 0.1,
-                    fract(cos(i*269.5+1.3)*17624.8341) * 0.8 + 0.1
-                );
-                // Drift slowly
-                nc += vec2(sin(t*0.04+i*2.0), cos(t*0.05+i*3.0)) * 0.08;
-                float pulse = sin(t*(0.4+i*0.15)+i*1.5)*0.5+0.5;
-                float d = length(st - nc);
-                float glow = exp(-d*d/0.001) * pulse * 0.5;
-                color += col4 * glow;
-                // Tiny ring around node
-                float ring = smoothstep(0.003, 0.0, abs(d - 0.03*pulse)) * pulse * 0.15;
-                color += colFlare * ring;
-            }
-
-            // === ANOMALY 5: HEAT SHIMMER (subtle UV distortion in bright areas) ===
-            float shimmer = snoise(st*20.0 + vec2(t*2.0, t*1.5)) * 0.002 * smoothstep(0.4, 0.7, plasma);
-            color += color * shimmer * 3.0;
-
-            // Vignette
-            float vig = 1.0 - smoothstep(0.3, 1.2, length((st-0.5)*vec2(1.3,1.8)));
-            color *= 0.35 + vig*0.65;
-
-            // Overall intensity
-            color *= 0.8;
-
-            // Subtle fog wisps
-            float yGrad = pow(st.y, 0.4);
-            float fog = fbm(st*vec2(aspect*3.0,3.0)+vec2(t*0.1,t*0.04),t)*0.5+0.5;
-            fog = clamp(fog*yGrad*0.06, 0.0, 0.05);
-            color = mix(color, vec3(0.85,0.75,0.78), fog);
-
-            gl_FragColor = vec4(color, 1.0);
-        }`;
+        const fsrc = [
+        'precision mediump float;',
+        'varying vec2 uv;',
+        'uniform float t;',
+        'uniform vec2 res;',
+        '',
+        'vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}',
+        'vec3 permute(vec3 x){return mod289((x*34.0+1.0)*x);}',
+        '',
+        'float snoise(vec2 v){',
+        '  vec4 C=vec4(0.211325,0.366025,-0.577350,0.024390);',
+        '  vec2 i=floor(v+dot(v,C.yy));',
+        '  vec2 x0=v-i+dot(i,C.xx);',
+        '  vec2 i1=step(x0.yx,x0.xy);',
+        '  vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;',
+        '  i=mod289(vec3(i,0.0)).xy;',
+        '  vec3 pp=permute(permute(i.y+vec3(0.0,i1.y,1.0))+i.x+vec3(0.0,i1.x,1.0));',
+        '  vec3 m=max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0);',
+        '  m=m*m;m=m*m;',
+        '  vec3 x=2.0*fract(pp*C.www)-1.0;',
+        '  vec3 h=abs(x)-0.5;',
+        '  vec3 a0=x-floor(x+0.5);',
+        '  m*=1.79284-0.85373*(a0*a0+h*h);',
+        '  vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;',
+        '  return 130.0*dot(m,g);',
+        '}',
+        '',
+        'float fbm(vec2 p){',
+        '  float v=0.0,a=0.5;',
+        '  for(int i=0;i<5;i++){v+=a*snoise(p);p=p*2.1+vec2(1.7,-1.4);a*=0.5;}',
+        '  return v;',
+        '}',
+        '',
+        'void main(){',
+        '  vec2 st=uv;',
+        '  float asp=res.x/res.y;',
+        '',
+        '  // Vortex distortion',
+        '  vec2 vc=vec2(0.35+sin(t*0.05)*0.15,0.45+cos(t*0.07)*0.2);',
+        '  vec2 d=st-vc;float dl=length(d);',
+        '  float ang=0.6*smoothstep(0.3,0.0,dl);',
+        '  float cs=cos(ang),sn=sin(ang);',
+        '  vec2 ws=vc+vec2(cs*d.x-sn*d.y,sn*d.x+cs*d.y);',
+        '',
+        '  // Plasma layers (domain warping)',
+        '  vec2 q=vec2(fbm(ws*vec2(asp*2.0,2.0)+t*0.03),fbm(ws*vec2(asp*2.0,2.0)+vec2(5.2,1.3)+t*0.02));',
+        '  vec2 r=vec2(fbm(ws*vec2(asp*2.0,2.0)+4.0*q+vec2(1.7,9.2)+t*0.01),fbm(ws*vec2(asp*2.0,2.0)+4.0*q+vec2(8.3,2.8)+t*0.015));',
+        '  float plasma=fbm(ws*vec2(asp*2.0,2.0)+3.0*r+t*0.02)*0.5+0.5;',
+        '',
+        '  // Fine detail layer',
+        '  float detail=fbm(ws*vec2(asp*5.0,5.0)+vec2(t*0.05,t*0.03))*0.5+0.5;',
+        '  plasma=plasma*0.7+detail*0.3;',
+        '',
+        '  // Burgundy palette',
+        '  vec3 c0=vec3(0.03,0.01,0.04);',  // black-purple
+        '  vec3 c1=vec3(0.20,0.04,0.09);',  // dark wine
+        '  vec3 c2=vec3(0.40,0.09,0.15);',  // burgundy
+        '  vec3 c3=vec3(0.55,0.14,0.20);',  // cherry
+        '  vec3 c4=vec3(0.68,0.30,0.27);',  // rose gold
+        '  vec3 c5=vec3(0.16,0.04,0.22);',  // midnight purple
+        '',
+        '  float p=clamp(plasma,0.0,1.0);',
+        '  vec3 col=mix(c0,c1,smoothstep(0.0,0.25,p));',
+        '  col=mix(col,c2,smoothstep(0.2,0.45,p));',
+        '  col=mix(col,c3,smoothstep(0.4,0.65,p));',
+        '  col=mix(col,c4,smoothstep(0.6,0.85,p));',
+        '',
+        '  // Purple veins in dark areas',
+        '  float vein=smoothstep(0.47,0.53,fbm(st*vec2(asp*4.0,4.0)+t*0.02)*0.5+0.5);',
+        '  col=mix(col,c5,vein*0.3*(1.0-p));',
+        '',
+        '  // Flare 1',
+        '  vec2 f1=vec2(0.3+sin(t*0.07)*0.2,0.5+cos(t*0.09)*0.3);',
+        '  float fi1=sin(t*0.15)*0.5+0.5;',
+        '  float fl1=fi1*0.4*exp(-dot(st-f1,st-f1)/(0.015+fi1*0.008));',
+        '  col+=vec3(0.85,0.45,0.35)*fl1;',
+        '',
+        '  // Flare 2',
+        '  vec2 f2=vec2(0.7+cos(t*0.06)*0.15,0.4+sin(t*0.08)*0.25);',
+        '  float fi2=sin(t*0.12+2.0)*0.5+0.5;',
+        '  float fl2=fi2*0.3*exp(-dot(st-f2,st-f2)/(0.012+fi2*0.006));',
+        '  col+=vec3(0.75,0.35,0.30)*fl2;',
+        '',
+        '  // Ripple from flare 1',
+        '  float rd1=length(st-f1);',
+        '  float rip=smoothstep(0.012,0.0,abs(rd1-mod(t*0.12,1.5)))*fi1*0.3;',
+        '  col+=c4*rip;',
+        '',
+        '  // Pulse glow',
+        '  float pulse=sin(t*0.3+plasma*6.28)*0.5+0.5;',
+        '  col+=c4*pulse*0.03*smoothstep(0.5,0.8,p);',
+        '',
+        '  // Vignette',
+        '  float vig=1.0-smoothstep(0.3,1.2,length((st-0.5)*vec2(1.3,1.8)));',
+        '  col*=0.35+vig*0.65;',
+        '  col*=0.8;',
+        '',
+        '  gl_FragColor=vec4(col,1.0);',
+        '}'].join('\n');
 
         let fogProg = null, fogTime = 0;
         if (gl) {
