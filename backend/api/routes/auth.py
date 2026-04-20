@@ -38,6 +38,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=128)
     display_name: str | None = Field(None, max_length=100)
+    website: str | None = Field(None, max_length=200)  # Honeypot: bots fill this, humans don't
 
 
 class LoginRequest(BaseModel):
@@ -91,6 +92,11 @@ async def register(
 
     Returns access + refresh JWT tokens on success.
     """
+    # Honeypot: if 'website' field is filled, it's a bot
+    if body.website:
+        logger.warning(f"Bot registration blocked (honeypot): {body.email} from {request.client.host}")
+        raise HTTPException(status_code=status.HTTP_201_CREATED, detail="Account created")  # Fake success
+
     # Check for existing email
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none() is not None:

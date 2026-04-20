@@ -133,6 +133,37 @@ class BruteForceProtectionMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
+class GlobalRateLimitMiddleware(BaseHTTPMiddleware):
+    """Rate limit ALL API requests per IP. Prevents abuse on any endpoint."""
+    def __init__(self, app, requests_per_minute: int = 60):
+        super().__init__(app)
+        self.rpm = requests_per_minute
+        self.requests = defaultdict(list)  # ip -> [timestamps]
+
+    async def dispatch(self, request: Request, call_next):
+        # Only rate limit API paths
+        if not request.url.path.startswith("/api"):
+            return await call_next(request)
+
+        ip = request.client.host if request.client else "unknown"
+        now = time.time()
+
+        # Clean entries older than 60s
+        self.requests[ip] = [t for t in self.requests[ip] if now - t < 60]
+
+        if len(self.requests[ip]) >= self.rpm:
+            return Response(
+                content='{"detail":"Rate limit exceeded. Max 60 requests/minute."}',
+                status_code=429,
+                media_type="application/json"
+            )
+
+        self.requests[ip].append(now)
+        response = await call_next(request)
+        response.headers["X-RateLimit-Remaining"] = str(self.rpm - len(self.requests[ip]))
+        return response
+
+
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """Log all requests with timing for security audit."""
     async def dispatch(self, request: Request, call_next):
@@ -140,9 +171,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         duration = time.time() - start
 
-        # Log slow requests and auth attempts
-        if duration > 5.0 or "auth" in request.url.path:
-            ip = request.client.host if request.client else "unknown"
+        # Log slow requests, auth attempts, and errors
+        ip = request.client.host if request.client else "unknown"
+        if duration > 5.0 or "auth" in request.url.path or response.status_code >= 400:
             logger.info(f"[{request.method}] {request.url.path} -> {response.status_code} ({duration:.2f}s) IP={ip}")
 
         return response
@@ -171,6 +202,7 @@ app.add_middleware(
 
 # === Security Middleware (order matters: first added = outermost) ===
 app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(GlobalRateLimitMiddleware, requests_per_minute=60)
 app.add_middleware(BruteForceProtectionMiddleware, max_attempts=5, lockout_seconds=900)
 app.add_middleware(SecurityHeadersMiddleware)
 
