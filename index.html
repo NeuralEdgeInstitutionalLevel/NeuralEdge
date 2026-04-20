@@ -10,9 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #08030a;
-            --bg-subtle: #080810;
-            --bg-card: rgba(8, 8, 16, 0.6);
+            --bg: transparent;
+            --bg-subtle: rgba(8, 3, 10, 0.55);
+            --bg-card: rgba(12, 5, 15, 0.5);
             --border: rgba(255,255,255,0.06);
             --border-hover: rgba(255,255,255,0.12);
             --text: #e8eaf0;
@@ -31,7 +31,7 @@
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; background: #08030a; }
         body {
             font-family: var(--font); background: var(--bg); color: var(--text);
             line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased;
@@ -298,7 +298,9 @@
         .bento-card {
             position: relative; padding: 36px 28px;
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(155,35,53,0.12);
             border-radius: 20px;
             overflow: hidden;
             cursor: pointer;
@@ -325,7 +327,7 @@
         /* Beam border - animated light sweep */
         .bento-card::before {
             content: ''; position: absolute; inset: -1px;
-            background: conic-gradient(from var(--beam-angle, 0deg) at 50% 50%, transparent 0%, rgba(59,130,246,0.3) 5%, transparent 10%, transparent 100%);
+            background: conic-gradient(from var(--beam-angle, 0deg) at 50% 50%, transparent 0%, rgba(155,35,53,0.3) 5%, transparent 10%, transparent 100%);
             border-radius: 21px; z-index: -1;
             opacity: 0; transition: opacity 0.5s;
         }
@@ -421,7 +423,7 @@
         .sec-card:hover .sec-icon { transform: translateY(-4px) scale(1.05); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); }
 
         /* ---- SECURITY ---- */
-        .security-section { background: linear-gradient(180deg, var(--bg) 0%, var(--bg-subtle) 50%, var(--bg) 100%); }
+        .security-section { background: linear-gradient(180deg, transparent 0%, rgba(8,3,10,0.4) 50%, transparent 100%); }
         .security-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         .sec-card {
             text-align: center; padding: 40px 20px;
@@ -606,8 +608,9 @@
         /* ---- PRICING ---- */
         .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         .price-card {
-            background: var(--bg-card); border: 1px solid var(--border); border-radius: 24px;
+            background: var(--bg-card); border: 1px solid rgba(155,35,53,0.12); border-radius: 24px;
             padding: 40px 24px; position: relative; overflow: hidden;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             transition: all 0.4s cubic-bezier(0.16,1,0.3,1); cursor: pointer;
         }
         .price-card .card-spotlight { display: none; }
