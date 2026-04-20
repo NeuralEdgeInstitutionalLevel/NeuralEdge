@@ -607,12 +607,32 @@ async function saveKey(){
 // ============================================================
 // INIT
 // ============================================================
-if(!getToken()&&window.location.hostname==='localhost'){window.location.href='login.html'}
-else{
-    loadUser();loadSummary();loadPositions();loadTrades();loadSignals();loadPairChips();loadKeys();
+const isGitHub = window.location.hostname.includes('github.io');
+const isLocalFile = window.location.protocol === 'file:';
+const demoParam = new URLSearchParams(window.location.search).has('demo');
+const forceDemo = isGitHub || isLocalFile || demoParam;
+
+if(!getToken() && !forceDemo && window.location.hostname==='localhost'){
+    window.location.href='login.html';
+} else {
+    if(forceDemo){
+        isDemo=true;
+        document.getElementById('demoBadge').style.display='inline';
+        document.getElementById('navAdmin').style.display='flex';
+        // Load demo user
+        document.getElementById('uName').textContent='Demo Admin';
+        document.getElementById('uTier').textContent='SYSTEM';
+        document.getElementById('uAvatar').textContent='D';
+        document.getElementById('setEmail').textContent='demo@neuraledge.ai';
+        document.getElementById('setName').textContent='Demo Admin';
+        document.getElementById('setTier').textContent='SYSTEM';
+        document.getElementById('setDate').textContent='Apr 2026';
+    } else {
+        loadUser();
+    }
+    loadSummary();loadPositions();loadTrades();loadSignals();loadPairChips();loadKeys();
     initChart();
-    // If admin, preload admin data
-    setTimeout(()=>{if(document.getElementById('navAdmin').style.display!=='none')loadAdmin()},2000);
+    setTimeout(()=>{if(document.getElementById('navAdmin').style.display!=='none')loadAdmin()},1000);
 }
 </script>
 </body>
