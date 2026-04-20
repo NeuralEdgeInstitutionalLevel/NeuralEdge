@@ -664,8 +664,11 @@ function setupKillzoneCanvas(){
     container.style.position='relative';
     container.appendChild(ictCanvas);
 
-    // Redraw on chart scroll/scale
+    // Redraw on any chart interaction (scroll, zoom, price scale drag)
     chart.timeScale().subscribeVisibleLogicalRangeChange(()=>{if(ictEnabled)requestAnimationFrame(drawKillzones)});
+    chart.subscribeCrosshairMove(()=>{if(ictEnabled)requestAnimationFrame(drawKillzones)});
+    // Poll for price scale changes (no direct event for vertical drag)
+    setInterval(()=>{if(ictEnabled)drawKillzones()},200);
 }
 
 function drawKillzones(){
