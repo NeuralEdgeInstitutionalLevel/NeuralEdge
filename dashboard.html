@@ -608,7 +608,7 @@ function changeTF(tf){
 function connectBinance(pair,tf){
     if(binanceWs){binanceWs.close();binanceWs=null}
     // Load historical klines
-    fetch(`https://api.binance.com/api/v3/klines?symbol=${pair.toUpperCase()}&interval=${tf}&limit=300`)
+    fetch(`https://api.binance.com/api/v3/klines?symbol=${pair.toUpperCase()}&interval=${tf}&limit=1000`)
         .then(r=>r.json()).then(data=>{
             if(!Array.isArray(data))return;
             const candles=data.map(k=>({time:k[0]/1000,open:+k[1],high:+k[2],low:+k[3],close:+k[4]}));
