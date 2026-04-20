@@ -1668,9 +1668,29 @@
         });
     });
     </script>
-    <!--Start of Tawk.to Script-->
+    <!--Start of Tawk.to Script (customized)-->
     <script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+
+    // Customize widget appearance
+    Tawk_API.customStyle = {
+        visibility: {
+            desktop: { position: 'br', xOffset: 20, yOffset: 20 },
+            mobile: { position: 'br', xOffset: 10, yOffset: 10 }
+        },
+        zIndex: 9000
+    };
+
+    // Dark burgundy theme on load
+    Tawk_API.onLoad = function(){
+        // Inject custom styles into Tawk iframe
+        try {
+            var style = document.createElement('style');
+            style.textContent = '';
+            document.head.appendChild(style);
+        } catch(e){}
+    };
+
     (function(){
     var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
     s1.async=true;
@@ -1680,6 +1700,21 @@
     s0.parentNode.insertBefore(s1,s0);
     })();
     </script>
+    <style>
+    /* Custom Tawk.to bubble styling */
+    .tawk-min-container .tawk-button,
+    iframe[title*="chat"] + div {
+        transition: all 0.3s ease !important;
+    }
+    /* Glow effect on the chat bubble */
+    .tawk-min-container {
+        filter: drop-shadow(0 0 12px rgba(107, 29, 58, 0.4)) drop-shadow(0 0 30px rgba(107, 29, 58, 0.15)) !important;
+        transition: filter 0.3s ease !important;
+    }
+    .tawk-min-container:hover {
+        filter: drop-shadow(0 0 16px rgba(155, 35, 53, 0.6)) drop-shadow(0 0 40px rgba(155, 35, 53, 0.25)) !important;
+    }
+    </style>
     <!--End of Tawk.to Script-->
 </body>
 </html>
