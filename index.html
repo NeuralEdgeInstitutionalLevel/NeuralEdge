@@ -249,6 +249,41 @@
         .ticker-item .t-neg { color: var(--red); }
         .ticker-item .t-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
         @keyframes marquee { to { transform: translateX(-50%); } }
+        @keyframes marquee2 { to { transform: translateX(-50%); } }
+
+        /* AI Intelligence Feed */
+        .ai-feed-wrap {
+            overflow:hidden; padding:12px 0;
+            border-bottom:1px solid var(--border);
+            position:relative; z-index:2;
+            background:rgba(8,3,10,0.3);
+        }
+        .ai-feed-label {
+            position:absolute; left:16px; top:50%; transform:translateY(-50%);
+            font-size:0.62rem; font-weight:700; color:var(--accent-l);
+            text-transform:uppercase; letter-spacing:1px; z-index:3;
+            display:flex; align-items:center; gap:6px;
+            background:rgba(8,3,10,0.9); padding:4px 12px 4px 8px; border-radius:6px;
+        }
+        .ai-feed {
+            display:flex; gap:48px; animation:marquee2 60s linear infinite;
+            padding-left:180px;
+        }
+        .ai-msg {
+            flex-shrink:0; font-size:0.76rem; display:flex; align-items:center; gap:8px;
+            white-space:nowrap;
+        }
+        .ai-msg-icon {
+            width:16px; height:16px; border-radius:4px; display:flex; align-items:center; justify-content:center;
+            font-size:0.55rem; font-weight:800; flex-shrink:0;
+        }
+        .ai-bull { background:rgba(16,185,129,0.15); color:#10b981; }
+        .ai-bear { background:rgba(239,68,68,0.15); color:#ef4444; }
+        .ai-info { background:rgba(155,35,53,0.15); color:var(--accent-l); }
+        .ai-msg-pair { font-weight:700; font-family:var(--mono); color:var(--text); font-size:0.72rem; }
+        .ai-msg-text { color:var(--dim); }
+        .ai-msg-conf { font-family:var(--mono); font-weight:600; font-size:0.68rem; }
+        .ai-msg-time { color:var(--muted); font-size:0.6rem; }
 
         /* ---- STATS ROW (Hero) ---- */
         .stats-row {
@@ -904,6 +939,12 @@
             <div class="ticker-item">HBAR/USDT <span class="t-val">+4.22%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
             <div class="ticker-item">PEPE/USDT <span class="t-val">+6.31%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
         </div>
+    </div>
+
+    <!-- AI INTELLIGENCE FEED -->
+    <div class="ai-feed-wrap">
+        <div class="ai-feed-label"><span class="live-dot"></span> AI Intelligence Feed</div>
+        <div class="ai-feed" id="aiFeed"></div>
     </div>
 
     <!-- FEATURES BENTO -->
@@ -1659,6 +1700,43 @@
     }
     document.getElementById('calc-capital')?.addEventListener('input', calcUpdate);
     calcUpdate();
+
+    // ---- AI INTELLIGENCE FEED ----
+    (function(){
+        const pairs=['BTC','ETH','SOL','XRP','ADA','AVAX','DOGE','LINK','INJ','SUI','HBAR','PEPE','NEAR','ARB'];
+        const regimes=['Trending','Ranging','Volatile','Breakout'];
+        const actions=[
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Alpha Model detected strong bullish momentum</span> <span class="ai-msg-conf ai-bull">${c}</span>`,icon:'ai-bull',sym:'&uarr;'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">37 subsystems aligned: high conviction LONG</span> <span class="ai-msg-conf ai-bull">${c}</span>`,icon:'ai-bull',sym:'&uarr;'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Regime shift detected: entering trending phase</span>`,icon:'ai-info',sym:'R'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Exit Agent V6.1 triggered profit-take</span> <span class="ai-msg-conf ai-bull">+${(Math.random()*3+0.5).toFixed(1)}%</span>`,icon:'ai-bull',sym:'$'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">ATV detected potential bear trap, signal rejected</span>`,icon:'ai-bear',sym:'!'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Orderflow analysis: aggressive buying detected</span> <span class="ai-msg-conf ai-bull">${c}</span>`,icon:'ai-bull',sym:'O'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">LGBM Ensemble confirms direction, meta-learner at</span> <span class="ai-msg-conf">${c}</span>`,icon:'ai-info',sym:'M'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Causal Flow GNN: BTC cascade spreading to alts</span>`,icon:'ai-info',sym:'G'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Short signal: bearish divergence + funding rate spike</span> <span class="ai-msg-conf ai-bear">${c}</span>`,icon:'ai-bear',sym:'&darr;'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Circuit Breaker: volatility normal, all systems green</span>`,icon:'ai-info',sym:'C'},
+            {tpl:(p,c)=>`<span class="ai-msg-text">Portfolio Guardian: exposure balanced across ${Math.floor(Math.random()*8+4)} positions</span>`,icon:'ai-info',sym:'P'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Performance Genome: pair edge ${(Math.random()*15+55).toFixed(0)}% win rate</span>`,icon:'ai-bull',sym:'G'},
+            {tpl:(p,c)=>`<span class="ai-msg-text">London session open: volatility boost expected, adjusting thresholds</span>`,icon:'ai-info',sym:'K'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Alpha decay estimator: signal half-life ${Math.floor(Math.random()*10+3)} bars remaining</span>`,icon:'ai-info',sym:'D'},
+            {tpl:(p,c)=>`<span class="ai-msg-pair">${p}/USDT</span> <span class="ai-msg-text">Conviction Cascade: sizing x${(Math.random()*0.8+0.6).toFixed(2)} after 6-layer evaluation</span>`,icon:'ai-info',sym:'S'},
+        ];
+        const times=['just now','1m ago','2m ago','3m ago','5m ago','7m ago','10m ago','12m ago','15m ago','18m ago','20m ago','25m ago','30m ago','35m ago','40m ago','45m ago','50m ago','55m ago','1h ago','1h ago'];
+
+        const feed=document.getElementById('aiFeed');
+        if(!feed)return;
+        let html='';
+        // Generate 20 messages
+        for(let i=0;i<20;i++){
+            const act=actions[i%actions.length];
+            const p=pairs[Math.floor(Math.random()*pairs.length)];
+            const c=(Math.random()*0.25+0.6).toFixed(2);
+            html+=`<div class="ai-msg"><span class="ai-msg-icon ${act.icon}">${act.sym}</span>${act.tpl(p,c)} <span class="ai-msg-time">${times[i]}</span></div>`;
+        }
+        // Duplicate for seamless loop
+        feed.innerHTML=html+html;
+    })();
 
     // ---- SMOOTH SCROLL ----
     document.querySelectorAll('a[href^="#"]').forEach(a => {
