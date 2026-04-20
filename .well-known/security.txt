@@ -1,0 +1,12 @@
+# NeuralEdge AI Security Policy
+# https://securitytxt.org/
+
+Contact: mailto:security@neuraledge.ai
+Preferred-Languages: en, ro
+Canonical: https://neuraledge.ai/.well-known/security.txt
+Expires: 2027-04-20T00:00:00.000Z
+
+# If you find a vulnerability, please report it responsibly.
+# We take security seriously and will respond within 24 hours.
+# Do NOT exploit vulnerabilities. Do NOT access other users' data.
+# Responsible disclosure will be acknowledged and rewarded.

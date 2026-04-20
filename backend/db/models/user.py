@@ -63,6 +63,17 @@ class User(Base):
     last_login_ip: Mapped[Optional[str]] = mapped_column(
         String(45), nullable=True
     )
+    # 2FA
+    totp_secret: Mapped[Optional[str]] = mapped_column(
+        String(64), nullable=True
+    )
+    is_2fa_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    # Email verification token
+    email_verify_token: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True
+    )
 
     # Relationships
     subscriptions: Mapped[list["Subscription"]] = relationship(

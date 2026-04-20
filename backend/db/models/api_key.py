@@ -51,6 +51,9 @@ class APIKey(Base):
     permissions: Mapped[Optional[dict[str, Any]]] = mapped_column(
         JSONB, nullable=True
     )
+    allowed_ips: Mapped[Optional[list[str]]] = mapped_column(
+        JSONB, nullable=True  # ["1.2.3.4", "5.6.7.8"] or null = any IP
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

@@ -44,6 +44,7 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=1, max_length=128)
+    totp_code: str | None = Field(None, min_length=6, max_length=6)  # Required if 2FA enabled
 
 
 class RefreshRequest(BaseModel):
@@ -177,6 +178,21 @@ async def login(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account deactivated",
         )
+
+    # 2FA check
+    if user.is_2fa_enabled:
+        if not body.totp_code:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="2FA code required",
+                headers={"X-2FA-Required": "true"},
+            )
+        from core.totp import verify_totp
+        if not verify_totp(user.totp_secret, body.totp_code):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid 2FA code",
+            )
 
     # Update last login
     client_ip = request.client.host if request.client else None

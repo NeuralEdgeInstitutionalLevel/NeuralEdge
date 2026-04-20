@@ -208,7 +208,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 
 
 # === Import and register routers ===
-from api.routes import auth, whop, subscriptions, api_keys, dashboard, bot_control, signals, admin, performance, ws
+from api.routes import auth, whop, subscriptions, api_keys, dashboard, bot_control, signals, admin, performance, ws, two_factor
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(whop.router, prefix="/api/whop", tags=["Whop Integration"])
@@ -220,6 +220,7 @@ app.include_router(signals.router, prefix="/api/signals", tags=["Signals"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 app.include_router(performance.router, prefix="/api/performance", tags=["Performance"])
 app.include_router(ws.router, prefix="/api/ws", tags=["WebSocket"])
+app.include_router(two_factor.router, prefix="/api/2fa", tags=["Two-Factor Auth"])
 
 
 # === Health Check ===
