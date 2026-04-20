@@ -564,7 +564,6 @@ function initChart(){
 function showEquityChart(){
     if(series)chart.removeSeries(series);
     series=chart.addAreaSeries({topColor:'rgba(16,185,129,0.12)',bottomColor:'rgba(16,185,129,0)',lineColor:'#10b981',lineWidth:2});
-    // Generate demo equity data
     const data=[];let eq=10000;const now=Math.floor(Date.now()/1000);
     for(let i=90;i>=0;i--){
         eq=Math.max(eq*0.97,eq+eq*0.0015+(Math.random()-0.42)*20);
@@ -573,6 +572,9 @@ function showEquityChart(){
     series.setData(data);
     chart.timeScale().fitContent();
     document.getElementById('pairSelect').style.display='none';
+    document.getElementById('tfTabs').style.display='none';
+    document.getElementById('ictToggle').style.display='none';
+    if(ictCanvas)ictCanvas.style.display='none';
     if(binanceWs){binanceWs.close();binanceWs=null}
 }
 
@@ -580,7 +582,10 @@ function showCandleChart(){
     if(series)chart.removeSeries(series);
     series=chart.addCandlestickSeries({upColor:'#10b981',downColor:'#ef4444',borderUpColor:'#10b981',borderDownColor:'#ef4444',wickUpColor:'#10b981',wickDownColor:'#ef4444'});
     document.getElementById('pairSelect').style.display='inline';
-    connectBinance(currentPair);
+    document.getElementById('tfTabs').style.display='flex';
+    document.getElementById('ictToggle').style.display='inline';
+    if(ictCanvas&&ictEnabled)ictCanvas.style.display='block';
+    connectBinance(currentPair,currentTF);
 }
 
 function switchChart(type){
@@ -633,11 +638,12 @@ function connectBinance(pair,tf){
 // ============================================================
 let ictEnabled = true;
 let ictCanvas = null;
+// ICT sessions in UTC (converted from UTC-5: add 5 hours)
 let kzSessions = [
-    {name:'Asian',     start:20, end:0,    color:'rgba(233,30,99,0.08)',  border:'rgba(233,30,99,0.25)',  textColor:'#e91e63'},
-    {name:'London',    start:2,  end:5,    color:'rgba(0,188,212,0.08)',  border:'rgba(0,188,212,0.25)',  textColor:'#00bcd4'},
-    {name:'New York AM',start:8.5,end:11,  color:'rgba(255,93,0,0.08)',   border:'rgba(255,93,0,0.25)',   textColor:'#ff5d00'},
-    {name:'New York PM',start:13.5,end:16, color:'rgba(33,87,243,0.08)',  border:'rgba(33,87,243,0.25)',  textColor:'#2157f3'},
+    {name:'Asian',      start:1,   end:5,    color:'rgba(233,30,99,0.07)',  border:'rgba(233,30,99,0.22)',  textColor:'#e91e63'},
+    {name:'London',     start:7,   end:10,   color:'rgba(0,188,212,0.07)',  border:'rgba(0,188,212,0.22)',  textColor:'#00bcd4'},
+    {name:'New York AM',start:13.5,end:16,   color:'rgba(255,93,0,0.07)',   border:'rgba(255,93,0,0.22)',   textColor:'#ff5d00'},
+    {name:'New York PM',start:18.5,end:21,   color:'rgba(33,87,243,0.07)',  border:'rgba(33,87,243,0.22)', textColor:'#2157f3'},
 ];
 
 function toggleICT(){
@@ -681,10 +687,7 @@ function drawKillzones(){
     const data=series.data?series.data():[];
     if(!data||!data.length)return;
 
-    // UTC-5 offset in seconds
-    const utcOff=-5*3600;
-
-    // Group candles by session
+    // Group candles by session (times already in UTC)
     for(const session of kzSessions){
         let inSession=false;
         let sessionStart=null,sessionEnd=null;
@@ -693,13 +696,11 @@ function drawKillzones(){
         for(let i=0;i<data.length;i++){
             const candle=data[i];
             const t=candle.time;
-            // Convert to UTC-5 hours
-            const d=new Date((t+utcOff)*1000);
+            const d=new Date(t*1000);
             const hour=d.getUTCHours()+d.getUTCMinutes()/60;
 
             let isIn=false;
             if(session.start>session.end){
-                // Wraps midnight (Asian: 20:00-00:00)
                 isIn=(hour>=session.start||hour<session.end);
             }else{
                 isIn=(hour>=session.start&&hour<session.end);
