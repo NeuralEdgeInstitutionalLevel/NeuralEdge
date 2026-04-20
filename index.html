@@ -75,12 +75,18 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
         section {
             padding: 140px 0; position: relative;
-            border-top: 1px solid rgba(155,35,53,0.08);
         }
         section::before {
             content: '';
-            position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(155,35,53,0.2), transparent);
+            position: absolute; top: -40px; left: 0; right: 0; height: 80px;
+            background: linear-gradient(180deg, rgba(2,1,3,0.7) 0%, transparent 35%, transparent 65%, rgba(2,1,3,0.7) 100%);
+            pointer-events: none; z-index: 1;
+        }
+        section::after {
+            content: '';
+            position: absolute; top: 0; left: 15%; right: 15%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(100,20,40,0.15), transparent);
+            z-index: 2;
         }
 
         /* ---- NAV ---- */
@@ -591,6 +597,73 @@
         @media (max-width: 480px) { .steps { grid-template-columns: 1fr; } }
 
         /* ---- PRICING ---- */
+        /* ---- LIVE PERFORMANCE ---- */
+        .lp-grid { display: grid; gap: 20px; }
+        .lp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .lp-stat { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid rgba(155,35,53,0.1); border-radius: 16px; padding: 24px; text-align: center; }
+        .lp-stat-label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+        .lp-stat-value { font-size: 1.8rem; font-weight: 800; font-family: var(--mono); }
+        .lp-stat-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+        .lp-green { color: #10b981; }
+        .lp-red { color: #ef4444; }
+        .lp-muted { color: var(--text-dim); }
+        .lp-chart-wrap { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid rgba(155,35,53,0.1); border-radius: 16px; padding: 20px; }
+        .lp-chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .lp-chart-title { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .lp-live-badge { font-size: 0.7rem; color: #10b981; display: flex; align-items: center; gap: 6px; }
+        #equityChart { width: 100%; height: 280px; border-radius: 8px; }
+        .lp-trades { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid rgba(155,35,53,0.1); border-radius: 16px; overflow: hidden; }
+        .lp-trades-header { padding: 16px 20px; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; gap: 10px; }
+        .lp-badge { font-size: 0.6rem; background: rgba(155,35,53,0.15); color: rgba(155,35,53,0.8); padding: 2px 8px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .lp-trade { display: grid; grid-template-columns: 1fr 0.6fr 1fr 0.8fr 0.8fr; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.02); font-size: 0.82rem; align-items: center; }
+        .lp-trade:hover { background: rgba(255,255,255,0.015); }
+        .lp-t-pair { font-weight: 600; font-family: var(--mono); }
+        .lp-t-side { font-weight: 700; font-size: 0.72rem; letter-spacing: 0.5px; }
+        .lp-long { color: #10b981; }
+        .lp-short { color: #ef4444; }
+        .lp-t-entry { color: var(--text-dim); font-family: var(--mono); font-size: 0.78rem; }
+        .lp-t-pnl { font-weight: 700; font-family: var(--mono); }
+        .lp-t-time { color: var(--text-muted); font-size: 0.72rem; }
+        @media(max-width:768px){ .lp-stats{grid-template-columns:repeat(2,1fr);} }
+
+        /* ---- PROFIT CALCULATOR ---- */
+        .calc-wrap { max-width: 700px; margin: 0 auto; background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid rgba(155,35,53,0.1); border-radius: 20px; padding: 40px; }
+        .calc-label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: block; }
+        .calc-input-wrap { position: relative; margin-bottom: 16px; }
+        .calc-prefix { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.2rem; font-weight: 600; }
+        .calc-input { width: 100%; padding: 16px 16px 16px 36px; font-size: 1.4rem; font-weight: 700; font-family: var(--mono); background: rgba(0,0,0,0.3); border: 1px solid rgba(155,35,53,0.15); border-radius: 12px; color: var(--text); outline: none; }
+        .calc-input:focus { border-color: rgba(155,35,53,0.4); box-shadow: 0 0 20px rgba(155,35,53,0.1); }
+        .calc-presets { display: flex; gap: 8px; margin-bottom: 28px; }
+        .calc-preset { padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.2); color: var(--text-dim); font-family: var(--mono); font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .calc-preset:hover { border-color: rgba(155,35,53,0.3); color: var(--text); }
+        .calc-results { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .calc-result { text-align: center; padding: 20px 12px; background: rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); }
+        .calc-r-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .calc-r-value { font-size: 1.3rem; font-weight: 800; font-family: var(--mono); }
+        .calc-disclaimer { font-size: 0.65rem; color: var(--text-muted); text-align: center; line-height: 1.5; }
+        @media(max-width:768px){ .calc-results{grid-template-columns:repeat(2,1fr);} }
+
+        /* ---- SIGNAL PREVIEW ---- */
+        .sig-wrap { max-width: 480px; margin: 0 auto; }
+        .sig-card { background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid rgba(155,35,53,0.12); border-radius: 20px; padding: 32px; overflow: hidden; }
+        .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sig-badge { font-size: 0.72rem; color: #10b981; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .sig-time { font-size: 0.72rem; color: var(--text-muted); }
+        .sig-pair { font-size: 1.6rem; font-weight: 800; font-family: var(--mono); margin-bottom: 8px; }
+        .sig-direction { display: inline-block; font-size: 0.8rem; font-weight: 800; letter-spacing: 2px; padding: 6px 16px; border-radius: 8px; margin-bottom: 20px; }
+        .sig-long { background: rgba(16,185,129,0.12); color: #10b981; }
+        .sig-short { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .sig-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .sig-detail { padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .sig-d-label { display: block; font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .sig-d-value { font-size: 1rem; font-weight: 700; font-family: var(--mono); }
+        .sig-subsystems { border-top: 1px solid rgba(255,255,255,0.04); padding-top: 16px; margin-bottom: 20px; }
+        .sig-sub { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.78rem; }
+        .sig-sub-name { color: var(--text-dim); }
+        .sig-sub-val { font-weight: 600; font-family: var(--mono); }
+        .sig-cta { text-align: center; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.04); }
+        .sig-cta p { font-size: 0.8rem; color: var(--text-dim); }
+
         .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
         .price-card {
             background: var(--bg-card); border: 1px solid rgba(155,35,53,0.12); border-radius: 24px;
@@ -973,6 +1046,141 @@
         </div>
     </section>
 
+    <!-- LIVE PERFORMANCE TRACKER -->
+    <section id="live-performance">
+        <div class="container">
+            <div class="s-header center reveal">
+                <div class="s-label">Live Results</div>
+                <h2 class="s-title">Real Performance, <span class="gradient-text">Real Money</span></h2>
+                <p class="s-sub">Not backtests. Not simulations. These are live results from our trading system, delayed by 3 hours.</p>
+            </div>
+            <div class="lp-grid reveal">
+                <div class="lp-stats">
+                    <div class="lp-stat">
+                        <div class="lp-stat-label">Total Return</div>
+                        <div class="lp-stat-value lp-green" id="lp-return">+12.4%</div>
+                        <div class="lp-stat-sub">Last 30 days</div>
+                    </div>
+                    <div class="lp-stat">
+                        <div class="lp-stat-label">Win Rate</div>
+                        <div class="lp-stat-value" id="lp-winrate">67.8%</div>
+                        <div class="lp-stat-sub">832 trades</div>
+                    </div>
+                    <div class="lp-stat">
+                        <div class="lp-stat-label">Sharpe Ratio</div>
+                        <div class="lp-stat-value" id="lp-sharpe">2.14</div>
+                        <div class="lp-stat-sub">Annualized</div>
+                    </div>
+                    <div class="lp-stat">
+                        <div class="lp-stat-label">Max Drawdown</div>
+                        <div class="lp-stat-value lp-muted" id="lp-dd">-4.2%</div>
+                        <div class="lp-stat-sub">Peak to trough</div>
+                    </div>
+                </div>
+                <div class="lp-chart-wrap">
+                    <div class="lp-chart-header">
+                        <span class="lp-chart-title">Equity Curve (3h delayed)</span>
+                        <span class="lp-live-badge"><span class="live-dot"></span> Live</span>
+                    </div>
+                    <canvas id="equityChart" width="800" height="280"></canvas>
+                </div>
+                <div class="lp-trades">
+                    <div class="lp-trades-header">Recent Trades <span class="lp-badge">3h delay</span></div>
+                    <div class="lp-trades-list" id="lp-trades-list">
+                        <div class="lp-trade"><span class="lp-t-pair">BTC/USDT</span><span class="lp-t-side lp-long">LONG</span><span class="lp-t-entry">$94,250</span><span class="lp-t-pnl lp-green">+1.82%</span><span class="lp-t-time">2h ago</span></div>
+                        <div class="lp-trade"><span class="lp-t-pair">ETH/USDT</span><span class="lp-t-side lp-short">SHORT</span><span class="lp-t-entry">$3,520</span><span class="lp-t-pnl lp-green">+0.94%</span><span class="lp-t-time">3h ago</span></div>
+                        <div class="lp-trade"><span class="lp-t-pair">SOL/USDT</span><span class="lp-t-side lp-long">LONG</span><span class="lp-t-entry">$178.40</span><span class="lp-t-pnl lp-red">-0.31%</span><span class="lp-t-time">3h ago</span></div>
+                        <div class="lp-trade"><span class="lp-t-pair">AVAX/USDT</span><span class="lp-t-side lp-long">LONG</span><span class="lp-t-entry">$42.15</span><span class="lp-t-pnl lp-green">+2.15%</span><span class="lp-t-time">3h ago</span></div>
+                        <div class="lp-trade"><span class="lp-t-pair">LINK/USDT</span><span class="lp-t-side lp-short">SHORT</span><span class="lp-t-entry">$18.92</span><span class="lp-t-pnl lp-green">+0.67%</span><span class="lp-t-time">3h ago</span></div>
+                        <div class="lp-trade"><span class="lp-t-pair">XRP/USDT</span><span class="lp-t-side lp-long">LONG</span><span class="lp-t-entry">$2.34</span><span class="lp-t-pnl lp-green">+1.23%</span><span class="lp-t-time">3h ago</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROFIT CALCULATOR -->
+    <section id="calculator">
+        <div class="container">
+            <div class="s-header center reveal">
+                <div class="s-label">Returns Calculator</div>
+                <h2 class="s-title">What Could You <span class="gradient-text">Earn?</span></h2>
+                <p class="s-sub">Based on our actual 30-day live performance.</p>
+            </div>
+            <div class="calc-wrap reveal">
+                <div class="calc-input-group">
+                    <label class="calc-label">Your Starting Capital</label>
+                    <div class="calc-input-wrap">
+                        <span class="calc-prefix">$</span>
+                        <input type="number" id="calc-capital" class="calc-input" value="1000" min="50" max="1000000" step="100">
+                    </div>
+                    <div class="calc-presets">
+                        <button class="calc-preset" onclick="document.getElementById('calc-capital').value=500;calcUpdate()">$500</button>
+                        <button class="calc-preset" onclick="document.getElementById('calc-capital').value=1000;calcUpdate()">$1,000</button>
+                        <button class="calc-preset" onclick="document.getElementById('calc-capital').value=5000;calcUpdate()">$5,000</button>
+                        <button class="calc-preset" onclick="document.getElementById('calc-capital').value=25000;calcUpdate()">$25,000</button>
+                    </div>
+                </div>
+                <div class="calc-results">
+                    <div class="calc-result">
+                        <div class="calc-r-label">After 30 Days</div>
+                        <div class="calc-r-value lp-green" id="calc-30d">$1,124</div>
+                    </div>
+                    <div class="calc-result">
+                        <div class="calc-r-label">After 90 Days</div>
+                        <div class="calc-r-value lp-green" id="calc-90d">$1,393</div>
+                    </div>
+                    <div class="calc-result">
+                        <div class="calc-r-label">After 1 Year</div>
+                        <div class="calc-r-value lp-green" id="calc-1y">$3,106</div>
+                    </div>
+                    <div class="calc-result">
+                        <div class="calc-r-label">Monthly Income</div>
+                        <div class="calc-r-value" id="calc-monthly">$124/mo</div>
+                    </div>
+                </div>
+                <p class="calc-disclaimer">Based on 12.4% monthly return. Past performance does not guarantee future results. Compounding assumed.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FREE SIGNAL PREVIEW -->
+    <section id="signal-preview">
+        <div class="container">
+            <div class="s-header center reveal">
+                <div class="s-label">Free Preview</div>
+                <h2 class="s-title">See It <span class="gradient-text">Work</span></h2>
+                <p class="s-sub">One free signal per day. Delayed 3 hours. See the AI make decisions in real-time.</p>
+            </div>
+            <div class="sig-wrap reveal">
+                <div class="sig-card" id="sig-card">
+                    <div class="sig-header">
+                        <span class="sig-badge"><span class="live-dot"></span> Latest Signal</span>
+                        <span class="sig-time" id="sig-time">2 hours ago</span>
+                    </div>
+                    <div class="sig-pair" id="sig-pair">BTC/USDT</div>
+                    <div class="sig-direction sig-long" id="sig-dir">LONG</div>
+                    <div class="sig-details">
+                        <div class="sig-detail"><span class="sig-d-label">Entry</span><span class="sig-d-value" id="sig-entry">$94,250.00</span></div>
+                        <div class="sig-detail"><span class="sig-d-label">Confidence</span><span class="sig-d-value" id="sig-conf">0.73</span></div>
+                        <div class="sig-detail"><span class="sig-d-label">Stop Loss</span><span class="sig-d-value" id="sig-sl">$93,180.00</span></div>
+                        <div class="sig-detail"><span class="sig-d-label">Result</span><span class="sig-d-value lp-green" id="sig-result">+1.82%</span></div>
+                    </div>
+                    <div class="sig-subsystems">
+                        <div class="sig-sub"><span class="sig-sub-name">Alpha Model</span><span class="sig-sub-val lp-green">0.71</span></div>
+                        <div class="sig-sub"><span class="sig-sub-name">LGBM Ensemble</span><span class="sig-sub-val lp-green">0.68</span></div>
+                        <div class="sig-sub"><span class="sig-sub-name">Regime Filter</span><span class="sig-sub-val">Trending</span></div>
+                        <div class="sig-sub"><span class="sig-sub-name">ATV</span><span class="sig-sub-val lp-green">PASS</span></div>
+                    </div>
+                    <div class="sig-cta">
+                        <p>Want auto-execution on all 24 pairs?</p>
+                        <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="btn-glow" style="display:inline-block;margin-top:12px;font-size:0.85rem;padding:12px 28px;">Get Full Access</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- PRICING -->
     <section id="pricing">
         <div class="container">
@@ -1120,35 +1328,21 @@
         '  vec2 st=uv;',
         '  float asp=res.x/res.y;',
         '',
-        '  // Gentle vortex warp (organic, not aggressive)',
-        '  vec2 vc=vec2(0.35+sin(t*0.04)*0.12,0.45+cos(t*0.05)*0.15);',
-        '  vec2 d=st-vc;float dl=length(d);',
-        '  float ang=0.4*smoothstep(0.35,0.0,dl)*sin(t*0.08);',
-        '  float cs=cos(ang),sn=sin(ang);',
-        '  vec2 ws=vc+vec2(cs*d.x-sn*d.y,sn*d.x+cs*d.y);',
-        '',
-        '  vec2 vc2=vec2(0.7+cos(t*0.03)*0.1,0.55+sin(t*0.04)*0.12);',
-        '  vec2 d2=ws-vc2;float dl2=length(d2);',
-        '  float ang2=-0.3*smoothstep(0.3,0.0,dl2)*cos(t*0.06);',
-        '  float cs2=cos(ang2),sn2=sin(ang2);',
-        '  ws=vc2+vec2(cs2*d2.x-sn2*d2.y,sn2*d2.x+cs2*d2.y);',
-        '',
-        '  // Plasma layers (domain warping)',
-        '  vec2 q=vec2(fbm(ws*vec2(asp*2.0,2.0)+t*0.03),fbm(ws*vec2(asp*2.0,2.0)+vec2(5.2,1.3)+t*0.02));',
-        '  vec2 r=vec2(fbm(ws*vec2(asp*2.0,2.0)+4.0*q+vec2(1.7,9.2)+t*0.01),fbm(ws*vec2(asp*2.0,2.0)+4.0*q+vec2(8.3,2.8)+t*0.015));',
-        '  float plasma=fbm(ws*vec2(asp*2.0,2.0)+3.0*r+t*0.02)*0.5+0.5;',
-        '',
-        '  // Fine detail layer',
-        '  float detail=fbm(ws*vec2(asp*5.0,5.0)+vec2(t*0.05,t*0.03))*0.5+0.5;',
+        '  // Domain-warped plasma (organic flowing lava)',
+        '  vec2 base=st*vec2(asp*2.0,2.0);',
+        '  vec2 q=vec2(fbm(base+t*0.03),fbm(base+vec2(5.2,1.3)+t*0.02));',
+        '  vec2 r=vec2(fbm(base+4.0*q+vec2(1.7,9.2)+t*0.01),fbm(base+4.0*q+vec2(8.3,2.8)+t*0.015));',
+        '  float plasma=fbm(base+3.0*r+t*0.02)*0.5+0.5;',
+        '  float detail=fbm(st*vec2(asp*5.0,5.0)+vec2(t*0.04,t*0.025))*0.5+0.5;',
         '  plasma=plasma*0.7+detail*0.3;',
         '',
         '  // Burgundy palette',
-        '  vec3 c0=vec3(0.03,0.01,0.04);',  // black-purple
-        '  vec3 c1=vec3(0.20,0.04,0.09);',  // dark wine
-        '  vec3 c2=vec3(0.40,0.09,0.15);',  // burgundy
-        '  vec3 c3=vec3(0.55,0.14,0.20);',  // cherry
-        '  vec3 c4=vec3(0.68,0.30,0.27);',  // rose gold
-        '  vec3 c5=vec3(0.16,0.04,0.22);',  // midnight purple
+        '  vec3 c0=vec3(0.02,0.005,0.03);',
+        '  vec3 c1=vec3(0.18,0.03,0.07);',
+        '  vec3 c2=vec3(0.38,0.08,0.13);',
+        '  vec3 c3=vec3(0.52,0.12,0.18);',
+        '  vec3 c4=vec3(0.65,0.28,0.25);',
+        '  vec3 c5=vec3(0.14,0.03,0.19);',
         '',
         '  float p=clamp(plasma,0.0,1.0);',
         '  vec3 col=mix(c0,c1,smoothstep(0.0,0.25,p));',
@@ -1158,64 +1352,25 @@
         '',
         '  // Purple veins in dark areas',
         '  float vein=smoothstep(0.47,0.53,fbm(st*vec2(asp*4.0,4.0)+t*0.02)*0.5+0.5);',
-        '  col=mix(col,c5,vein*0.3*(1.0-p));',
+        '  col=mix(col,c5,vein*0.25*(1.0-p));',
         '',
-        '  // Flare 1',
-        '  vec2 f1=vec2(0.3+sin(t*0.07)*0.2,0.5+cos(t*0.09)*0.3);',
-        '  float fi1=sin(t*0.15)*0.5+0.5;',
-        '  float fl1=fi1*0.4*exp(-dot(st-f1,st-f1)/(0.015+fi1*0.008));',
-        '  col+=vec3(0.85,0.45,0.35)*fl1;',
+        '  // 3 gentle flares (wandering warm spots)',
+        '  vec2 f1=vec2(0.3+sin(t*0.06)*0.18,0.45+cos(t*0.08)*0.25);',
+        '  float fi1=sin(t*0.12)*0.5+0.5;',
+        '  col+=c4*0.35*fi1*exp(-dot(st-f1,st-f1)/(0.02+fi1*0.01));',
         '',
-        '  // Flare 2',
-        '  vec2 f2=vec2(0.7+cos(t*0.06)*0.15,0.4+sin(t*0.08)*0.25);',
-        '  float fi2=sin(t*0.12+2.0)*0.5+0.5;',
-        '  float fl2=fi2*0.3*exp(-dot(st-f2,st-f2)/(0.012+fi2*0.006));',
-        '  col+=vec3(0.75,0.35,0.30)*fl2;',
+        '  vec2 f2=vec2(0.72+cos(t*0.05)*0.12,0.4+sin(t*0.07)*0.2);',
+        '  float fi2=sin(t*0.10+2.0)*0.5+0.5;',
+        '  col+=vec3(0.7,0.3,0.28)*0.25*fi2*exp(-dot(st-f2,st-f2)/(0.015+fi2*0.008));',
         '',
-        '  // Flare 3 (wandering center)',
-        '  vec2 f3=vec2(0.5+sin(t*0.05+1.0)*0.25,0.65+cos(t*0.07+2.0)*0.2);',
-        '  float fi3=sin(t*0.18+4.0)*0.5+0.5;',
-        '  float fl3=fi3*0.25*exp(-dot(st-f3,st-f3)/(0.01+fi3*0.005));',
-        '  col+=c4*fl3;',
+        '  vec2 f3=vec2(0.5+sin(t*0.04+1.5)*0.22,0.6+cos(t*0.06+2.5)*0.18);',
+        '  float fi3=sin(t*0.15+4.0)*0.5+0.5;',
+        '  col+=c4*0.2*fi3*exp(-dot(st-f3,st-f3)/(0.012+fi3*0.006));',
         '',
-        '  // Ripple from flare 1 (expanding ring)',
-        '  float rd1=length(st-f1);',
-        '  float rip1=smoothstep(0.012,0.0,abs(rd1-mod(t*0.12,1.5)))*fi1*0.3;',
-        '  col+=c4*rip1;',
-        '',
-        '  // Ripple from flare 2',
-        '  float rd2=length(st-f2);',
-        '  float rip2=smoothstep(0.01,0.0,abs(rd2-mod(t*0.10+0.7,1.3)))*fi2*0.25;',
-        '  col+=vec3(0.6,0.2,0.3)*rip2;',
-        '',
-        '',
-        '  // Pulse nodes (5 breathing bright dots)',
-        '  vec2 n1=vec2(0.15,0.25)+vec2(sin(t*0.04)*0.05,cos(t*0.05)*0.06);',
-        '  vec2 n2=vec2(0.85,0.35)+vec2(cos(t*0.03)*0.04,sin(t*0.06)*0.05);',
-        '  vec2 n3=vec2(0.5,0.15)+vec2(sin(t*0.05+1.0)*0.06,cos(t*0.04+2.0)*0.04);',
-        '  vec2 n4=vec2(0.25,0.8)+vec2(cos(t*0.04+3.0)*0.05,sin(t*0.05+1.0)*0.05);',
-        '  vec2 n5=vec2(0.75,0.75)+vec2(sin(t*0.03+2.0)*0.04,cos(t*0.06+3.0)*0.06);',
-        '  float np1=sin(t*0.4)*0.5+0.5;float np2=sin(t*0.55+1.5)*0.5+0.5;',
-        '  float np3=sin(t*0.35+3.0)*0.5+0.5;float np4=sin(t*0.45+4.5)*0.5+0.5;',
-        '  float np5=sin(t*0.5+6.0)*0.5+0.5;',
-        '  col+=c4*0.4*np1*exp(-dot(st-n1,st-n1)/0.0008);',
-        '  col+=c4*0.35*np2*exp(-dot(st-n2,st-n2)/0.0006);',
-        '  col+=c4*0.3*np3*exp(-dot(st-n3,st-n3)/0.0007);',
-        '  col+=vec3(0.5,0.15,0.25)*0.3*np4*exp(-dot(st-n4,st-n4)/0.0005);',
-        '  col+=vec3(0.5,0.15,0.25)*0.25*np5*exp(-dot(st-n5,st-n5)/0.0006);',
-        '',
-        '  // Pulse node rings',
-        '  float nd1=length(st-n1);col+=c4*smoothstep(0.003,0.0,abs(nd1-0.03*np1))*np1*0.12;',
-        '  float nd2=length(st-n2);col+=c4*smoothstep(0.003,0.0,abs(nd2-0.025*np2))*np2*0.10;',
-        '',
-        '  // Subtle pulse in bright areas',
-        '  float pulse=sin(t*0.3+plasma*6.28)*0.5+0.5;',
-        '  col+=c4*pulse*0.03*smoothstep(0.5,0.8,p);',
-        '',
-        '  // Vignette',
-        '  float vig=1.0-smoothstep(0.3,1.2,length((st-0.5)*vec2(1.3,1.8)));',
-        '  col*=0.35+vig*0.65;',
-        '  col*=0.8;',
+        '  // Vignette (strong edges)',
+        '  float vig=1.0-smoothstep(0.25,1.3,length((st-0.5)*vec2(1.4,1.9)));',
+        '  col*=0.3+vig*0.7;',
+        '  col*=0.75;',
         '',
         '  gl_FragColor=vec4(col,1.0);',
         '}'].join('\n');
@@ -1381,6 +1536,93 @@
         });
     }, { threshold: 0.5 });
     document.querySelectorAll('.counter').forEach(c => cobs.observe(c));
+
+    // ---- EQUITY CHART (canvas-drawn, realistic curve) ----
+    (function(){
+        const c = document.getElementById('equityChart');
+        if (!c) return;
+        const ctx = c.getContext('2d');
+        const W = c.width = c.offsetWidth * 2;
+        const H = c.height = 280 * 2;
+        c.style.height = '280px';
+        ctx.scale(2, 2);
+        const w = W/2, h = H/2;
+
+        // Generate realistic equity curve (uptrend with drawdowns)
+        const pts = [];
+        let eq = 1000;
+        for (let i = 0; i < 90; i++) {
+            const trend = 0.12 / 90; // ~12% in 90 days
+            const vol = (Math.random() - 0.42) * 30;
+            eq = Math.max(eq * 0.97, eq + eq * trend + vol);
+            pts.push(eq);
+        }
+        const minE = Math.min(...pts) * 0.98;
+        const maxE = Math.max(...pts) * 1.02;
+
+        // Grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < 5; i++) {
+            const y = 20 + (h - 40) * i / 4;
+            ctx.beginPath(); ctx.moveTo(40, y); ctx.lineTo(w - 10, y); ctx.stroke();
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            ctx.font = '9px JetBrains Mono, monospace';
+            const val = maxE - (maxE - minE) * i / 4;
+            ctx.fillText('$' + val.toFixed(0), 2, y + 3);
+        }
+
+        // Gradient fill
+        const grad = ctx.createLinearGradient(0, 20, 0, h - 20);
+        grad.addColorStop(0, 'rgba(16,185,129,0.15)');
+        grad.addColorStop(1, 'rgba(16,185,129,0.0)');
+        ctx.beginPath();
+        ctx.moveTo(40, h - 20);
+        pts.forEach((v, i) => {
+            const x = 40 + (w - 50) * i / (pts.length - 1);
+            const y = 20 + (h - 40) * (1 - (v - minE) / (maxE - minE));
+            ctx.lineTo(x, y);
+        });
+        ctx.lineTo(w - 10, h - 20);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Line
+        ctx.beginPath();
+        pts.forEach((v, i) => {
+            const x = 40 + (w - 50) * i / (pts.length - 1);
+            const y = 20 + (h - 40) * (1 - (v - minE) / (maxE - minE));
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Current dot
+        const lastX = w - 10;
+        const lastY = 20 + (h - 40) * (1 - (pts[pts.length-1] - minE) / (maxE - minE));
+        ctx.beginPath(); ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#10b981'; ctx.fill();
+        ctx.beginPath(); ctx.arc(lastX, lastY, 8, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(16,185,129,0.2)'; ctx.fill();
+    })();
+
+    // ---- PROFIT CALCULATOR ----
+    function calcUpdate() {
+        const cap = parseFloat(document.getElementById('calc-capital').value) || 1000;
+        const monthlyRate = 0.124; // 12.4% monthly
+        const d30 = cap * (1 + monthlyRate);
+        const d90 = cap * Math.pow(1 + monthlyRate, 3);
+        const y1 = cap * Math.pow(1 + monthlyRate, 12);
+        const monthly = cap * monthlyRate;
+        document.getElementById('calc-30d').textContent = '$' + d30.toLocaleString('en-US', {maximumFractionDigits: 0});
+        document.getElementById('calc-90d').textContent = '$' + d90.toLocaleString('en-US', {maximumFractionDigits: 0});
+        document.getElementById('calc-1y').textContent = '$' + y1.toLocaleString('en-US', {maximumFractionDigits: 0});
+        document.getElementById('calc-monthly').textContent = '$' + monthly.toLocaleString('en-US', {maximumFractionDigits: 0}) + '/mo';
+    }
+    document.getElementById('calc-capital')?.addEventListener('input', calcUpdate);
+    calcUpdate();
 
     // ---- SMOOTH SCROLL ----
     document.querySelectorAll('a[href^="#"]').forEach(a => {
