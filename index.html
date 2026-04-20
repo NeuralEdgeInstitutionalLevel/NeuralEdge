@@ -1175,7 +1175,7 @@
         '  gl_FragColor=vec4(col,1.0);',
         '}'].join('\n');
 
-        let fogProg = null, fogTime = 0;
+        let _pp = null, _pt = 0;
         if (gl) {
             function mkShader(src, type) {
                 const s = gl.createShader(type);
@@ -1191,20 +1191,20 @@
             const vs = mkShader(vsrc, gl.VERTEX_SHADER);
             const fs = mkShader(fsrc, gl.FRAGMENT_SHADER);
             if (vs && fs) {
-                fogProg = gl.createProgram();
-                gl.attachShader(fogProg, vs);
-                gl.attachShader(fogProg, fs);
-                gl.linkProgram(fogProg);
-                if (!gl.getProgramParameter(fogProg, gl.LINK_STATUS)) {
-                    console.error('Program link error:', gl.getProgramInfoLog(fogProg));
-                    fogProg = null;
+                _pp = gl.createProgram();
+                gl.attachShader(_pp, vs);
+                gl.attachShader(_pp, fs);
+                gl.linkProgram(_pp);
+                if (!gl.getProgramParameter(_pp, gl.LINK_STATUS)) {
+                    console.error('Program link error:', gl.getProgramInfoLog(_pp));
+                    _pp = null;
                 } else {
                     useWebGL = true;
-                    gl.useProgram(fogProg);
+                    gl.useProgram(_pp);
                     const buf = gl.createBuffer();
                     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
                     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
-                    const pLoc = gl.getAttribLocation(fogProg, 'p');
+                    const pLoc = gl.getAttribLocation(_pp, 'p');
                     gl.enableVertexAttribArray(pLoc);
                     gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
                 }
@@ -1246,22 +1246,22 @@
             gl.viewport(0, 0, W, H);
             gl.clearColor(0.03, 0.01, 0.04, 1.0);
             gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.useProgram(fogProg);
-            gl.uniform1f(gl.getUniformLocation(fogProg, 't'), fogTime);
-            gl.uniform2f(gl.getUniformLocation(fogProg, 'res'), W, H);
+            gl.useProgram(_pp);
+            gl.uniform1f(gl.getUniformLocation(_pp, 't'), _pt);
+            gl.uniform2f(gl.getUniformLocation(_pp, 'res'), W, H);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         }
 
         // ======== MAIN LOOP ========
         let frame = 0;
         function animate() {
-            fogTime += 0.004;
+            _pt += 0.004;
             frame++;
             if (useWebGL) {
                 renderWebGL();
             } else if (frame % 3 === 0) {
                 // Canvas fallback: render every 3rd frame for performance
-                renderFallback(fogTime);
+                renderFallback(_pt);
             }
             requestAnimationFrame(animate);
         }
