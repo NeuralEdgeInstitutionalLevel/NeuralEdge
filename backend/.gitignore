@@ -1,0 +1,19 @@
+# Environment (contains secrets!)
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# IDE
+.idea/
+.vscode/
+
+# Docker
+pgdata/
+redisdata/

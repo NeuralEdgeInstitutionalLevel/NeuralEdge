@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+.banner { width: 1500px; height: 500px; position: relative; overflow: hidden; cursor: default; }
+canvas { position: absolute; top: 0; left: 0; width: 1500px; height: 500px; }
+#bgCanvas { z-index: 1; }
+#fogCanvas { z-index: 2; }
+#dropCanvas { z-index: 3; }
+</style>
+</head>
+<body>
+<div class="banner">
+    <canvas id="bgCanvas" width="1500" height="500"></canvas>
+    <canvas id="fogCanvas" width="1500" height="500"></canvas>
+    <canvas id="dropCanvas" width="1500" height="500"></canvas>
+</div>
+
+<script>
+// ============================================================
+//  LAYER 1: Background content (text, stats, glow)
+// ============================================================
+const bgC = document.getElementById('bgCanvas');
+const bgCtx = bgC.getContext('2d');
+
+function drawBackground() {
+    const W = 1500, H = 500;
+    // Dark gradient background
+    const grad = bgCtx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, '#080b12');
+    grad.addColorStop(0.3, '#0a1020');
+    grad.addColorStop(0.6, '#0d1428');
+    grad.addColorStop(1, '#08090d');
+    bgCtx.fillStyle = grad;
+    bgCtx.fillRect(0, 0, W, H);
+
+    // Subtle grid
+    bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.04)';
+    bgCtx.lineWidth = 0.5;
+    for (let x = 0; x < W; x += 50) {
+        bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, H); bgCtx.stroke();
+    }
+    for (let y = 0; y < H; y += 50) {
+        bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(W, y); bgCtx.stroke();
+    }
+
+    // Glow orbs
+    const drawOrb = (x, y, r, color) => {
+        const g = bgCtx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, color);
+        g.addColorStop(1, 'transparent');
+        bgCtx.fillStyle = g;
+        bgCtx.fillRect(x - r, y - r, r * 2, r * 2);
+    };
+    drawOrb(200, 100, 350, 'rgba(56, 189, 248, 0.08)');
+    drawOrb(1200, 400, 300, 'rgba(168, 85, 247, 0.06)');
+    drawOrb(800, 200, 250, 'rgba(34, 211, 238, 0.04)');
+
+    // Flowing price chart lines (background decoration)
+    bgCtx.lineWidth = 1.5;
+    for (let line = 0; line < 4; line++) {
+        bgCtx.beginPath();
+        const baseY = 120 + line * 90;
+        const colors = ['rgba(56,189,248,0.12)', 'rgba(168,85,247,0.08)', 'rgba(34,211,238,0.10)', 'rgba(74,222,128,0.07)'];
+        bgCtx.strokeStyle = colors[line];
+        for (let x = 0; x <= W; x += 3) {
+            const y = baseY + Math.sin(x * 0.008 + line * 2) * 30 + Math.sin(x * 0.02 + line) * 15 + Math.sin(x * 0.003) * 40;
+            if (x === 0) bgCtx.moveTo(x, y);
+            else bgCtx.lineTo(x, y);
+        }
+        bgCtx.stroke();
+    }
+
+    // Mini candlesticks
+    bgCtx.globalAlpha = 0.06;
+    for (let i = 0; i < 40; i++) {
+        const x = 50 + i * 36;
+        const baseY = 250 + Math.sin(i * 0.4) * 60;
+        const h = 15 + Math.random() * 30;
+        const isGreen = Math.random() > 0.45;
+        bgCtx.fillStyle = isGreen ? '#4ade80' : '#f87171';
+        bgCtx.fillRect(x - 3, baseY - h/2, 6, h);
+        bgCtx.fillRect(x - 0.5, baseY - h/2 - 8, 1, h + 16);
+    }
+    bgCtx.globalAlpha = 1;
+
+    // === MAIN TEXT ===
+    // Badge
+    bgCtx.save();
+    const bx = 80, by = 100;
+    bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+    bgCtx.lineWidth = 1;
+    roundRect(bgCtx, bx, by, 210, 28, 14);
+    bgCtx.stroke();
+    bgCtx.fillStyle = 'rgba(56, 189, 248, 0.06)';
+    roundRect(bgCtx, bx, by, 210, 28, 14);
+    bgCtx.fill();
+    bgCtx.font = '600 11px system-ui, sans-serif';
+    bgCtx.fillStyle = '#38bdf8';
+    bgCtx.letterSpacing = '2px';
+    bgCtx.fillText('INSTITUTIONAL-GRADE AI', bx + 18, by + 18);
+    bgCtx.restore();
+
+    // Title "NeuralEdge AI"
+    bgCtx.font = '800 64px system-ui, -apple-system, sans-serif';
+    bgCtx.fillStyle = '#ffffff';
+    bgCtx.fillText('Neural', 80, 200);
+    // Gradient part
+    const tGrad = bgCtx.createLinearGradient(270, 160, 520, 210);
+    tGrad.addColorStop(0, '#38bdf8');
+    tGrad.addColorStop(0.5, '#a855f7');
+    tGrad.addColorStop(1, '#22d3ee');
+    bgCtx.fillStyle = tGrad;
+    bgCtx.fillText('Edge', 280, 200);
+    bgCtx.font = '300 64px system-ui, -apple-system, sans-serif';
+    bgCtx.fillStyle = 'rgba(255,255,255,0.6)';
+    bgCtx.fillText('AI', 470, 200);
+
+    // Subtitle
+    bgCtx.font = '400 17px system-ui, sans-serif';
+    bgCtx.fillStyle = 'rgba(255,255,255,0.4)';
+    bgCtx.fillText('Automated crypto trading. 70M+ parameters. 37 AI subsystems.', 80, 245);
+    bgCtx.fillText('MambaV2 + Differential Attention. Trades 24 pairs 24/7.', 80, 270);
+
+    // Stats
+    const stats = [
+        { val: '48.5M', label: 'PARAMETERS' },
+        { val: '37', label: 'SUBSYSTEMS' },
+        { val: '24', label: 'PAIRS' },
+        { val: '15', label: 'DEEP BLOCKS' },
+    ];
+    stats.forEach((s, i) => {
+        const sx = 80 + i * 160;
+        const sy = 320;
+
+        // Stat value
+        bgCtx.font = '700 32px Consolas, monospace';
+        bgCtx.fillStyle = '#38bdf8';
+        bgCtx.fillText(s.val, sx, sy);
+
+        // Label
+        bgCtx.font = '600 10px system-ui, sans-serif';
+        bgCtx.fillStyle = 'rgba(255,255,255,0.25)';
+        bgCtx.fillText(s.label, sx, sy + 20);
+    });
+
+    // Right side: code block
+    const cbx = 900, cby = 70, cbw = 520, cbh = 360;
+    bgCtx.fillStyle = 'rgba(8, 12, 20, 0.7)';
+    roundRect(bgCtx, cbx, cby, cbw, cbh, 16);
+    bgCtx.fill();
+    bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+    bgCtx.lineWidth = 1;
+    roundRect(bgCtx, cbx, cby, cbw, cbh, 16);
+    bgCtx.stroke();
+
+    // Window dots
+    const dots = [['#ff5f56', 0], ['#ffbd2e', 16], ['#27c93f', 32]];
+    dots.forEach(([c, off]) => {
+        bgCtx.beginPath();
+        bgCtx.arc(cbx + 24 + off, cby + 24, 5, 0, Math.PI * 2);
+        bgCtx.fillStyle = c;
+        bgCtx.fill();
+    });
+
+    // Code lines
+    bgCtx.font = '500 14.5px Consolas, "Courier New", monospace';
+    const lines = [
+        [['#7dd3fc', 'architecture'], ['#fff', ': '], ['#a5f3fc', '"MambaV2x6 -> DiffTransf x3 -> MambaV2x6"']],
+        [['#7dd3fc', 'params'], ['#fff', ':      '], ['#c084fc', '48_454_048']],
+        [['#7dd3fc', 'experts'], ['#fff', ':     '], ['#c084fc', '6'], ['rgba(255,255,255,0.2)', '  // MoE regime routing']],
+        [['#7dd3fc', 'attention'], ['#fff', ':   '], ['#a5f3fc', '"Differential"'], ['rgba(255,255,255,0.2)', ' // noise-cancel']],
+        [['#7dd3fc', 'features'], ['#fff', ':    '], ['#c084fc', '140']],
+        [['#7dd3fc', 'pairs'], ['#fff', ':       '], ['#c084fc', '24'], ['rgba(255,255,255,0.2)', '  // Bitget USDT-M']],
+        [['#7dd3fc', 'subsystems'], ['#fff', ':  '], ['#c084fc', '37']],
+        [['#7dd3fc', 'timeframe'], ['#fff', ':   '], ['#a5f3fc', '"15m"']],
+        [['#7dd3fc', 'augmentation'], ['#fff', ': '], ['#a5f3fc', '"7x offset + SOTA"']],
+        [['#7dd3fc', 'status'], ['#fff', ':      '], ['#4ade80', 'LIVE'], ['rgba(255,255,255,0.2)', ' // running 24/7']],
+    ];
+    lines.forEach((parts, i) => {
+        let cx = cbx + 24;
+        const cy = cby + 62 + i * 28;
+        parts.forEach(([color, text]) => {
+            bgCtx.fillStyle = color;
+            bgCtx.fillText(text, cx, cy);
+            cx += bgCtx.measureText(text).width;
+        });
+    });
+
+    // Bottom gradient line
+    const blGrad = bgCtx.createLinearGradient(0, H - 3, W, H - 3);
+    blGrad.addColorStop(0, 'transparent');
+    blGrad.addColorStop(0.2, '#38bdf8');
+    blGrad.addColorStop(0.5, '#a855f7');
+    blGrad.addColorStop(0.8, '#22d3ee');
+    blGrad.addColorStop(1, 'transparent');
+    bgCtx.fillStyle = blGrad;
+    bgCtx.globalAlpha = 0.5;
+    bgCtx.fillRect(0, H - 3, W, 3);
+    bgCtx.globalAlpha = 1;
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+drawBackground();
+
+// ============================================================
+//  LAYER 2: Animated fog / steam
+// ============================================================
+const fogC = document.getElementById('fogCanvas');
+const fogCtx = fogC.getContext('2d');
+
+// Simplex-inspired noise
+class FogField {
+    constructor() {
+        this.perm = [];
+        for (let i = 0; i < 512; i++) this.perm[i] = Math.floor(Math.random() * 256);
+    }
+    noise(x, y) {
+        const X = Math.floor(x) & 255, Y = Math.floor(y) & 255;
+        const xf = x - Math.floor(x), yf = y - Math.floor(y);
+        const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+        const a = this.perm[X] + Y, b = this.perm[X + 1] + Y;
+        const aa = this.perm[a] / 256, ba = this.perm[b] / 256;
+        const ab = this.perm[a + 1] / 256, bb = this.perm[b + 1] / 256;
+        return aa + u * (ba - aa) + v * (ab - aa + u * (aa - ba - ab + bb));
+    }
+    fbm(x, y, octaves = 5) {
+        let val = 0, amp = 0.5, freq = 1;
+        for (let i = 0; i < octaves; i++) {
+            val += amp * this.noise(x * freq, y * freq);
+            amp *= 0.5; freq *= 2;
+        }
+        return val;
+    }
+}
+
+const fog = new FogField();
+const fog2 = new FogField();
+let fogTime = 0;
+
+function drawFog(t) {
+    const W = 1500, H = 500;
+    const imgData = fogCtx.createImageData(W, H);
+    const data = imgData.data;
+
+    // Sample every 4px for performance, then blur
+    const scale = 4;
+    const smallW = Math.ceil(W / scale);
+    const smallH = Math.ceil(H / scale);
+    const fogBuf = new Float32Array(smallW * smallH);
+
+    for (let sy = 0; sy < smallH; sy++) {
+        for (let sx = 0; sx < smallW; sx++) {
+            const nx = sx / smallW * 4;
+            const ny = sy / smallH * 3;
+            // Two fog layers moving in different directions
+            const f1 = fog.fbm(nx + t * 0.15, ny + t * 0.05, 5);
+            const f2 = fog2.fbm(nx - t * 0.08 + 2, ny + t * 0.12 + 3, 4);
+            // Combine
+            let val = (f1 * 0.6 + f2 * 0.4);
+
+            // Thicker at bottom, thinner at top (steam rises)
+            const yFade = Math.pow(sy / smallH, 0.4);
+            // Some clear areas in the center for readability
+            const cx = sx / smallW, cy = sy / smallH;
+            const clearZone = Math.max(0, 1 - Math.sqrt((cx - 0.35) ** 2 * 2 + (cy - 0.4) ** 2 * 4) * 1.8);
+            val = val * (0.3 + yFade * 0.7) * (1 - clearZone * 0.3);
+
+            fogBuf[sy * smallW + sx] = val;
+        }
+    }
+
+    // Upscale with bilinear interpolation
+    for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+            const fx = x / scale, fy = y / scale;
+            const ix = Math.min(Math.floor(fx), smallW - 2);
+            const iy = Math.min(Math.floor(fy), smallH - 2);
+            const dx = fx - ix, dy = fy - iy;
+            const tl = fogBuf[iy * smallW + ix];
+            const tr = fogBuf[iy * smallW + ix + 1];
+            const bl = fogBuf[(iy + 1) * smallW + ix];
+            const br = fogBuf[(iy + 1) * smallW + ix + 1];
+            const val = tl * (1-dx)*(1-dy) + tr * dx*(1-dy) + bl * (1-dx)*dy + br * dx*dy;
+
+            const idx = (y * W + x) * 4;
+            const fogIntensity = Math.min(1, val * 1.6);
+            // White-ish fog with slight blue tint
+            data[idx]     = Math.floor(200 + fogIntensity * 40);  // R
+            data[idx + 1] = Math.floor(210 + fogIntensity * 35);  // G
+            data[idx + 2] = Math.floor(225 + fogIntensity * 30);  // B
+            data[idx + 3] = Math.floor(fogIntensity * 90);        // A (subtle)
+        }
+    }
+
+    fogCtx.putImageData(imgData, 0, 0);
+
+    // Extra wispy tendrils using canvas drawing
+    fogCtx.save();
+    for (let i = 0; i < 8; i++) {
+        fogCtx.beginPath();
+        const baseX = (i * 200 + t * 30) % (W + 200) - 100;
+        const baseY = H - 50 - i * 20;
+        fogCtx.moveTo(baseX, baseY);
+        for (let s = 0; s < 300; s += 5) {
+            const wx = baseX + s;
+            const wy = baseY - s * 0.5 + Math.sin(s * 0.03 + t + i) * 40 + Math.sin(s * 0.01 + t * 0.5) * 20;
+            fogCtx.lineTo(wx, wy);
+        }
+        fogCtx.strokeStyle = `rgba(220, 230, 245, ${0.02 + Math.sin(t + i) * 0.01})`;
+        fogCtx.lineWidth = 20 + Math.sin(t * 0.5 + i) * 10;
+        fogCtx.filter = 'blur(15px)';
+        fogCtx.stroke();
+    }
+    fogCtx.filter = 'none';
+    fogCtx.restore();
+}
+
+// ============================================================
+//  LAYER 3: Water droplets with refraction
+// ============================================================
+const dropC = document.getElementById('dropCanvas');
+const dropCtx = dropC.getContext('2d');
+
+class WaterDrop {
+    constructor() {
+        this.reset();
+        this.y = Math.random() * 500; // Start at random Y
+    }
+    reset() {
+        this.x = Math.random() * 1500;
+        this.y = -10 - Math.random() * 50;
+        this.radius = 2 + Math.random() * 8;
+        this.maxRadius = this.radius;
+        this.growing = true;
+        this.growRate = 0.005 + Math.random() * 0.01;
+        this.opacity = 0.3 + Math.random() * 0.5;
+        this.dripSpeed = 0;
+        this.dripThreshold = 8 + Math.random() * 6;
+        this.dripping = false;
+        this.trail = [];
+        this.wobble = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = 0.02 + Math.random() * 0.03;
+        this.life = 0;
+        this.maxLife = 500 + Math.random() * 1000;
+    }
+    update() {
+        this.life++;
+        this.wobble += this.wobbleSpeed;
+
+        if (this.growing && !this.dripping) {
+            this.radius += this.growRate;
+            if (this.radius > this.dripThreshold) {
+                this.dripping = true;
+                this.growing = false;
+            }
+        }
+
+        if (this.dripping) {
+            this.dripSpeed += 0.015;
+            this.y += this.dripSpeed;
+            this.radius *= 0.998;
+
+            // Leave trail
+            if (Math.random() > 0.7) {
+                this.trail.push({ x: this.x + Math.sin(this.wobble) * 1, y: this.y, r: this.radius * 0.3, opacity: 0.3 });
+            }
+        }
+
+        // Fade trail
+        this.trail.forEach(t => { t.opacity *= 0.995; t.r *= 0.999; });
+        this.trail = this.trail.filter(t => t.opacity > 0.02);
+
+        if (this.y > 520 || this.life > this.maxLife) this.reset();
+    }
+    draw(ctx, bgData) {
+        // Draw trail (wet marks)
+        this.trail.forEach(t => {
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(180, 200, 220, ${t.opacity * 0.15})`;
+            ctx.fill();
+        });
+
+        const r = this.radius;
+        const cx = this.x + Math.sin(this.wobble) * 0.5;
+        const cy = this.y;
+
+        // Drop shadow (subtle)
+        ctx.beginPath();
+        ctx.arc(cx + 1, cy + 1, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 0, 0, ${this.opacity * 0.15})`;
+        ctx.fill();
+
+        // Main drop body -- semi-transparent with refraction illusion
+        ctx.save();
+        ctx.beginPath();
+        // Slightly squished ellipse for realism
+        ctx.ellipse(cx, cy, r, r * (this.dripping ? 1.3 : 1.05), 0, 0, Math.PI * 2);
+        ctx.clip();
+
+        // Refraction: offset and slightly magnify the background
+        // We simulate this by drawing a distorted version of the bg
+        if (bgData) {
+            const srcX = Math.floor(cx - r * 1.5);
+            const srcY = Math.floor(cy - r * 1.5 + 3); // Offset = refraction
+            const srcW = Math.floor(r * 3);
+            const srcH = Math.floor(r * 3);
+            if (srcX > 0 && srcY > 0 && srcX + srcW < 1500 && srcY + srcH < 500) {
+                try {
+                    ctx.drawImage(bgC, srcX, srcY, srcW, srcH,
+                                  cx - r, cy - r * 1.05, r * 2, r * 2.1);
+                } catch(e) {}
+            }
+        }
+        // Overlay lens tint
+        ctx.fillStyle = `rgba(200, 220, 240, ${this.opacity * 0.12})`;
+        ctx.fillRect(cx - r, cy - r * 1.3, r * 2, r * 2.6);
+        ctx.restore();
+
+        // Drop outline (very subtle)
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, r, r * (this.dripping ? 1.3 : 1.05), 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255, 255, 255, ${this.opacity * 0.08})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+
+        // Highlight (top-left light reflection)
+        ctx.beginPath();
+        ctx.arc(cx - r * 0.3, cy - r * 0.3, r * 0.35, 0, Math.PI * 2);
+        const hlGrad = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, 0, cx - r * 0.3, cy - r * 0.3, r * 0.35);
+        hlGrad.addColorStop(0, `rgba(255, 255, 255, ${this.opacity * 0.6})`);
+        hlGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = hlGrad;
+        ctx.fill();
+
+        // Secondary smaller highlight
+        ctx.beginPath();
+        ctx.arc(cx + r * 0.2, cy + r * 0.15, r * 0.15, 0, Math.PI * 2);
+        const hl2 = ctx.createRadialGradient(cx + r * 0.2, cy + r * 0.15, 0, cx + r * 0.2, cy + r * 0.15, r * 0.15);
+        hl2.addColorStop(0, `rgba(255, 255, 255, ${this.opacity * 0.3})`);
+        hl2.addColorStop(1, 'transparent');
+        ctx.fillStyle = hl2;
+        ctx.fill();
+
+        // Bottom caustic (light refraction at bottom)
+        ctx.beginPath();
+        ctx.ellipse(cx, cy + r * 0.5, r * 0.5, r * 0.15, 0, 0, Math.PI * 2);
+        const caGrad = ctx.createRadialGradient(cx, cy + r * 0.5, 0, cx, cy + r * 0.5, r * 0.5);
+        caGrad.addColorStop(0, `rgba(56, 189, 248, ${this.opacity * 0.08})`);
+        caGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = caGrad;
+        ctx.fill();
+    }
+}
+
+// Static condensation drops (don't move, just sit on the glass)
+class CondensationDrop {
+    constructor() {
+        this.x = Math.random() * 1500;
+        this.y = Math.random() * 500;
+        this.radius = 1 + Math.random() * 4;
+        this.opacity = 0.2 + Math.random() * 0.4;
+    }
+    draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200, 215, 230, ${this.opacity * 0.08})`;
+        ctx.fill();
+
+        // Tiny highlight
+        if (this.radius > 2) {
+            ctx.beginPath();
+            ctx.arc(this.x - this.radius * 0.25, this.y - this.radius * 0.25, this.radius * 0.3, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.4})`;
+            ctx.fill();
+        }
+    }
+}
+
+// Create drops
+const drops = [];
+for (let i = 0; i < 60; i++) drops.push(new WaterDrop());
+
+const condensation = [];
+for (let i = 0; i < 200; i++) condensation.push(new CondensationDrop());
+
+// ============================================================
+//  ANIMATION LOOP
+// ============================================================
+let frame = 0;
+
+function animate() {
+    frame++;
+    fogTime += 0.008;
+
+    // Update fog every 3rd frame for performance
+    if (frame % 3 === 0) {
+        drawFog(fogTime);
+    }
+
+    // Clear drop canvas
+    dropCtx.clearRect(0, 0, 1500, 500);
+
+    // Draw condensation (static tiny drops)
+    condensation.forEach(c => c.draw(dropCtx));
+
+    // Update and draw water drops
+    drops.forEach(d => {
+        d.update();
+        d.draw(dropCtx, true);
+    });
+
+    // Glass edge effect -- subtle vignette making it look like a glass panel
+    const vigGrad = dropCtx.createRadialGradient(750, 250, 200, 750, 250, 900);
+    vigGrad.addColorStop(0, 'transparent');
+    vigGrad.addColorStop(0.7, 'transparent');
+    vigGrad.addColorStop(1, 'rgba(8, 12, 20, 0.25)');
+    dropCtx.fillStyle = vigGrad;
+    dropCtx.fillRect(0, 0, 1500, 500);
+
+    // Subtle frost at edges
+    const edgeGrad = dropCtx.createLinearGradient(0, 0, 0, 30);
+    edgeGrad.addColorStop(0, 'rgba(200, 220, 240, 0.05)');
+    edgeGrad.addColorStop(1, 'transparent');
+    dropCtx.fillStyle = edgeGrad;
+    dropCtx.fillRect(0, 0, 1500, 30);
+
+    const botGrad = dropCtx.createLinearGradient(0, 470, 0, 500);
+    botGrad.addColorStop(0, 'transparent');
+    botGrad.addColorStop(1, 'rgba(200, 220, 240, 0.06)');
+    dropCtx.fillStyle = botGrad;
+    dropCtx.fillRect(0, 470, 1500, 30);
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>

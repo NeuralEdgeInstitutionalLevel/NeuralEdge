@@ -78,11 +78,11 @@ _TIER_DISPLAY = {
         "display_name": "Starter",
         "price_monthly": 199,
         "features": [
-            "3 trading pairs",
-            "Signal-only mode (manual execution)",
-            "Telegram signal alerts",
-            "Basic performance stats",
-            "Community Discord access",
+            "5 trading pairs (BTC, ETH, SOL, XRP, ADA)",
+            "Auto-execution via API keys",
+            "Full dashboard with equity curve",
+            "Risk controls",
+            "Email support",
         ],
     },
     "pro": {

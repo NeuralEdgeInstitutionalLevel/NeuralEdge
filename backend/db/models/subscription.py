@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import JSON as JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
@@ -16,10 +16,10 @@ class Subscription(Base):
     __tablename__ = "subscriptions"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+        UUID(), primary_key=True, default=uuid.uuid4
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        UUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     whop_membership_id: Mapped[Optional[str]] = mapped_column(
         String(128), unique=True, nullable=True

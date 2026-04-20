@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from sqlalchemy import BigInteger, DateTime, ForeignKey, Index, String, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import JSON as JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
@@ -19,7 +19,7 @@ class AuditLog(Base):
         BigInteger, primary_key=True, autoincrement=True
     )
     user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+        UUID(), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
     action: Mapped[str] = mapped_column(
         String(100), nullable=False

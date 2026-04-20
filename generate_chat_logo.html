@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Chat Logo Generator</title>
+<style>
+body{background:#111;display:flex;flex-direction:column;align-items:center;gap:30px;padding:30px;font-family:system-ui;color:#fff}
+canvas{border:1px solid #333;cursor:pointer}
+h2{margin:0;font-size:13px;color:#888}
+p{color:#555;font-size:11px}
+</style>
+</head>
+<body>
+<h1 style="color:#c4666e">NeuralEdge Chat Avatar</h1>
+<p>Right-click -> Save image as PNG</p>
+
+<h2>Option 1: Neural Eye (512x512)</h2>
+<canvas id="c1" width="512" height="512" style="width:256px;height:256px"></canvas>
+
+<h2>Option 2: Hooded Figure (512x512)</h2>
+<canvas id="c2" width="512" height="512" style="width:256px;height:256px"></canvas>
+
+<h2>Option 3: Abstract Mind (512x512)</h2>
+<canvas id="c3" width="512" height="512" style="width:256px;height:256px"></canvas>
+
+<script>
+// === OPTION 1: Neural Eye - mysterious all-seeing AI ===
+(function(){
+    const c = document.getElementById('c1');
+    const ctx = c.getContext('2d');
+    const s = 512, h = s/2;
+
+    // Dark background
+    const bg = ctx.createRadialGradient(h,h,0,h,h,h);
+    bg.addColorStop(0,'#1a0a12');
+    bg.addColorStop(1,'#06020a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,s,s);
+
+    // Outer glow ring
+    ctx.beginPath(); ctx.arc(h,h,s*0.42,0,Math.PI*2);
+    ctx.strokeStyle = 'rgba(155,35,53,0.15)'; ctx.lineWidth = s*0.03; ctx.stroke();
+
+    // Neural connection lines radiating from center
+    for(let i=0; i<24; i++){
+        const angle = (i/24)*Math.PI*2;
+        const r1 = s*0.18, r2 = s*0.38;
+        ctx.beginPath();
+        ctx.moveTo(h+Math.cos(angle)*r1, h+Math.sin(angle)*r1);
+        // Curve slightly
+        const midR = (r1+r2)/2;
+        const midAngle = angle + Math.sin(i*3)*0.15;
+        ctx.quadraticCurveTo(
+            h+Math.cos(midAngle)*midR, h+Math.sin(midAngle)*midR,
+            h+Math.cos(angle)*r2, h+Math.sin(angle)*r2
+        );
+        ctx.strokeStyle = `rgba(155,35,53,${0.04+Math.random()*0.06})`;
+        ctx.lineWidth = 1; ctx.stroke();
+
+        // Small node at end
+        ctx.beginPath();
+        ctx.arc(h+Math.cos(angle)*r2, h+Math.sin(angle)*r2, 2+Math.random()*2, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(196,102,110,${0.2+Math.random()*0.3})`;
+        ctx.fill();
+    }
+
+    // Eye shape (almond)
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(h-s*0.22, h);
+    ctx.quadraticCurveTo(h, h-s*0.12, h+s*0.22, h);
+    ctx.quadraticCurveTo(h, h+s*0.12, h-s*0.22, h);
+    ctx.closePath();
+    ctx.clip();
+
+    // Eye gradient fill
+    const eyeG = ctx.createRadialGradient(h,h,0,h,h,s*0.15);
+    eyeG.addColorStop(0,'#c4666e');
+    eyeG.addColorStop(0.3,'#9b2335');
+    eyeG.addColorStop(0.6,'#6b1d3a');
+    eyeG.addColorStop(1,'#2a0a18');
+    ctx.fillStyle = eyeG;
+    ctx.fillRect(0,0,s,s);
+
+    // Iris ring
+    ctx.beginPath(); ctx.arc(h,h,s*0.08,0,Math.PI*2);
+    ctx.strokeStyle = 'rgba(200,130,120,0.5)'; ctx.lineWidth = 2; ctx.stroke();
+
+    // Pupil
+    ctx.beginPath(); ctx.arc(h,h,s*0.04,0,Math.PI*2);
+    ctx.fillStyle = '#0a0005'; ctx.fill();
+
+    // Pupil highlight
+    ctx.beginPath(); ctx.arc(h-s*0.015,h-s*0.015,s*0.012,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill();
+
+    // Iris detail lines
+    for(let i=0; i<16; i++){
+        const a = (i/16)*Math.PI*2;
+        ctx.beginPath();
+        ctx.moveTo(h+Math.cos(a)*s*0.045, h+Math.sin(a)*s*0.045);
+        ctx.lineTo(h+Math.cos(a)*s*0.1, h+Math.sin(a)*s*0.1);
+        ctx.strokeStyle = `rgba(200,100,80,${0.1+Math.random()*0.15})`;
+        ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    ctx.restore();
+
+    // Eye outline
+    ctx.beginPath();
+    ctx.moveTo(h-s*0.22, h);
+    ctx.quadraticCurveTo(h, h-s*0.12, h+s*0.22, h);
+    ctx.quadraticCurveTo(h, h+s*0.12, h-s*0.22, h);
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(196,102,110,0.4)'; ctx.lineWidth = 2; ctx.stroke();
+
+    // Glow behind eye
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    const glowG = ctx.createRadialGradient(h,h,0,h,h,s*0.2);
+    glowG.addColorStop(0,'rgba(155,35,53,0.2)');
+    glowG.addColorStop(1,'transparent');
+    ctx.fillStyle = glowG; ctx.fillRect(0,0,s,s);
+    ctx.restore();
+
+    // Scan line subtle
+    for(let y=0;y<s;y+=3){
+        ctx.fillStyle = `rgba(0,0,0,${0.02})`;
+        ctx.fillRect(0,y,s,1);
+    }
+})();
+
+// === OPTION 2: Hooded Figure - mysterious VIP ===
+(function(){
+    const c = document.getElementById('c2');
+    const ctx = c.getContext('2d');
+    const s = 512, h = s/2;
+
+    // Dark background
+    const bg = ctx.createRadialGradient(h,h*0.7,0,h,h,h);
+    bg.addColorStop(0,'#1a0a12');
+    bg.addColorStop(1,'#05010a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,s,s);
+
+    // Hood shape
+    ctx.beginPath();
+    ctx.moveTo(h-s*0.35, s*0.85);
+    ctx.quadraticCurveTo(h-s*0.38, s*0.5, h-s*0.15, s*0.2);
+    ctx.quadraticCurveTo(h, s*0.1, h+s*0.15, s*0.2);
+    ctx.quadraticCurveTo(h+s*0.38, s*0.5, h+s*0.35, s*0.85);
+    ctx.closePath();
+
+    const hoodG = ctx.createLinearGradient(h-s*0.3,s*0.15,h+s*0.3,s*0.8);
+    hoodG.addColorStop(0,'#1a0810');
+    hoodG.addColorStop(0.3,'#120510');
+    hoodG.addColorStop(0.7,'#0a020a');
+    hoodG.addColorStop(1,'#06010a');
+    ctx.fillStyle = hoodG;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(155,35,53,0.12)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Face shadow area (dark void inside hood)
+    ctx.beginPath();
+    ctx.ellipse(h, s*0.45, s*0.12, s*0.14, 0, 0, Math.PI*2);
+    ctx.fillStyle = '#03000a';
+    ctx.fill();
+
+    // Two glowing eyes in the darkness
+    const eyeY = s*0.42;
+    const eyeSpread = s*0.055;
+
+    // Left eye glow
+    const lg = ctx.createRadialGradient(h-eyeSpread,eyeY,0,h-eyeSpread,eyeY,s*0.03);
+    lg.addColorStop(0,'rgba(196,102,110,0.9)');
+    lg.addColorStop(0.5,'rgba(155,35,53,0.4)');
+    lg.addColorStop(1,'transparent');
+    ctx.fillStyle = lg;
+    ctx.fillRect(h-eyeSpread-s*0.05,eyeY-s*0.05,s*0.1,s*0.1);
+
+    // Left eye core
+    ctx.beginPath(); ctx.arc(h-eyeSpread,eyeY,s*0.012,0,Math.PI*2);
+    ctx.fillStyle = '#e8a0a0'; ctx.fill();
+
+    // Right eye glow
+    const rg = ctx.createRadialGradient(h+eyeSpread,eyeY,0,h+eyeSpread,eyeY,s*0.03);
+    rg.addColorStop(0,'rgba(196,102,110,0.9)');
+    rg.addColorStop(0.5,'rgba(155,35,53,0.4)');
+    rg.addColorStop(1,'transparent');
+    ctx.fillStyle = rg;
+    ctx.fillRect(h+eyeSpread-s*0.05,eyeY-s*0.05,s*0.1,s*0.1);
+
+    // Right eye core
+    ctx.beginPath(); ctx.arc(h+eyeSpread,eyeY,s*0.012,0,Math.PI*2);
+    ctx.fillStyle = '#e8a0a0'; ctx.fill();
+
+    // Ambient glow around hood
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    const ambG = ctx.createRadialGradient(h,s*0.4,0,h,s*0.4,s*0.35);
+    ambG.addColorStop(0,'rgba(155,35,53,0.06)');
+    ambG.addColorStop(1,'transparent');
+    ctx.fillStyle = ambG; ctx.fillRect(0,0,s,s);
+    ctx.restore();
+
+    // Neural particles floating around
+    for(let i=0;i<30;i++){
+        const px = Math.random()*s;
+        const py = Math.random()*s;
+        const pr = 1+Math.random()*2;
+        ctx.beginPath(); ctx.arc(px,py,pr,0,Math.PI*2);
+        ctx.fillStyle = `rgba(155,35,53,${0.05+Math.random()*0.1})`;
+        ctx.fill();
+    }
+
+    // Hood fabric lines (subtle)
+    for(let i=0;i<6;i++){
+        ctx.beginPath();
+        const startX = h + (i-2.5)*s*0.08;
+        ctx.moveTo(startX, s*0.2+i*5);
+        ctx.quadraticCurveTo(startX+Math.sin(i)*10, s*0.5, startX-5+i*3, s*0.85);
+        ctx.strokeStyle = `rgba(155,35,53,${0.03+i*0.005})`;
+        ctx.lineWidth = 0.5; ctx.stroke();
+    }
+})();
+
+// === OPTION 3: Abstract Mind - neural consciousness ===
+(function(){
+    const c = document.getElementById('c3');
+    const ctx = c.getContext('2d');
+    const s = 512, h = s/2;
+
+    // Dark background
+    const bg = ctx.createRadialGradient(h,h,0,h,h,h);
+    bg.addColorStop(0,'#150810');
+    bg.addColorStop(1,'#06020a');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,s,s);
+
+    // Brain-like neural network
+    const nodes = [];
+    // Create nodes in a brain-like shape
+    for(let i=0; i<40; i++){
+        const angle = Math.random()*Math.PI*2;
+        const dist = s*0.08 + Math.random()*s*0.25;
+        // Shape like a brain (wider at top, narrower at bottom)
+        const shapeFactor = 1 - Math.abs(Math.sin(angle))*0.3;
+        nodes.push({
+            x: h + Math.cos(angle)*dist*shapeFactor,
+            y: h + Math.sin(angle)*dist*0.85,
+            r: 2+Math.random()*4,
+            pulse: Math.random()*Math.PI*2,
+            connections: []
+        });
+    }
+
+    // Connect nearby nodes
+    for(let i=0;i<nodes.length;i++){
+        for(let j=i+1;j<nodes.length;j++){
+            const dx = nodes[i].x-nodes[j].x;
+            const dy = nodes[i].y-nodes[j].y;
+            const dist = Math.sqrt(dx*dx+dy*dy);
+            if(dist < s*0.18 && Math.random()>0.4){
+                nodes[i].connections.push(j);
+            }
+        }
+    }
+
+    // Draw connections
+    for(const n of nodes){
+        for(const j of n.connections){
+            const target = nodes[j];
+            ctx.beginPath();
+            ctx.moveTo(n.x, n.y);
+            ctx.lineTo(target.x, target.y);
+            ctx.strokeStyle = `rgba(155,35,53,${0.08+Math.random()*0.08})`;
+            ctx.lineWidth = 0.5+Math.random(); ctx.stroke();
+        }
+    }
+
+    // Draw nodes
+    for(const n of nodes){
+        // Glow
+        const ng = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*4);
+        ng.addColorStop(0,`rgba(196,102,110,${0.15+Math.random()*0.1})`);
+        ng.addColorStop(1,'transparent');
+        ctx.fillStyle = ng;
+        ctx.fillRect(n.x-n.r*4,n.y-n.r*4,n.r*8,n.r*8);
+
+        // Core
+        ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+        const cg = ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);
+        cg.addColorStop(0,'rgba(220,140,130,0.8)');
+        cg.addColorStop(1,'rgba(155,35,53,0.3)');
+        ctx.fillStyle = cg; ctx.fill();
+    }
+
+    // Central consciousness glow
+    const centerG = ctx.createRadialGradient(h,h,0,h,h,s*0.12);
+    centerG.addColorStop(0,'rgba(196,102,110,0.15)');
+    centerG.addColorStop(0.5,'rgba(155,35,53,0.05)');
+    centerG.addColorStop(1,'transparent');
+    ctx.fillStyle = centerG;
+    ctx.fillRect(0,0,s,s);
+
+    // "N" lettermark in center (subtle)
+    ctx.font = `bold ${s*0.15}px system-ui`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(196,102,110,0.25)';
+    ctx.fillText('N', h, h);
+
+    // Outer ring
+    ctx.beginPath(); ctx.arc(h,h,s*0.42,0,Math.PI*2);
+    ctx.strokeStyle = 'rgba(155,35,53,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+})();
+</script>
+</body>
+</html>

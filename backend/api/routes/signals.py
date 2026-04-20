@@ -25,8 +25,8 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 # Tier-based pair access
 # ---------------------------------------------------------------------------
-# Starter gets top 3 by volume, Pro/Elite/System get all 24
-_STARTER_PAIRS = {"BTC/USDT", "ETH/USDT", "SOL/USDT"}
+# Starter gets top 5 by volume, Pro/Elite/System get all 24
+_STARTER_PAIRS = {"BTC/USDT", "ETH/USDT", "SOL/USDT", "XRP/USDT", "ADA/USDT"}
 
 _ALL_PAIRS = {
     "BTC/USDT", "ETH/USDT", "SOL/USDT", "XRP/USDT", "ADA/USDT",

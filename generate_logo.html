@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>NeuralEdge Logo Generator</title>
+<style>
+body { background: #111; display: flex; flex-direction: column; align-items: center; gap: 40px; padding: 40px; font-family: system-ui; color: #fff; }
+canvas { border: 1px solid #333; cursor: pointer; }
+h2 { margin: 0; font-size: 14px; color: #888; }
+p { color: #666; font-size: 12px; }
+a { color: #9b2335; }
+</style>
+</head>
+<body>
+<h1>NeuralEdge AI - Logo Generator</h1>
+<p>Right-click each image -> "Save image as..." to download PNG</p>
+
+<h2>Logo 2048x2048 (for Tawk.to) - Preview at 400px, saves at 2048px</h2>
+<canvas id="logo" width="2048" height="2048" style="width:400px;height:400px;"></canvas>
+
+<h2>Favicon 152x152 (for Tawk.to)</h2>
+<canvas id="favicon" width="152" height="152"></canvas>
+
+<script>
+function drawLogo(canvas, size) {
+    const ctx = canvas.getContext('2d');
+    const s = size;
+    const c = s / 2; // center
+
+    // === BACKGROUND: dark with subtle radial gradient ===
+    const bgGrad = ctx.createRadialGradient(c, c, 0, c, c, s * 0.7);
+    bgGrad.addColorStop(0, '#1a0a12');
+    bgGrad.addColorStop(0.5, '#0f0610');
+    bgGrad.addColorStop(1, '#08030a');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, s, s);
+
+    // === OUTER RING: burgundy glow circle ===
+    ctx.beginPath();
+    ctx.arc(c, c, s * 0.42, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(107, 29, 58, 0.3)';
+    ctx.lineWidth = s * 0.008;
+    ctx.stroke();
+
+    // Glow ring
+    ctx.beginPath();
+    ctx.arc(c, c, s * 0.42, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(155, 35, 53, 0.08)';
+    ctx.lineWidth = s * 0.04;
+    ctx.stroke();
+
+    // === NEURAL NETWORK NODES (background decoration) ===
+    const nodes = [];
+    for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2 - Math.PI / 2;
+        const r = s * 0.34;
+        nodes.push({
+            x: c + Math.cos(angle) * r,
+            y: c + Math.sin(angle) * r,
+            r: s * 0.012
+        });
+    }
+
+    // Connection lines between nodes
+    ctx.lineWidth = s * 0.002;
+    for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 2; j < nodes.length; j++) {
+            if (Math.random() > 0.4) continue;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x, nodes[i].y);
+            ctx.lineTo(nodes[j].x, nodes[j].y);
+            ctx.strokeStyle = `rgba(155, 35, 53, ${0.06 + Math.random() * 0.06})`;
+            ctx.stroke();
+        }
+    }
+
+    // Draw nodes
+    nodes.forEach((n, i) => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        const nGrad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
+        nGrad.addColorStop(0, 'rgba(196, 102, 110, 0.6)');
+        nGrad.addColorStop(1, 'rgba(107, 29, 58, 0.2)');
+        ctx.fillStyle = nGrad;
+        ctx.fill();
+    });
+
+    // === INNER RING (thin, elegant) ===
+    ctx.beginPath();
+    ctx.arc(c, c, s * 0.28, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(155, 35, 53, 0.15)';
+    ctx.lineWidth = s * 0.003;
+    ctx.stroke();
+
+    // === THE "N" LETTERMARK ===
+    const letterSize = s * 0.32;
+    const lx = c - letterSize * 0.42;
+    const ly = c - letterSize * 0.5;
+    const lw = letterSize * 0.84;
+    const lh = letterSize;
+    const strokeW = letterSize * 0.15;
+
+    // N gradient
+    const nGrad = ctx.createLinearGradient(lx, ly, lx + lw, ly + lh);
+    nGrad.addColorStop(0, '#c4666e');
+    nGrad.addColorStop(0.3, '#9b2335');
+    nGrad.addColorStop(0.7, '#6b1d3a');
+    nGrad.addColorStop(1, '#c4666e');
+
+    // Draw N with rounded caps
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = strokeW;
+    ctx.strokeStyle = nGrad;
+
+    ctx.beginPath();
+    // Left vertical
+    ctx.moveTo(lx + strokeW/2, ly + lh);
+    ctx.lineTo(lx + strokeW/2, ly);
+    // Diagonal
+    ctx.lineTo(lx + lw - strokeW/2, ly + lh);
+    // Right vertical
+    ctx.lineTo(lx + lw - strokeW/2, ly);
+    ctx.stroke();
+
+    // === GLOW behind the N ===
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    const glowGrad = ctx.createRadialGradient(c, c, 0, c, c, s * 0.25);
+    glowGrad.addColorStop(0, 'rgba(155, 35, 53, 0.15)');
+    glowGrad.addColorStop(0.5, 'rgba(107, 29, 58, 0.06)');
+    glowGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = glowGrad;
+    ctx.fillRect(0, 0, s, s);
+    ctx.restore();
+
+    // === SMALL "NEURALEDGE" TEXT below (only on large version) ===
+    if (s > 500) {
+        ctx.font = `${s * 0.028}px "Segoe UI", system-ui, sans-serif`;
+        ctx.letterSpacing = `${s * 0.012}px`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(196, 102, 110, 0.5)';
+        ctx.fillText('NEURALEDGE', c, c + letterSize * 0.62 + s * 0.05);
+
+        ctx.font = `${s * 0.016}px "Segoe UI", system-ui, sans-serif`;
+        ctx.fillStyle = 'rgba(155, 35, 53, 0.35)';
+        ctx.fillText('A I', c, c + letterSize * 0.62 + s * 0.09);
+    }
+
+    // === CORNER ACCENTS (premium touch) ===
+    const cornerLen = s * 0.06;
+    const cornerOff = s * 0.08;
+    ctx.strokeStyle = 'rgba(155, 35, 53, 0.12)';
+    ctx.lineWidth = s * 0.003;
+    ctx.lineCap = 'round';
+
+    // Top-left
+    ctx.beginPath();
+    ctx.moveTo(cornerOff, cornerOff + cornerLen);
+    ctx.lineTo(cornerOff, cornerOff);
+    ctx.lineTo(cornerOff + cornerLen, cornerOff);
+    ctx.stroke();
+
+    // Top-right
+    ctx.beginPath();
+    ctx.moveTo(s - cornerOff - cornerLen, cornerOff);
+    ctx.lineTo(s - cornerOff, cornerOff);
+    ctx.lineTo(s - cornerOff, cornerOff + cornerLen);
+    ctx.stroke();
+
+    // Bottom-left
+    ctx.beginPath();
+    ctx.moveTo(cornerOff, s - cornerOff - cornerLen);
+    ctx.lineTo(cornerOff, s - cornerOff);
+    ctx.lineTo(cornerOff + cornerLen, s - cornerOff);
+    ctx.stroke();
+
+    // Bottom-right
+    ctx.beginPath();
+    ctx.moveTo(s - cornerOff - cornerLen, s - cornerOff);
+    ctx.lineTo(s - cornerOff, s - cornerOff);
+    ctx.lineTo(s - cornerOff, s - cornerOff - cornerLen);
+    ctx.stroke();
+
+    // === SUBTLE SCAN LINE EFFECT ===
+    for (let y = 0; y < s; y += 4) {
+        ctx.fillStyle = `rgba(0,0,0,${0.02 + (y % 8 === 0 ? 0.01 : 0)})`;
+        ctx.fillRect(0, y, s, 1);
+    }
+}
+
+// Generate both sizes
+drawLogo(document.getElementById('logo'), 2048);
+drawLogo(document.getElementById('favicon'), 152);
+</script>
+</body>
+</html>

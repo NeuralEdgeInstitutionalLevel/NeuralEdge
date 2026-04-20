@@ -140,7 +140,7 @@ class PaginatedSignalsResponse(BaseModel):
     "/summary",
     response_model=DashboardSummary,
     summary="Dashboard overview metrics",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def dashboard_summary(
     user: User = Depends(get_current_active_user),
@@ -246,7 +246,7 @@ async def dashboard_summary(
     "/equity-curve",
     response_model=EquityCurveResponse,
     summary="Daily equity curve data",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def equity_curve(
     period: str = Query("30d", regex="^(7d|30d|90d|180d|1y|all)$"),
@@ -301,7 +301,7 @@ async def equity_curve(
     "/positions",
     response_model=PositionListResponse,
     summary="Current open positions",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def open_positions(
     user: User = Depends(get_current_active_user),
@@ -351,7 +351,7 @@ async def open_positions(
     "/trades",
     response_model=PaginatedTradesResponse,
     summary="Paginated trade history",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def trade_history(
     page: int = Query(1, ge=1),
@@ -422,7 +422,7 @@ async def trade_history(
     "/signals",
     response_model=PaginatedSignalsResponse,
     summary="Recent signals (paginated)",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def recent_signals(
     page: int = Query(1, ge=1),

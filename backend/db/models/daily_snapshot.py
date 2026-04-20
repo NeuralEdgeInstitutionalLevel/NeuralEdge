@@ -6,7 +6,7 @@ from datetime import date, datetime
 from typing import Any, Optional
 
 from sqlalchemy import BigInteger, Date, DateTime, Float, ForeignKey, Index, Integer, func
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import JSON as JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base
@@ -19,7 +19,7 @@ class DailySnapshot(Base):
         BigInteger, primary_key=True, autoincrement=True
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        UUID(), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     date: Mapped[date] = mapped_column(
         Date, nullable=False

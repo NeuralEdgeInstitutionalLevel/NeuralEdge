@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from sqlalchemy import BigInteger, DateTime, Float, Index, String, func
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import JSON as JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.base import Base

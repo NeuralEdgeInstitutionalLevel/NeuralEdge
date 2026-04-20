@@ -66,9 +66,10 @@ class Settings(BaseSettings):
     TELEGRAM_ADMIN_CHAT_ID: str = ""
 
     # === Tier Configuration ===
+    # All paid tiers get full auto-execution + dashboard. Only pair/position limits differ.
     TIER_LIMITS: dict = {
         "free": {"max_pairs": 0, "max_positions": 0, "auto_execute": False, "dashboard": False},
-        "starter": {"max_pairs": 3, "max_positions": 3, "auto_execute": False, "dashboard": False},
+        "starter": {"max_pairs": 5, "max_positions": 5, "auto_execute": True, "dashboard": True},
         "pro": {"max_pairs": 24, "max_positions": 8, "auto_execute": True, "dashboard": True},
         "elite": {"max_pairs": 24, "max_positions": 12, "auto_execute": True, "dashboard": True},
         "system": {"max_pairs": 24, "max_positions": 24, "auto_execute": True, "dashboard": True},
@@ -81,7 +82,7 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str = ""
     FROM_EMAIL: str = "noreply@neuraledge.ai"
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "case_sensitive": True}
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "case_sensitive": True, "extra": "ignore"}
 
 
 settings = Settings()

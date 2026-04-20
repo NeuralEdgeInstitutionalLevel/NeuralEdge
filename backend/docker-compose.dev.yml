@@ -1,0 +1,40 @@
+version: "3.9"
+
+# Development: only PostgreSQL + Redis
+# Backend runs directly on host with: python setup_and_run.py
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: neuraledge-db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: neuraledge
+      POSTGRES_USER: neuraledge
+      POSTGRES_PASSWORD: neuraledge_prod_2026
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neuraledge"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: neuraledge-redis
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    driver: local

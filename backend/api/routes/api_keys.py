@@ -87,7 +87,7 @@ def _mask_key(key: str) -> str:
     response_model=KeyResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Store exchange API keys (encrypted)",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def store_api_key(
     body: StoreKeyRequest,

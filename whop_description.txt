@@ -1,0 +1,121 @@
+WHOP PRODUCT DESCRIPTION - NeuralEdge AI
+=========================================
+Copy-paste this into your Whop product description.
+
+
+SHORT DESCRIPTION (for the product card):
+------------------------------------------
+Institutional-grade autonomous crypto trading system. 90M+ parameters, 33 AI subsystems, 180,000 lines of production code. The most advanced trading bot ever built on a single GPU.
+
+
+FULL DESCRIPTION:
+------------------------------------------
+
+What would happen if you gave a team of quant researchers six months, unlimited access to every paper in deep learning and quantitative finance between 2018 and 2026, and told them to build the most advanced crypto trading system physically possible?
+
+This is the answer.
+
+NeuralEdge AI is not a trading bot. It is a complete, autonomous trading infrastructure -- the kind of system that hedge funds spend millions to build, compressed into 180,000+ lines of Python across 166 files, deployable on a single machine with one command.
+
+
+THE NUMBERS
+
+- 90+ million trainable parameters
+- 33 fully integrated subsystems
+- 7 neural network architectures
+- 5 tree-based ensemble models
+- 180,000+ lines of production Python code
+- 166 files, fully documented
+- 212 computed features (160 selected)
+- 30 proprietary Level 3/4/5 microstructure features
+- 24 simultaneous trading pairs
+- 4+ years of training data
+- 1.82 million training windows
+- 17 simultaneous anti-overfit techniques
+- 7 SOTA data augmentation techniques
+- Single command startup
+
+
+CORE AI MODELS
+
+1. Alpha Model (68M params) -- MambaV2 + Differential Attention hybrid. Predicts direction, uncertainty, magnitude, volatility, and duration across all 24 pairs simultaneously using cross-pair attention.
+
+2. LightGBM Ensemble (5 base learners + neural meta) -- GBDT, DART, GOSS, XGBoost, CatBoost with 84%+ meta-learner accuracy. 23 per-pair specialized models.
+
+3. Exit Agent (4.5M params) -- Dual-scale reinforcement learning with C51 distributional value (101 atoms), counterfactual regret minimization, and MoE routing (4 experts: trending/ranging/volatile/reversal).
+
+4. Causal Flow GNN (1.3M params) -- Graph Attention Network predicting cross-pair cascades BEFORE they happen.
+
+5. Central Brain (6M params) -- VSN + MambaV2 + Differential Attention + MoE ensemble. The final gate before every trade.
+
+6. Alpha Decay Estimator (334K params) -- Temporal Mamba + 8-expert MoE tracking signal half-life per trade.
+
+7. Adversarial Trade Validator (636K params) -- 8 specialist experts detecting momentum traps, crowded trades, adverse selection, liquidity drain, and 4 more failure modes.
+
+Plus: Regime Transition Predictor, Predictive Orderflow Model, and more.
+
+
+WHAT MAKES IT UNIQUE: LEVEL 3/4/5 MICROSTRUCTURE
+
+Institutional firms pay millions for Level 3 data feeds. NeuralEdge reconstructs equivalent intelligence from public data:
+
+Level 3 (8 features): Detects institutional flow, spoofing, iceberg orders, sweep patterns, queue pressure
+Level 4 (8 features): Classifies smart money vs retail, detects HFT noise, momentum exhaustion, adverse selection
+Level 5 (7 features): Predicts directional pressure, breakout energy, crowding risk, regime instability
+
+All 30 features computed from OHLCV data only. No paid feeds required.
+
+
+33 INTEGRATED SUBSYSTEMS
+
+Entry Pipeline: Alpha Model, LightGBM Ensemble, Signal Aggregator (8 gates), Regime Filter, Causal Flow GNN, Gradient Attribution
+
+Position Sizing: Performance Genome, Conviction Cascade, Portfolio Constructor, Waterfall Detector, Regime Memory (11.8M memories), Ergodic Sizer, Dynamic Pair Ranker
+
+Position Management: Exit Agent, Alpha Decay Estimator, Position Manager (GARCH stops), Execution Optimizer
+
+Risk Management: Drawdown Guard, Dynamic Threshold, Drift Detector, Circuit Breaker (5 anomaly detectors)
+
+Quality Control: Adversarial Trade Validator, Central Brain, Smart Scaling, Portfolio Guardian (6 layers: VaR, CVaR, copula, stress test)
+
+Live Learning: Performance Genome, Dynamic Threshold, Alpha Decay, Dynamic Pair Ranker, Execution Model -- all learn from every trade without retraining.
+
+
+WHAT YOU GET
+
+Complete Source Code -- Every line of every subsystem. 166 Python files, production-ready.
+
+Trained Models -- All models pre-trained and validated on 4+ years of market data. Ready to deploy.
+
+Training Pipeline -- Full automated retraining with cache system. One command rebuilds everything.
+
+4+ Years Historical Data -- Raw OHLCV (1m/5m/15m), orderflow, macro, funding, sentiment, liquidation, options, on-chain data for all 24 pairs.
+
+Live Infrastructure -- Integrated data collection, order execution, risk management, dashboard, and alerts.
+
+Documentation -- Complete architecture docs, training procedures, and operational runbook.
+
+
+TECHNICAL REQUIREMENTS
+
+- Python 3.10+, PyTorch 2.x
+- NVIDIA GPU with 8GB+ VRAM (16GB recommended)
+- Exchange: Bitget USDT-M Perpetual Futures (expandable)
+- OS: Windows or Linux
+- Single command startup: python scripts/Trading_loop_v2.py
+
+
+WHO THIS IS FOR
+
+- Quantitative traders who want a complete system, not a starting point
+- Hedge fund teams evaluating AI trading infrastructure
+- Prop firm traders who need an edge
+- Developers who want to learn from a production-grade system
+- Anyone serious about algorithmic crypto trading
+
+
+THIS SYSTEM WAS NOT BUILT TO BE SOLD. IT WAS BUILT TO TRADE.
+
+Every design decision was made to maximize live trading performance. The 33 subsystems exist because each one caught losses the others missed. The microstructure features exist because raw price data is not enough. Nothing is decorative. Nothing is theoretical. Everything works.
+
+6+ months of continuous full-time development at the intersection of deep learning research and quantitative finance.

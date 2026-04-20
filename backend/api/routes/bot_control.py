@@ -140,7 +140,7 @@ async def _get_or_create_bot(
     "/status",
     response_model=BotStatusResponse,
     summary="Bot running status and heartbeat",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def bot_status(
     user: User = Depends(get_current_active_user),
@@ -177,7 +177,7 @@ async def bot_status(
     "/settings",
     response_model=BotSettingsResponse,
     summary="Current bot configuration",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def get_bot_settings(
     user: User = Depends(get_current_active_user),
@@ -223,7 +223,7 @@ async def get_bot_settings(
     "/settings",
     response_model=BotSettingsResponse,
     summary="Update bot risk parameters",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def update_bot_settings(
     body: UpdateSettingsRequest,
@@ -348,7 +348,7 @@ async def update_bot_settings(
     "/start",
     response_model=BotActionResponse,
     summary="Start the trading bot",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def start_bot(
     request: Request,
@@ -426,7 +426,7 @@ async def start_bot(
     "/stop",
     response_model=BotActionResponse,
     summary="Stop the trading bot",
-    dependencies=[Depends(require_tier("pro"))],
+    dependencies=[Depends(require_tier("starter"))],
 )
 async def stop_bot(
     request: Request,

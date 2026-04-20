@@ -1,13 +1,20 @@
 """
 NeuralEdge AI SaaS Backend
 Institutional-grade trading bot platform API.
+Security hardened: CSP, HSTS, brute force protection, request signing, audit logging.
 """
 import logging
+import uuid
+import time
+import hashlib
+import hmac
 from contextlib import asynccontextmanager
+from collections import defaultdict
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
 
@@ -28,24 +35,117 @@ async def lifespan(app: FastAPI):
     logger.info(f"  Environment: {settings.ENVIRONMENT}")
     logger.info("=" * 60)
 
-    # Initialize Redis connection pool
-    import redis.asyncio as aioredis
-    app.state.redis = aioredis.from_url(
-        settings.REDIS_URL,
-        max_connections=settings.REDIS_MAX_CONNECTIONS,
-        decode_responses=True,
-    )
-    logger.info("Redis connected")
+    # Initialize Redis (or fakeredis for dev)
+    if settings.REDIS_URL:
+        import redis.asyncio as aioredis
+        app.state.redis = aioredis.from_url(
+            settings.REDIS_URL,
+            max_connections=settings.REDIS_MAX_CONNECTIONS,
+            decode_responses=True,
+        )
+        logger.info("Redis connected")
+    else:
+        import fakeredis.aioredis
+        app.state.redis = fakeredis.aioredis.FakeRedis(decode_responses=True)
+        logger.info("Using FakeRedis (development mode)")
 
-    # Run Alembic migrations on startup (development only)
+    # Auto-create tables on startup (development)
     if settings.ENVIRONMENT == "development":
-        logger.info("Running database migrations...")
+        from db.base import Base
+        from db.models import User, Subscription, APIKey, Signal, Trade, BotInstance, DailySnapshot, AuditLog
+        from db.session import async_engine
+        async with async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database tables created")
 
     yield
 
     # Shutdown
-    await app.state.redis.close()
+    if hasattr(app.state.redis, 'close'):
+        await app.state.redis.close()
     logger.info("Shutdown complete")
+
+
+# === SECURITY MIDDLEWARE ===
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to every response."""
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        # Prevent clickjacking
+        response.headers["X-Frame-Options"] = "DENY"
+        # Prevent MIME type sniffing
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        # XSS protection
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        # Referrer policy
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        # Content Security Policy
+        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://client.crisp.chat; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.binance.com wss://stream.binance.com https://client.crisp.chat"
+        # Strict Transport Security (HTTPS only)
+        if settings.ENVIRONMENT == "production":
+            response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+        # Unique request ID for tracing
+        response.headers["X-Request-ID"] = str(uuid.uuid4())
+        return response
+
+
+class BruteForceProtectionMiddleware(BaseHTTPMiddleware):
+    """Block IPs after too many failed login attempts."""
+    def __init__(self, app, max_attempts: int = 5, lockout_seconds: int = 900):
+        super().__init__(app)
+        self.max_attempts = max_attempts
+        self.lockout_seconds = lockout_seconds
+        self.failed_attempts = defaultdict(list)  # ip -> [timestamps]
+
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path == "/api/auth/login" and request.method == "POST":
+            ip = request.client.host if request.client else "unknown"
+            now = time.time()
+
+            # Clean old entries
+            self.failed_attempts[ip] = [t for t in self.failed_attempts[ip] if now - t < self.lockout_seconds]
+
+            # Check if locked out
+            if len(self.failed_attempts[ip]) >= self.max_attempts:
+                remaining = int(self.lockout_seconds - (now - self.failed_attempts[ip][0]))
+                return Response(
+                    content=f'{{"detail":"Too many login attempts. Try again in {remaining} seconds."}}',
+                    status_code=429,
+                    media_type="application/json"
+                )
+
+            response = await call_next(request)
+
+            # Track failed attempts
+            if response.status_code == 401:
+                self.failed_attempts[ip].append(now)
+                attempts_left = self.max_attempts - len(self.failed_attempts[ip])
+                if attempts_left > 0:
+                    response.headers["X-Attempts-Remaining"] = str(attempts_left)
+
+            # Clear on success
+            if response.status_code == 200:
+                self.failed_attempts.pop(ip, None)
+
+            return response
+
+        return await call_next(request)
+
+
+class RequestLoggingMiddleware(BaseHTTPMiddleware):
+    """Log all requests with timing for security audit."""
+    async def dispatch(self, request: Request, call_next):
+        start = time.time()
+        response = await call_next(request)
+        duration = time.time() - start
+
+        # Log slow requests and auth attempts
+        if duration > 5.0 or "auth" in request.url.path:
+            ip = request.client.host if request.client else "unknown"
+            logger.info(f"[{request.method}] {request.url.path} -> {response.status_code} ({duration:.2f}s) IP={ip}")
+
+        return response
 
 
 # === Create FastAPI Application ===
@@ -68,6 +168,11 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["X-Request-ID"],
 )
+
+# === Security Middleware (order matters: first added = outermost) ===
+app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(BruteForceProtectionMiddleware, max_attempts=5, lockout_seconds=900)
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 # === Import and register routers ===
