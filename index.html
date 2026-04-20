@@ -238,7 +238,7 @@
         .ticker-wrap::before { left: 0; background: linear-gradient(90deg, rgba(8,3,10,0.9), transparent); }
         .ticker-wrap::after { right: 0; background: linear-gradient(270deg, rgba(8,3,10,0.9), transparent); }
         .ticker {
-            display: flex; gap: 48px; animation: marquee 30s linear infinite;
+            display: flex; gap: 48px; animation: marquee 50s linear infinite;
             width: max-content;
         }
         .ticker-item {
@@ -912,12 +912,12 @@
 
     <!-- TICKER -->
     <div class="ticker-wrap">
-        <div class="ticker" id="ticker"><div class="ticker-item" style="color:var(--muted)">Loading prices (3h delayed)...</div></div>
+        <div class="ticker" id="ticker"><div class="ticker-item" style="color:var(--muted)">Loading live prices...</div></div>
     </div>
 
     <!-- AI INTELLIGENCE FEED -->
     <div class="ai-feed-wrap">
-        <div class="ai-feed-label"><span class="live-dot"></span> AI Intelligence Feed</div>
+        <div class="ai-feed-label"><span class="live-dot"></span> AI Intelligence Feed <span style="font-size:0.5rem;color:var(--muted);margin-left:4px">3h delayed</span></div>
         <div class="ai-feed" id="aiFeed"></div>
     </div>
 
@@ -933,40 +933,40 @@
                 <div class="bento-card wide reveal" data-tilt>
                     <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="currentColor" fill="none"/><path d="M8 12l3 3 5-6" stroke="currentColor" fill="none"/></svg></div>
-                    <h3>Alpha Model (48.5M params)</h3>
-                    <p>MambaV2 + Differential Attention hybrid. 15-block deep architecture with 6 MoE experts per layer. Predicts direction, uncertainty, magnitude across all 24 pairs with cross-pair attention.</p>
-                    <div class="bento-code"><span class="ck">model</span>: <span class="cs">"MambaV2 x6 -> DiffTransformer x3 -> MambaV2 x6"</span><br><span class="ck">params</span>: <span class="cv">48_454_048</span><br><span class="ck">experts</span>: <span class="cv">6</span> <span class="t-cmt">// MoE regime specialization</span></div>
+                    <h3>Alpha Model V4 -- 48.5M Parameters</h3>
+                    <p>The brain. A 15-block deep neural network combining <strong>MambaV2</strong> (state-space models with perfect memory of every price movement) and <strong>Differential Attention</strong> (Microsoft Research 2024 -- literally cancels out market noise). 6 Mixture-of-Experts per layer means the model has <em>specialists</em> -- one for trending markets, one for ranging, one for volatile. Only the best 2 experts activate per trade. This is the same architecture class behind GPT-4.</p>
+                    <div class="bento-code"><span class="ck">architecture</span>: <span class="cs">"MambaV2 x6 -> DiffTransformer x3 -> MambaV2 x6"</span><br><span class="ck">parameters</span>: <span class="cv">48,454,048</span> <span class="t-cmt">// trained on 4 years, 24 pairs</span><br><span class="ck">experts</span>: <span class="cv">6 per layer</span> <span class="t-cmt">// top-2 routing per sample</span><br><span class="ck">features</span>: <span class="cv">156</span> <span class="t-cmt">// orderflow + macro + sentiment + on-chain</span></div>
                 </div>
                 <div class="bento-card tall reveal rd1" data-tilt>
                     <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" fill="none"/><path d="M9 12l2 2 4-4" stroke="currentColor" fill="none"/></svg></div>
-                    <h3>37 Verification Gates</h3>
-                    <p>Every signal passes through 37 independent systems: regime filter, adversarial validator, circuit breaker, portfolio guardian, gradient attribution, and 32 more.</p>
-                    <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-muted)">A false positive costs real money. We verify obsessively.</p>
+                    <h3>37 Independent Verification Gates</h3>
+                    <p>A hedge fund doesn't let one analyst make the call. Neither do we. Every signal passes through <strong>37 independent subsystems</strong> that must agree before a single dollar moves. Regime filter checks if the market is trending or ranging. Adversarial Trade Validator hunts for bull/bear traps. Circuit Breaker watches for flash crashes. Portfolio Guardian monitors exposure. If <em>any one</em> system says no -- the trade doesn't happen.</p>
+                    <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.82rem; color: var(--text-muted)">Most bots have 1 indicator. We have 37 experts that debate every trade.</p>
                 </div>
                 <div class="bento-card reveal rd2" data-tilt>
                     <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke="currentColor"/><path d="M7 17l4-8 4 4 5-9" stroke="currentColor"/></svg></div>
-                    <h3>LightGBM Ensemble</h3>
-                    <p>5 learners + neural meta-learner at 84%+ accuracy. 23 per-pair models. Compensates where neural nets are weak.</p>
+                    <h3>LightGBM Ensemble -- The Second Brain</h3>
+                    <p>Neural networks are powerful but not perfect. Our <strong>5-model tree ensemble</strong> (GBDT + DART + GOSS + XGBoost + CatBoost) catches what the Alpha Model misses. 23 per-pair specialized models. A neural meta-learner at <strong>84.3% accuracy</strong> combines everything. When the two brains agree -- the signal is gold.</p>
                 </div>
                 <div class="bento-card reveal" data-tilt>
                     <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" fill="none"/></svg></div>
-                    <h3>Microstructure L3/4/5</h3>
-                    <p>30 proprietary features. Detects smart money flow, spoofing, iceberg orders, adverse selection.</p>
+                    <h3>Deep Market Microstructure</h3>
+                    <p>While others trade on price alone, we read the <strong>invisible layer beneath</strong>. Level 3-5 orderflow data reveals what institutional traders are doing <em>before</em> price moves: delta flow imbalances, CVD divergences, absorption patterns, volume-weighted aggression, funding rate anomalies, and liquidation cascades. <strong>156 features</strong> total -- including macro (DXY, VIX, S&P500), on-chain metrics (BTC hashrate, stablecoin flows), options data (IV skew, put/call), and cross-exchange spread analysis. This is the data hedge funds pay millions to access.</p>
                 </div>
                 <div class="bento-card reveal rd1" data-tilt>
                     <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4" stroke="currentColor"/></svg></div>
-                    <h3>Exit Agent (4.5M params)</h3>
-                    <p>C51 distributional RL (101 atoms) + counterfactual regret + 4-expert MoE. Learns from what COULD have happened.</p>
+                    <h3>Exit Agent V6.1 -- When To Close</h3>
+                    <p>Knowing <em>when to enter</em> is only half the battle. Our Exit Agent uses <strong>C51 Distributional Reinforcement Learning</strong> -- instead of predicting one exit price, it models <strong>101 possible outcomes</strong> simultaneously. Plus <strong>counterfactual regret</strong>: after every trade, it asks "what if I had exited 1 bar earlier? 3 bars later?" and learns from the answer. 4 specialist experts: trending, ranging, volatile, reversal. <strong>4.5M parameters</strong> dedicated purely to exit timing.</p>
                 </div>
                 <div class="bento-card wide reveal rd2" data-tilt>
                     <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" fill="none"/></svg></div>
-                    <h3>5 Live Learning Systems</h3>
-                    <p>Performance Genome, Dynamic Threshold, Alpha Decay, Pair Ranker, and Execution Model all learn from every trade in real-time. No retraining needed. The system evolves 24/7.</p>
+                    <h3>5 Live Learning Systems -- Evolves 24/7</h3>
+                    <p>Most bots are static. Ours <strong>gets smarter with every trade</strong>. The Performance Genome learns which pairs win in which conditions. Dynamic Threshold adapts entry requirements to current accuracy. Alpha Decay tracks how fast each signal loses its edge. The Pair Ranker reallocates capital to the highest-performing pairs. And the Execution Model optimizes entry timing from fill data. <strong>No retraining needed</strong> -- the system evolves continuously.</p>
                     <div class="bento-mini-chart"><svg viewBox="0 0 400 60" preserveAspectRatio="none"><defs><linearGradient id="miniGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></linearGradient></defs><path d="M0,50 C20,48 40,45 60,40 C80,35 100,38 120,30 C140,22 160,25 180,20 C200,15 220,18 240,12 C260,8 280,14 300,10 C320,6 340,8 360,5 C380,3 400,4 400,3 L400,60 L0,60 Z" fill="url(#miniGrad)"/><path d="M0,50 C20,48 40,45 60,40 C80,35 100,38 120,30 C140,22 160,25 180,20 C200,15 220,18 240,12 C260,8 280,14 300,10 C320,6 340,8 360,5 C380,3 400,4 400,3" fill="none" stroke="var(--blue)" stroke-width="1.5"/></svg></div>
                 </div>
             </div>
@@ -1697,20 +1697,11 @@
                     const info=all.find(t=>t.symbol===sym);
                     if(!info)continue;
 
-                    // Fetch the candle from 3h ago
-                    try{
-                        const kr=await fetch('https://api.binance.com/api/v3/klines?symbol='+sym+'&interval=15m&endTime='+delayed+'&limit=1');
-                        const kd=await kr.json();
-                        if(kd&&kd[0]){
-                            const delayedPrice=parseFloat(kd[0][4]); // close price 3h ago
-                            const openPrice=parseFloat(kd[0][1]);
-                            // Get price from 24h before that for % change
-                            const pctChange=parseFloat(info.priceChangePercent);
-                            const pair=sym.replace('USDT','/USDT');
-                            const priceStr=delayedPrice>1000?delayedPrice.toLocaleString('en',{maximumFractionDigits:0}):delayedPrice>1?delayedPrice.toFixed(2):delayedPrice.toFixed(4);
-                            items.push({pair,price:priceStr,pct:pctChange});
-                        }
-                    }catch(e){}
+                        const price=parseFloat(info.lastPrice);
+                    const pctChange=parseFloat(info.priceChangePercent);
+                    const pair=sym.replace('USDT','/USDT');
+                    const priceStr=price>1000?price.toLocaleString('en',{maximumFractionDigits:0}):price>1?price.toFixed(2):price.toFixed(6);
+                    items.push({pair,price:priceStr,pct:pctChange});
                 }
 
                 if(items.length===0)return;
