@@ -602,6 +602,11 @@ function changePair(pair){
 function changeTF(tf){
     currentTF=tf;
     document.querySelectorAll('#tfTabs .chart-tab').forEach(t=>t.classList.toggle('active',t.textContent.toLowerCase()===tf));
+    // Hide ICT killzones on 1H+ timeframes (too noisy)
+    const hideICT=['1h','4h','1d'].includes(tf);
+    document.getElementById('ictToggle').style.display=hideICT?'none':'inline';
+    if(hideICT&&ictCanvas)ictCanvas.style.display='none';
+    else if(ictEnabled&&ictCanvas)ictCanvas.style.display='block';
     if(currentChart==='candles')connectBinance(currentPair,tf);
 }
 
