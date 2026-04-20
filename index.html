@@ -50,37 +50,14 @@
         #tradingCanvas {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
-        #dropCanvas {
-            position: fixed; inset: 0; z-index: 1; pointer-events: none;
-        }
 
-        /* ---- DEPTH & PARALLAX ---- */
-        .parallax-wrap {
-            perspective: 1200px;
-            perspective-origin: 50% 50%;
-        }
-        section {
-            transform-style: preserve-3d;
-        }
-        .bento-card, .price-card, .faq-item, .perf-card, .metric-card {
-            transform-style: preserve-3d;
+        /* ---- DEPTH ---- */
+        .bento-card, .price-card {
             box-shadow:
                 0 2px 8px rgba(0,0,0,0.3),
                 0 8px 24px rgba(0,0,0,0.25),
                 0 24px 48px rgba(0,0,0,0.15),
                 inset 0 1px 0 rgba(255,255,255,0.04);
-        }
-        .bento-card::after, .price-card::after {
-            content: '';
-            position: absolute; inset: 0;
-            border-radius: inherit;
-            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%, rgba(0,0,0,0.05) 100%);
-            pointer-events: none;
-        }
-        /* Glass frost on hero */
-        .hero-content {
-            backdrop-filter: blur(1px);
-            -webkit-backdrop-filter: blur(1px);
         }
 
         /* ---- NOISE GRAIN TEXTURE ---- */
@@ -770,7 +747,6 @@
     <div class="scroll-progress" id="scrollProg"></div>
     <!-- The Neural Market - trading-specific background -->
     <canvas id="tradingCanvas"></canvas>
-    <canvas id="dropCanvas"></canvas>
     <div class="grain"></div>
     <!-- cursor glow removed -->
 
@@ -1075,29 +1051,23 @@
     </footer>
 
     <script>
-    // ---- ULTRA HD FOGGED GLASS + WATER DROPLETS ENGINE ----
+    // ---- BURGUNDY PLASMA WITH ANOMALIES ENGINE ----
     (function() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        // ======== WEBGL FOG (GPU-accelerated, full resolution) ========
         const fogC = document.getElementById('tradingCanvas');
         const gl = fogC.getContext('webgl', { alpha: true, premultipliedAlpha: false });
-        const dropC = document.getElementById('dropCanvas');
-        const dCtx = dropC.getContext('2d');
         let W, H;
 
         function resize() {
             W = window.innerWidth; H = window.innerHeight;
-            fogC.width = dropC.width = W;
-            fogC.height = dropC.height = H;
+            fogC.width = W; fogC.height = H;
             if (gl) { gl.viewport(0, 0, W, H); }
-            needsCondRebuild = true;
         }
-        let needsCondRebuild = false;
         window.addEventListener('resize', resize);
         resize();
 
-        // -- WebGL BURGUNDY PLASMA + FOG shader --
+        // -- WebGL BURGUNDY PLASMA + ANOMALIES shader --
         const vsrc = `attribute vec2 p;varying vec2 uv;void main(){uv=p*0.5+0.5;gl_Position=vec4(p,0,1);}`;
         const fsrc = `
         precision highp float;
@@ -1112,106 +1082,183 @@
             const vec4 C=vec4(0.211324865,0.366025403,-0.577350269,0.024390243);
             vec2 i=floor(v+dot(v,C.yy)),x0=v-i+dot(i,C.xx);
             vec2 i1=(x0.x>x0.y)?vec2(1,0):vec2(0,1);
-            vec4 x12=x0.xyxy+C.xxzz; x12.xy-=i1;
+            vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;
             i=mod289(i);
             vec3 p=permute(permute(i.y+vec3(0,i1.y,1))+i.x+vec3(0,i1.x,1));
             vec3 m=max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0);
-            m=m*m; m=m*m;
+            m=m*m;m=m*m;
             vec3 x=2.0*fract(p*C.www)-1.0;
             vec3 h=abs(x)-0.5;
             vec3 a0=x-floor(x+0.5);
             m*=1.79284-0.85373*(a0*a0+h*h);
-            vec3 g; g.x=a0.x*x0.x+h.x*x0.y; g.yz=a0.yz*x12.xz+h.yz*x12.yw;
+            vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;
             return 130.0*dot(m,g);
         }
 
-        float fbm(vec2 p, float tm) {
-            float v = 0.0, a = 0.5;
-            mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
-            for (int i = 0; i < 7; i++) {
-                v += a * snoise(p);
-                p = rot * p * 2.0 + vec2(tm * 0.08);
-                a *= 0.5;
-            }
+        float fbm(vec2 p, float tm){
+            float v=0.0,a=0.5;
+            mat2 rot=mat2(0.8,0.6,-0.6,0.8);
+            for(int i=0;i<7;i++){v+=a*snoise(p);p=rot*p*2.0+vec2(tm*0.08);a*=0.5;}
             return v;
         }
 
-        // Domain warping for organic plasma flow
-        float warpedFbm(vec2 p, float tm) {
-            vec2 q = vec2(fbm(p + vec2(0.0, 0.0), tm), fbm(p + vec2(5.2, 1.3), tm));
-            vec2 r = vec2(fbm(p + 4.0*q + vec2(1.7, 9.2), tm), fbm(p + 4.0*q + vec2(8.3, 2.8), tm));
-            return fbm(p + 3.5*r, tm);
+        float warpedFbm(vec2 p, float tm){
+            vec2 q=vec2(fbm(p,tm),fbm(p+vec2(5.2,1.3),tm));
+            vec2 r=vec2(fbm(p+4.0*q+vec2(1.7,9.2),tm),fbm(p+4.0*q+vec2(8.3,2.8),tm));
+            return fbm(p+3.5*r,tm);
         }
 
-        void main() {
+        // === ANOMALY: Solar flare (bright bloom that fades) ===
+        float flare(vec2 st, vec2 center, float size, float intensity){
+            float d = length(st - center);
+            return intensity * exp(-d*d / (size*size));
+        }
+
+        // === ANOMALY: Vortex (spiral distortion) ===
+        vec2 vortex(vec2 st, vec2 center, float strength, float radius){
+            vec2 d = st - center;
+            float dist = length(d);
+            float angle = strength * smoothstep(radius, 0.0, dist);
+            float s = sin(angle), c = cos(angle);
+            return center + mat2(c,-s,s,c) * d;
+        }
+
+        // === ANOMALY: Energy ripple (expanding ring) ===
+        float ripple(vec2 st, vec2 center, float time, float speed, float width){
+            float d = length(st - center);
+            float ring = abs(d - mod(time * speed, 2.0));
+            return smoothstep(width, 0.0, ring) * smoothstep(2.0, 0.0, d) * 0.5;
+        }
+
+        // === ANOMALY: Filament (bright arc between two points) ===
+        float filament(vec2 st, vec2 a, vec2 b, float thickness, float tm){
+            vec2 ab = b - a;
+            float len = length(ab);
+            vec2 dir = ab / len;
+            vec2 n = vec2(-dir.y, dir.x);
+            vec2 ap = st - a;
+            float along = dot(ap, dir);
+            float perp = dot(ap, n);
+            float tt = clamp(along / len, 0.0, 1.0);
+            // Wavy displacement
+            perp += sin(tt * 12.0 + tm * 3.0) * 0.02 + sin(tt * 25.0 - tm * 5.0) * 0.008;
+            float d = abs(perp);
+            float core = exp(-d*d / (thickness*thickness)) * smoothstep(0.0, 0.15, tt) * smoothstep(1.0, 0.85, tt);
+            return core;
+        }
+
+        void main(){
             vec2 st = uv;
             float aspect = res.x / res.y;
 
-            // === LAYER 1: Deep plasma (slow, large-scale flow) ===
-            vec2 p1 = st * vec2(aspect * 2.0, 2.0);
+            // === VORTEX ANOMALIES (distort UV before plasma) ===
+            // Slow-moving vortex points
+            vec2 v1 = vec2(0.3 + sin(t*0.05)*0.15, 0.4 + cos(t*0.07)*0.2);
+            vec2 v2 = vec2(0.7 + cos(t*0.04)*0.12, 0.6 + sin(t*0.06)*0.15);
+            vec2 v3 = vec2(0.5 + sin(t*0.03+2.0)*0.2, 0.3 + cos(t*0.05+1.0)*0.2);
+            vec2 warpSt = st;
+            warpSt = vortex(warpSt, v1, 0.8 + sin(t*0.2)*0.3, 0.25);
+            warpSt = vortex(warpSt, v2, -0.6 + cos(t*0.15)*0.2, 0.2);
+            warpSt = vortex(warpSt, v3, 0.4 * sin(t*0.1), 0.18);
+
+            // === BASE PLASMA (3 layers, domain-warped) ===
+            vec2 p1 = warpSt * vec2(aspect*2.0, 2.0);
             float plasma1 = warpedFbm(p1 + vec2(t*0.03, t*0.02), t*0.4);
-            plasma1 = plasma1 * 0.5 + 0.5;
+            plasma1 = plasma1*0.5+0.5;
 
-            // === LAYER 2: Medium turbulence ===
-            vec2 p2 = st * vec2(aspect * 3.5, 3.5) + vec2(3.0, 7.0);
+            vec2 p2 = warpSt * vec2(aspect*3.5, 3.5) + vec2(3.0, 7.0);
             float plasma2 = warpedFbm(p2 - vec2(t*0.04, -t*0.025), t*0.6);
-            plasma2 = plasma2 * 0.5 + 0.5;
+            plasma2 = plasma2*0.5+0.5;
 
-            // === LAYER 3: Fine detail (faster, smaller scale) ===
-            vec2 p3 = st * vec2(aspect * 6.0, 6.0) + vec2(10.0, 2.0);
+            vec2 p3 = warpSt * vec2(aspect*6.0, 6.0) + vec2(10.0, 2.0);
             float plasma3 = fbm(p3 + vec2(t*0.06, t*0.04), t*0.8);
-            plasma3 = plasma3 * 0.5 + 0.5;
+            plasma3 = plasma3*0.5+0.5;
 
-            // Combine layers
-            float plasma = plasma1 * 0.5 + plasma2 * 0.3 + plasma3 * 0.2;
+            float plasma = plasma1*0.5 + plasma2*0.3 + plasma3*0.2;
 
-            // === BURGUNDY / WINE COLOR PALETTE ===
-            // Deep black-wine base
-            vec3 col0 = vec3(0.03, 0.01, 0.04);   // near black with purple
-            // Dark wine
-            vec3 col1 = vec3(0.18, 0.04, 0.08);   // deep burgundy
-            // Rich burgundy
-            vec3 col2 = vec3(0.38, 0.08, 0.14);   // wine red
-            // Warm burgundy-rose
-            vec3 col3 = vec3(0.52, 0.12, 0.18);   // cherry
-            // Rose gold highlight
-            vec3 col4 = vec3(0.65, 0.28, 0.25);   // rose gold
-            // Deep purple accent
-            vec3 col5 = vec3(0.15, 0.04, 0.20);   // midnight purple
+            // === COLOR PALETTE ===
+            vec3 col0 = vec3(0.03, 0.01, 0.04);
+            vec3 col1 = vec3(0.18, 0.04, 0.08);
+            vec3 col2 = vec3(0.38, 0.08, 0.14);
+            vec3 col3 = vec3(0.52, 0.12, 0.18);
+            vec3 col4 = vec3(0.65, 0.28, 0.25);
+            vec3 col5 = vec3(0.15, 0.04, 0.20);
+            vec3 colFlare = vec3(0.85, 0.45, 0.35);  // hot flare color
+            vec3 colFilament = vec3(0.9, 0.35, 0.5);  // bright filament
 
-            // Map plasma value to color (smooth gradient)
             vec3 color;
             float p = clamp(plasma, 0.0, 1.0);
-            if (p < 0.2) color = mix(col0, col1, p / 0.2);
-            else if (p < 0.4) color = mix(col1, col2, (p - 0.2) / 0.2);
-            else if (p < 0.6) color = mix(col2, col3, (p - 0.4) / 0.2);
-            else if (p < 0.8) color = mix(col3, col4, (p - 0.6) / 0.2);
-            else color = mix(col4, col3, (p - 0.8) / 0.2);
+            if(p<0.2) color=mix(col0,col1,p/0.2);
+            else if(p<0.4) color=mix(col1,col2,(p-0.2)/0.2);
+            else if(p<0.6) color=mix(col2,col3,(p-0.4)/0.2);
+            else if(p<0.8) color=mix(col3,col4,(p-0.6)/0.2);
+            else color=mix(col4,col3,(p-0.8)/0.2);
 
-            // Add purple vein accents in dark areas
-            float purpleVein = smoothstep(0.48, 0.52, fbm(st * vec2(aspect*5.0, 5.0) + vec2(t*0.02), t*0.3) * 0.5 + 0.5);
-            color = mix(color, col5, purpleVein * 0.25 * (1.0 - plasma));
+            // Purple vein accents
+            float purpleVein = smoothstep(0.48,0.52, fbm(st*vec2(aspect*5.0,5.0)+vec2(t*0.02),t*0.3)*0.5+0.5);
+            color = mix(color, col5, purpleVein*0.3*(1.0-plasma));
 
-            // Subtle glow pulses in bright areas
-            float pulse = sin(t * 0.3 + plasma * 6.28) * 0.5 + 0.5;
-            color += col4 * pulse * 0.04 * smoothstep(0.5, 0.8, plasma);
+            // === ANOMALY 1: SOLAR FLARES (3 wandering hotspots) ===
+            float flareTime1 = sin(t*0.15)*0.5+0.5;  // intensity breathes
+            float flareTime2 = sin(t*0.12+2.0)*0.5+0.5;
+            float flareTime3 = sin(t*0.18+4.0)*0.5+0.5;
+            vec2 fc1 = vec2(0.25+sin(t*0.07)*0.2, 0.5+cos(t*0.09)*0.3);
+            vec2 fc2 = vec2(0.75+cos(t*0.06)*0.15, 0.4+sin(t*0.08)*0.25);
+            vec2 fc3 = vec2(0.5+sin(t*0.05+1.0)*0.25, 0.7+cos(t*0.07+2.0)*0.2);
+            float f1 = flare(st, fc1, 0.12+flareTime1*0.06, flareTime1*0.4);
+            float f2 = flare(st, fc2, 0.10+flareTime2*0.05, flareTime2*0.3);
+            float f3 = flare(st, fc3, 0.08+flareTime3*0.04, flareTime3*0.25);
+            color += colFlare * f1 + colFlare * 0.8 * f2 + col4 * f3;
 
-            // Edge darkening (vignette)
-            float vig = 1.0 - smoothstep(0.3, 1.2, length((st - 0.5) * vec2(1.3, 1.8)));
-            color *= 0.4 + vig * 0.6;
+            // === ANOMALY 2: ENERGY RIPPLES (emanate from flare centers) ===
+            float rip1 = ripple(st, fc1, t, 0.15, 0.015) * flareTime1;
+            float rip2 = ripple(st, fc2, t+5.0, 0.12, 0.012) * flareTime2;
+            float rip3 = ripple(st, v1, t+10.0, 0.1, 0.01);
+            color += col4 * (rip1 + rip2) * 0.4;
+            color += vec3(0.4, 0.15, 0.25) * rip3 * 0.3;
 
-            // Keep overall intensity controlled (dark, moody, not blown out)
-            color *= 0.75;
+            // === ANOMALY 3: FILAMENTS (plasma arcs between hotspots) ===
+            // Only appear when flares are active
+            float fil1 = filament(st, fc1, fc2, 0.004, t) * min(flareTime1, flareTime2);
+            float fil2 = filament(st, fc2, fc3, 0.003, t*1.3) * min(flareTime2, flareTime3);
+            float fil3 = filament(st, fc3, fc1, 0.0035, t*0.7) * min(flareTime3, flareTime1);
+            color += colFilament * fil1 * 0.6;
+            color += colFilament * 0.7 * fil2 * 0.5;
+            color += col4 * fil3 * 0.4;
 
-            // === FOG OVERLAY (steam on top of plasma) ===
+            // === ANOMALY 4: PULSE NODES (small bright points that breathe) ===
+            for(float i=0.0; i<5.0; i++){
+                vec2 nc = vec2(
+                    fract(sin(i*127.1+3.7)*43758.5453) * 0.8 + 0.1,
+                    fract(cos(i*269.5+1.3)*17624.8341) * 0.8 + 0.1
+                );
+                // Drift slowly
+                nc += vec2(sin(t*0.04+i*2.0), cos(t*0.05+i*3.0)) * 0.08;
+                float pulse = sin(t*(0.4+i*0.15)+i*1.5)*0.5+0.5;
+                float d = length(st - nc);
+                float glow = exp(-d*d/0.001) * pulse * 0.5;
+                color += col4 * glow;
+                // Tiny ring around node
+                float ring = smoothstep(0.003, 0.0, abs(d - 0.03*pulse)) * pulse * 0.15;
+                color += colFlare * ring;
+            }
+
+            // === ANOMALY 5: HEAT SHIMMER (subtle UV distortion in bright areas) ===
+            float shimmer = snoise(st*20.0 + vec2(t*2.0, t*1.5)) * 0.002 * smoothstep(0.4, 0.7, plasma);
+            color += color * shimmer * 3.0;
+
+            // Vignette
+            float vig = 1.0 - smoothstep(0.3, 1.2, length((st-0.5)*vec2(1.3,1.8)));
+            color *= 0.35 + vig*0.65;
+
+            // Overall intensity
+            color *= 0.8;
+
+            // Subtle fog wisps
             float yGrad = pow(st.y, 0.4);
-            vec2 fp1 = st * vec2(aspect*3.0, 3.0);
-            float fog = fbm(fp1 + vec2(t*0.1, t*0.04), t) * 0.5 + 0.5;
-            fog *= 0.08 + yGrad * 0.92;
-            fog = clamp(fog * 0.08, 0.0, 0.07);
-            // Fog tint: warm off-white with slight burgundy
-            vec3 fogTint = vec3(0.85, 0.75, 0.78);
-            color = mix(color, fogTint, fog);
+            float fog = fbm(st*vec2(aspect*3.0,3.0)+vec2(t*0.1,t*0.04),t)*0.5+0.5;
+            fog = clamp(fog*yGrad*0.06, 0.0, 0.05);
+            color = mix(color, vec3(0.85,0.75,0.78), fog);
 
             gl_FragColor = vec4(color, 1.0);
         }`;
@@ -1250,265 +1297,11 @@
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         }
 
-        // ======== ULTRA HD WATER DROPLETS ========
-        class Drop {
-            constructor(isStarter) {
-                if (isStarter) { this.x = Math.random()*W; this.y = Math.random()*H; }
-                else this.resetTop();
-                this.r = 1.5 + Math.random() * 12;
-                this.targetR = this.r;
-                this.growing = true;
-                this.growRate = 0.002 + Math.random() * 0.006;
-                this.dripThresh = 10 + Math.random() * 8;
-                this.dripping = false;
-                this.dripV = 0;
-                this.opacity = 0.3 + Math.random() * 0.5;
-                this.trail = [];
-                this.wobPhase = Math.random() * 6.28;
-                this.wobSpd = 0.01 + Math.random() * 0.02;
-                this.life = 0;
-                this.maxLife = 800 + Math.random() * 1500;
-                this.lightAngle = -0.7 + Math.random() * 0.3; // slight variation in light direction
-            }
-            resetTop() {
-                this.x = Math.random() * W;
-                this.y = -5 - Math.random() * 60;
-                this.r = 1.5 + Math.random() * 12;
-                this.targetR = this.r;
-                this.growing = true;
-                this.growRate = 0.002 + Math.random() * 0.006;
-                this.dripping = false;
-                this.dripV = 0;
-                this.trail = [];
-                this.life = 0;
-                this.maxLife = 800 + Math.random() * 1500;
-            }
-            update() {
-                this.life++;
-                this.wobPhase += this.wobSpd;
-                if (this.growing && !this.dripping) {
-                    this.r += this.growRate;
-                    if (this.r > this.dripThresh) { this.dripping = true; this.growing = false; }
-                }
-                if (this.dripping) {
-                    this.dripV += 0.008 + this.r * 0.001;
-                    this.y += this.dripV;
-                    this.r *= 0.9988;
-                    // Leave wet trail
-                    if (Math.random() > 0.5) {
-                        this.trail.push({
-                            x: this.x + Math.sin(this.wobPhase) * 0.8,
-                            y: this.y,
-                            r: Math.max(0.5, this.r * 0.2),
-                            o: 0.3,
-                            w: this.r * 0.4 // trail width
-                        });
-                    }
-                }
-                // Fade old trail
-                for (let i = this.trail.length - 1; i >= 0; i--) {
-                    this.trail[i].o *= 0.992;
-                    if (this.trail[i].o < 0.01) this.trail.splice(i, 1);
-                }
-                if (this.y > H + 30 || this.life > this.maxLife) this.resetTop();
-            }
-            draw(ctx) {
-                const cx = this.x + Math.sin(this.wobPhase) * 0.5;
-                const cy = this.y;
-                const r = Math.max(0.5, this.r);
-                const stretch = this.dripping ? 1.3 + this.dripV * 0.05 : 1.0;
-                const op = this.opacity;
-
-                // === Drip trail (wet streak on glass) ===
-                if (this.trail.length > 1) {
-                    ctx.beginPath();
-                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
-                    for (let i = 1; i < this.trail.length; i++) {
-                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
-                    }
-                    ctx.strokeStyle = `rgba(180,200,225,0.04)`;
-                    ctx.lineWidth = Math.max(1, r * 0.35);
-                    ctx.lineCap = 'round';
-                    ctx.stroke();
-                }
-
-                // === Shadow (depth) ===
-                ctx.beginPath();
-                ctx.ellipse(cx + 1.5, cy + 1.5, r * 1.05, r * stretch * 1.05, 0, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0,0,0,${op * 0.08})`;
-                ctx.fill();
-
-                // === Main drop body (glass refraction look) ===
-                ctx.save();
-                ctx.beginPath();
-                ctx.ellipse(cx, cy, r, r * stretch, 0, 0, Math.PI * 2);
-                ctx.clip();
-
-                // Inner body gradient (dark edges, lighter center = lens effect)
-                const bodyG = ctx.createRadialGradient(
-                    cx + r * 0.15, cy + r * 0.15, 0,
-                    cx, cy, r * 1.1
-                );
-                bodyG.addColorStop(0, `rgba(200,220,245,${op * 0.12})`);
-                bodyG.addColorStop(0.4, `rgba(170,195,225,${op * 0.07})`);
-                bodyG.addColorStop(0.8, `rgba(140,165,200,${op * 0.04})`);
-                bodyG.addColorStop(1, `rgba(100,130,175,${op * 0.02})`);
-                ctx.fillStyle = bodyG;
-                ctx.fillRect(cx - r, cy - r * stretch, r * 2, r * stretch * 2);
-
-                // Distortion illusion: slightly brighter patch offset from center
-                const distG = ctx.createRadialGradient(
-                    cx + r * 0.2, cy + r * 0.25, 0,
-                    cx + r * 0.2, cy + r * 0.25, r * 0.6
-                );
-                distG.addColorStop(0, `rgba(155,35,53,${op * 0.04})`);
-                distG.addColorStop(1, 'transparent');
-                ctx.fillStyle = distG;
-                ctx.fillRect(cx - r, cy - r * stretch, r * 2, r * stretch * 2);
-
-                ctx.restore();
-
-                // === Edge ring (refraction boundary) ===
-                ctx.beginPath();
-                ctx.ellipse(cx, cy, r, r * stretch, 0, 0, Math.PI * 2);
-                const edgeG = ctx.createRadialGradient(cx, cy, r * 0.85, cx, cy, r * 1.02);
-                edgeG.addColorStop(0, 'transparent');
-                edgeG.addColorStop(0.5, `rgba(255,255,255,${op * 0.05})`);
-                edgeG.addColorStop(1, `rgba(255,255,255,${op * 0.02})`);
-                ctx.strokeStyle = edgeG;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                // === Primary specular highlight (top-left) ===
-                if (r > 2) {
-                    const hlx = cx + r * this.lightAngle * 0.45;
-                    const hly = cy - r * 0.4;
-                    const hlr = r * 0.32;
-                    ctx.beginPath();
-                    ctx.arc(hlx, hly, hlr, 0, Math.PI * 2);
-                    const hlG = ctx.createRadialGradient(hlx, hly, 0, hlx, hly, hlr);
-                    hlG.addColorStop(0, `rgba(255,255,255,${op * 0.85})`);
-                    hlG.addColorStop(0.4, `rgba(255,255,255,${op * 0.3})`);
-                    hlG.addColorStop(1, 'transparent');
-                    ctx.fillStyle = hlG;
-                    ctx.fill();
-                }
-
-                // === Secondary highlight (bottom-right, smaller) ===
-                if (r > 4) {
-                    const h2x = cx + r * 0.25;
-                    const h2y = cy + r * 0.3;
-                    ctx.beginPath();
-                    ctx.arc(h2x, h2y, r * 0.12, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255,255,255,${op * 0.4})`;
-                    ctx.fill();
-                }
-
-                // === Crescent highlight (curved light on edge) ===
-                if (r > 5) {
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, r * 0.9, -2.3, -1.0);
-                    ctx.strokeStyle = `rgba(255,255,255,${op * 0.12})`;
-                    ctx.lineWidth = r * 0.08;
-                    ctx.stroke();
-                }
-
-                // === Bottom caustic (light bending at base) ===
-                if (r > 3) {
-                    ctx.beginPath();
-                    ctx.ellipse(cx, cy + r * stretch * 0.6, r * 0.45, r * 0.1, 0, 0, Math.PI * 2);
-                    const caG = ctx.createRadialGradient(cx, cy + r * stretch * 0.6, 0, cx, cy + r * stretch * 0.6, r * 0.45);
-                    caG.addColorStop(0, `rgba(155,35,53,${op * 0.05})`);
-                    caG.addColorStop(1, 'transparent');
-                    ctx.fillStyle = caG;
-                    ctx.fill();
-                }
-            }
-        }
-
-        // Static micro-condensation (tiny dots covering the glass)
-        class MicroDrop {
-            constructor() {
-                this.x = Math.random() * W;
-                this.y = Math.random() * H;
-                this.r = 0.3 + Math.random() * 3;
-                this.o = 0.1 + Math.random() * 0.3;
-            }
-            draw(ctx) {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(190,210,235,${this.o * 0.06})`;
-                ctx.fill();
-                // Tiny highlight on larger ones
-                if (this.r > 1.5) {
-                    ctx.beginPath();
-                    ctx.arc(this.x - this.r * 0.3, this.y - this.r * 0.3, this.r * 0.25, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(255,255,255,${this.o * 0.5})`;
-                    ctx.fill();
-                }
-            }
-        }
-
-        const drops = [];
-        for (let i = 0; i < 90; i++) drops.push(new Drop(true));
-        const micro = [];
-        for (let i = 0; i < 400; i++) micro.push(new MicroDrop());
-
-        // ======== PARALLAX DEPTH on scroll ========
-        let scrollY = 0;
-        window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true });
-
-        // ======== MAIN LOOP ========
-        let frame = 0;
+        // ======== MAIN LOOP (plasma only, no drops) ========
+        let fogTime = 0;
         function animate() {
-            frame++;
             fogTime += 0.004;
-
-            // Handle resize
-            if (needsCondRebuild) {
-                needsCondRebuild = false;
-                micro.length = 0;
-                for (let i = 0; i < 400; i++) micro.push(new MicroDrop());
-            }
-
-            // WebGL fog (runs every frame, GPU is fast)
             renderFog();
-
-            // Drop canvas
-            dCtx.clearRect(0, 0, W, H);
-
-            // Micro-condensation (static layer)
-            for (const m of micro) m.draw(dCtx);
-
-            // Active drops
-            for (const d of drops) { d.update(); d.draw(dCtx); }
-
-            // Frost edges (top/bottom glass boundary)
-            const tG = dCtx.createLinearGradient(0, 0, 0, 60);
-            tG.addColorStop(0, 'rgba(220,200,205,0.035)');
-            tG.addColorStop(1, 'transparent');
-            dCtx.fillStyle = tG;
-            dCtx.fillRect(0, 0, W, 60);
-
-            const bG = dCtx.createLinearGradient(0, H - 60, 0, H);
-            bG.addColorStop(0, 'transparent');
-            bG.addColorStop(1, 'rgba(220,200,205,0.04)');
-            dCtx.fillStyle = bG;
-            dCtx.fillRect(0, H - 60, W, 60);
-
-            // Side frost
-            const lG = dCtx.createLinearGradient(0, 0, 40, 0);
-            lG.addColorStop(0, 'rgba(220,200,205,0.02)');
-            lG.addColorStop(1, 'transparent');
-            dCtx.fillStyle = lG;
-            dCtx.fillRect(0, 0, 40, H);
-
-            const rG = dCtx.createLinearGradient(W - 40, 0, W, 0);
-            rG.addColorStop(0, 'transparent');
-            rG.addColorStop(1, 'rgba(220,200,205,0.02)');
-            dCtx.fillStyle = rG;
-            dCtx.fillRect(W - 40, 0, 40, H);
-
             requestAnimationFrame(animate);
         }
         animate();
