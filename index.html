@@ -46,12 +46,41 @@
             transition: none;
         }
 
-        /* ---- FOGGED GLASS CANVAS ---- */
+        /* ---- FOGGED GLASS (WebGL fog + Canvas drops) ---- */
         #tradingCanvas {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
         }
         #dropCanvas {
             position: fixed; inset: 0; z-index: 1; pointer-events: none;
+        }
+
+        /* ---- DEPTH & PARALLAX ---- */
+        .parallax-wrap {
+            perspective: 1200px;
+            perspective-origin: 50% 50%;
+        }
+        section {
+            transform-style: preserve-3d;
+        }
+        .bento-card, .price-card, .faq-item, .perf-card, .metric-card {
+            transform-style: preserve-3d;
+            box-shadow:
+                0 2px 8px rgba(0,0,0,0.3),
+                0 8px 24px rgba(0,0,0,0.25),
+                0 24px 48px rgba(0,0,0,0.15),
+                inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+        .bento-card::after, .price-card::after {
+            content: '';
+            position: absolute; inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%, rgba(0,0,0,0.05) 100%);
+            pointer-events: none;
+        }
+        /* Glass frost on hero */
+        .hero-content {
+            backdrop-filter: blur(1px);
+            -webkit-backdrop-filter: blur(1px);
         }
 
         /* ---- NOISE GRAIN TEXTURE ---- */
@@ -1043,212 +1072,394 @@
     </footer>
 
     <script>
-    // ---- FOGGED GLASS + WATER DROPLETS ENGINE ----
+    // ---- ULTRA HD FOGGED GLASS + WATER DROPLETS ENGINE ----
     (function() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        // === FOG CANVAS (layer 1: drifting volumetric mist) ===
+        // ======== WEBGL FOG (GPU-accelerated, full resolution) ========
         const fogC = document.getElementById('tradingCanvas');
-        const fogCtx = fogC.getContext('2d');
+        const gl = fogC.getContext('webgl', { alpha: true, premultipliedAlpha: false });
         const dropC = document.getElementById('dropCanvas');
-        const dropCtx = dropC.getContext('2d');
+        const dCtx = dropC.getContext('2d');
         let W, H;
-        let resizeQueued = false;
+
         function resize() {
-            W = fogC.width = dropC.width = window.innerWidth;
-            H = fogC.height = dropC.height = window.innerHeight;
-            resizeQueued = true;
+            W = window.innerWidth; H = window.innerHeight;
+            fogC.width = dropC.width = W;
+            fogC.height = dropC.height = H;
+            if (gl) { gl.viewport(0, 0, W, H); }
+            needsCondRebuild = true;
         }
+        let needsCondRebuild = false;
         window.addEventListener('resize', resize);
         resize();
 
-        // Noise generator for fog
-        class NoiseField {
-            constructor() { this.p = []; for (let i = 0; i < 512; i++) this.p[i] = Math.floor(Math.random()*256); }
-            noise(x,y) {
-                const X=Math.floor(x)&255, Y=Math.floor(y)&255;
-                const xf=x-Math.floor(x), yf=y-Math.floor(y);
-                const u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf);
-                const a=this.p[X]+Y, b=this.p[X+1]+Y;
-                return (this.p[a]/256)*(1-u)*(1-v) + (this.p[b]/256)*u*(1-v) + (this.p[a+1]/256)*(1-u)*v + (this.p[b+1]/256)*u*v;
-            }
-            fbm(x,y,oct) { let v=0,a=0.5,f=1; for(let i=0;i<oct;i++){v+=a*this.noise(x*f,y*f);a*=0.5;f*=2;} return v; }
-        }
-        const n1 = new NoiseField(), n2 = new NoiseField();
+        // -- WebGL fog shader (smooth simplex noise on GPU) --
+        const vsrc = `attribute vec2 p;varying vec2 uv;void main(){uv=p*0.5+0.5;gl_Position=vec4(p,0,1);}`;
+        const fsrc = `
+        precision highp float;
+        varying vec2 uv;
+        uniform float t;
+        uniform vec2 res;
 
-        // === FOG RENDER (runs at lower resolution for performance) ===
-        const FOG_SCALE = 6;
-        let fogT = 0;
+        // Simplex-ish noise (fast GPU version)
+        vec3 mod289(vec3 x){return x-floor(x/289.0)*289.0;}
+        vec2 mod289(vec2 x){return x-floor(x/289.0)*289.0;}
+        vec3 permute(vec3 x){return mod289((x*34.0+1.0)*x);}
+        float snoise(vec2 v){
+            const vec4 C=vec4(0.211324865,0.366025403,-0.577350269,0.024390243);
+            vec2 i=floor(v+dot(v,C.yy)),x0=v-i+dot(i,C.xx);
+            vec2 i1=(x0.x>x0.y)?vec2(1,0):vec2(0,1);
+            vec4 x12=x0.xyxy+C.xxzz; x12.xy-=i1;
+            i=mod289(i);
+            vec3 p=permute(permute(i.y+vec3(0,i1.y,1))+i.x+vec3(0,i1.x,1));
+            vec3 m=max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0);
+            m=m*m; m=m*m;
+            vec3 x=2.0*fract(p*C.www)-1.0;
+            vec3 h=abs(x)-0.5;
+            vec3 a0=x-floor(x+0.5);
+            m*=1.79284-0.85373*(a0*a0+h*h);
+            vec3 g; g.x=a0.x*x0.x+h.x*x0.y; g.yz=a0.yz*x12.xz+h.yz*x12.yw;
+            return 130.0*dot(m,g);
+        }
+
+        float fbm(vec2 p, float tm) {
+            float v = 0.0, a = 0.5;
+            mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
+            for (int i = 0; i < 6; i++) {
+                v += a * snoise(p);
+                p = rot * p * 2.0 + vec2(tm * 0.1);
+                a *= 0.5;
+            }
+            return v;
+        }
+
+        void main() {
+            vec2 st = uv;
+            float aspect = res.x / res.y;
+            vec2 p1 = st * vec2(aspect * 3.0, 3.0);
+            vec2 p2 = st * vec2(aspect * 2.5, 2.5) + vec2(5.0, 3.0);
+
+            // Two fog layers drifting in different directions
+            float f1 = fbm(p1 + vec2(t * 0.08, t * 0.03), t);
+            float f2 = fbm(p2 - vec2(t * 0.05, -t * 0.07), t * 0.7);
+            float fog = f1 * 0.55 + f2 * 0.45;
+            fog = fog * 0.5 + 0.5; // normalize to 0-1
+
+            // Steam density: thicker at bottom, thinner at top
+            float yGrad = pow(st.y, 0.35);
+            fog *= 0.1 + yGrad * 0.9;
+
+            // Wispy tendrils at bottom
+            float wisp = 0.0;
+            for (float i = 0.0; i < 4.0; i++) {
+                float wx = st.x * (3.0 + i) + t * (0.05 + i * 0.02) + i * 1.5;
+                float wy = (st.y - 0.7 - i * 0.05) * 8.0;
+                wisp += smoothstep(0.3, 0.0, abs(sin(wx) * 0.3 + wy)) * 0.15;
+            }
+            fog += wisp * yGrad;
+
+            // Keep fog subtle for readability
+            fog = clamp(fog, 0.0, 1.0) * 0.09;
+
+            // Slight blue-white tint
+            vec3 fogColor = vec3(0.78, 0.82, 0.90);
+            gl_FragColor = vec4(fogColor, fog);
+        }`;
+
+        let fogProg = null, fogTime = 0;
+        if (gl) {
+            function compileShader(src, type) {
+                const s = gl.createShader(type);
+                gl.shaderSource(s, src); gl.compileShader(s);
+                return s;
+            }
+            const vs = compileShader(vsrc, gl.VERTEX_SHADER);
+            const fs = compileShader(fsrc, gl.FRAGMENT_SHADER);
+            fogProg = gl.createProgram();
+            gl.attachShader(fogProg, vs); gl.attachShader(fogProg, fs);
+            gl.linkProgram(fogProg); gl.useProgram(fogProg);
+
+            const buf = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+            const pLoc = gl.getAttribLocation(fogProg, 'p');
+            gl.enableVertexAttribArray(pLoc);
+            gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 0, 0);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        }
+
         function renderFog() {
-            const sw = Math.ceil(W/FOG_SCALE), sh = Math.ceil(H/FOG_SCALE);
-            const offC = document.createElement('canvas');
-            offC.width = sw; offC.height = sh;
-            const oCtx = offC.getContext('2d');
-            const img = oCtx.createImageData(sw, sh);
-            const d = img.data;
-            for (let y=0; y<sh; y++) {
-                for (let x=0; x<sw; x++) {
-                    const nx = x/sw*5, ny = y/sh*4;
-                    const f1 = n1.fbm(nx+fogT*0.12, ny+fogT*0.04, 5);
-                    const f2 = n2.fbm(nx-fogT*0.07+2, ny+fogT*0.09+3, 4);
-                    let val = f1*0.55 + f2*0.45;
-                    // Thicker at bottom (steam rises), thinner at top
-                    val *= 0.15 + Math.pow(y/sh, 0.5)*0.85;
-                    // Slightly thinner in center for readability
-                    const cx = x/sw - 0.5, cy = y/sh - 0.5;
-                    val *= 1 - Math.max(0, 0.2 - Math.sqrt(cx*cx*1.5 + cy*cy*3))*2;
-                    const intensity = Math.min(1, val * 1.4);
-                    const idx = (y*sw+x)*4;
-                    d[idx]   = 190 + intensity*40;
-                    d[idx+1] = 200 + intensity*35;
-                    d[idx+2] = 220 + intensity*25;
-                    d[idx+3] = intensity * 65;
-                }
-            }
-            oCtx.putImageData(img, 0, 0);
-            fogCtx.clearRect(0, 0, W, H);
-            fogCtx.imageSmoothingEnabled = true;
-            fogCtx.drawImage(offC, 0, 0, W, H);
-
-            // Wispy tendrils
-            fogCtx.save();
-            for (let i=0; i<6; i++) {
-                fogCtx.beginPath();
-                const bx = (i*W/5 + fogT*40) % (W+400) - 200;
-                const by = H - 30 - i*25;
-                fogCtx.moveTo(bx, by);
-                for (let s=0; s<400; s+=6) {
-                    fogCtx.lineTo(bx+s, by - s*0.4 + Math.sin(s*0.025+fogT+i)*50 + Math.sin(s*0.008+fogT*0.4)*30);
-                }
-                fogCtx.strokeStyle = `rgba(210,220,235,${0.015+Math.sin(fogT+i)*0.008})`;
-                fogCtx.lineWidth = 25+Math.sin(fogT*0.3+i)*12;
-                fogCtx.filter = 'blur(18px)';
-                fogCtx.stroke();
-            }
-            fogCtx.filter = 'none';
-            fogCtx.restore();
+            if (!gl || !fogProg) return;
+            gl.viewport(0, 0, W, H);
+            gl.clearColor(0, 0, 0, 0);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.useProgram(fogProg);
+            gl.uniform1f(gl.getUniformLocation(fogProg, 't'), fogTime);
+            gl.uniform2f(gl.getUniformLocation(fogProg, 'res'), W, H);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         }
 
-        // === WATER DROPLETS (layer 2: condensation on glass) ===
-        class WaterDrop {
-            constructor() { this.reset(); this.y = Math.random()*H; }
-            reset() {
-                this.x = Math.random()*W; this.y = -10-Math.random()*80;
-                this.r = 2+Math.random()*10; this.maxR = this.r;
-                this.growing = true; this.growRate = 0.003+Math.random()*0.008;
-                this.opacity = 0.25+Math.random()*0.5;
-                this.dripSpeed = 0; this.dripThresh = 9+Math.random()*7;
-                this.dripping = false; this.trail = [];
-                this.wobble = Math.random()*Math.PI*2; this.wobbleSpd = 0.015+Math.random()*0.025;
-                this.life = 0; this.maxLife = 600+Math.random()*1200;
+        // ======== ULTRA HD WATER DROPLETS ========
+        class Drop {
+            constructor(isStarter) {
+                if (isStarter) { this.x = Math.random()*W; this.y = Math.random()*H; }
+                else this.resetTop();
+                this.r = 1.5 + Math.random() * 12;
+                this.targetR = this.r;
+                this.growing = true;
+                this.growRate = 0.002 + Math.random() * 0.006;
+                this.dripThresh = 10 + Math.random() * 8;
+                this.dripping = false;
+                this.dripV = 0;
+                this.opacity = 0.3 + Math.random() * 0.5;
+                this.trail = [];
+                this.wobPhase = Math.random() * 6.28;
+                this.wobSpd = 0.01 + Math.random() * 0.02;
+                this.life = 0;
+                this.maxLife = 800 + Math.random() * 1500;
+                this.lightAngle = -0.7 + Math.random() * 0.3; // slight variation in light direction
+            }
+            resetTop() {
+                this.x = Math.random() * W;
+                this.y = -5 - Math.random() * 60;
+                this.r = 1.5 + Math.random() * 12;
+                this.targetR = this.r;
+                this.growing = true;
+                this.growRate = 0.002 + Math.random() * 0.006;
+                this.dripping = false;
+                this.dripV = 0;
+                this.trail = [];
+                this.life = 0;
+                this.maxLife = 800 + Math.random() * 1500;
             }
             update() {
-                this.life++; this.wobble += this.wobbleSpd;
+                this.life++;
+                this.wobPhase += this.wobSpd;
                 if (this.growing && !this.dripping) {
                     this.r += this.growRate;
                     if (this.r > this.dripThresh) { this.dripping = true; this.growing = false; }
                 }
                 if (this.dripping) {
-                    this.dripSpeed += 0.012;
-                    this.y += this.dripSpeed;
-                    this.r *= 0.9985;
-                    if (Math.random()>0.6) this.trail.push({x:this.x+Math.sin(this.wobble)*1, y:this.y, r:this.r*0.25, o:0.25});
+                    this.dripV += 0.008 + this.r * 0.001;
+                    this.y += this.dripV;
+                    this.r *= 0.9988;
+                    // Leave wet trail
+                    if (Math.random() > 0.5) {
+                        this.trail.push({
+                            x: this.x + Math.sin(this.wobPhase) * 0.8,
+                            y: this.y,
+                            r: Math.max(0.5, this.r * 0.2),
+                            o: 0.3,
+                            w: this.r * 0.4 // trail width
+                        });
+                    }
                 }
-                this.trail.forEach(t => { t.o *= 0.993; t.r *= 0.998; });
-                this.trail = this.trail.filter(t => t.o > 0.015);
-                if (this.y > H+20 || this.life > this.maxLife) this.reset();
+                // Fade old trail
+                for (let i = this.trail.length - 1; i >= 0; i--) {
+                    this.trail[i].o *= 0.992;
+                    if (this.trail[i].o < 0.01) this.trail.splice(i, 1);
+                }
+                if (this.y > H + 30 || this.life > this.maxLife) this.resetTop();
             }
             draw(ctx) {
-                // Drip trail (wet streaks on glass)
-                for (const t of this.trail) {
-                    ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI*2);
-                    ctx.fillStyle = `rgba(180,200,220,${t.o*0.12})`; ctx.fill();
-                }
-                const cx = this.x + Math.sin(this.wobble)*0.6;
+                const cx = this.x + Math.sin(this.wobPhase) * 0.5;
                 const cy = this.y;
-                const r = this.r;
-                const stretch = this.dripping ? 1.35 : 1.05;
+                const r = Math.max(0.5, this.r);
+                const stretch = this.dripping ? 1.3 + this.dripV * 0.05 : 1.0;
+                const op = this.opacity;
 
-                // Drop shadow
-                ctx.beginPath(); ctx.ellipse(cx+1, cy+1, r, r*stretch, 0, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(0,0,0,${this.opacity*0.1})`; ctx.fill();
-
-                // Main drop body (glass-like)
-                ctx.beginPath(); ctx.ellipse(cx, cy, r, r*stretch, 0, 0, Math.PI*2);
-                const bg = ctx.createRadialGradient(cx-r*0.3, cy-r*0.3, 0, cx, cy, r*1.2);
-                bg.addColorStop(0, `rgba(220,235,250,${this.opacity*0.15})`);
-                bg.addColorStop(0.5, `rgba(180,200,225,${this.opacity*0.08})`);
-                bg.addColorStop(1, `rgba(150,175,210,${this.opacity*0.03})`);
-                ctx.fillStyle = bg; ctx.fill();
-
-                // Glass edge
-                ctx.beginPath(); ctx.ellipse(cx, cy, r, r*stretch, 0, 0, Math.PI*2);
-                ctx.strokeStyle = `rgba(255,255,255,${this.opacity*0.06})`; ctx.lineWidth = 0.5; ctx.stroke();
-
-                // Primary highlight (top-left, bright)
-                ctx.beginPath(); ctx.arc(cx-r*0.3, cy-r*0.3, r*0.35, 0, Math.PI*2);
-                const hl = ctx.createRadialGradient(cx-r*0.3, cy-r*0.3, 0, cx-r*0.3, cy-r*0.3, r*0.35);
-                hl.addColorStop(0, `rgba(255,255,255,${this.opacity*0.7})`);
-                hl.addColorStop(1, 'transparent');
-                ctx.fillStyle = hl; ctx.fill();
-
-                // Secondary micro-highlight
-                if (r > 4) {
-                    ctx.beginPath(); ctx.arc(cx+r*0.2, cy+r*0.2, r*0.12, 0, Math.PI*2);
-                    ctx.fillStyle = `rgba(255,255,255,${this.opacity*0.35})`; ctx.fill();
+                // === Drip trail (wet streak on glass) ===
+                if (this.trail.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                    ctx.strokeStyle = `rgba(180,200,225,0.04)`;
+                    ctx.lineWidth = Math.max(1, r * 0.35);
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
                 }
 
-                // Bottom caustic (refracted light)
-                ctx.beginPath(); ctx.ellipse(cx, cy+r*0.5, r*0.4, r*0.12, 0, 0, Math.PI*2);
-                const ca = ctx.createRadialGradient(cx, cy+r*0.5, 0, cx, cy+r*0.5, r*0.4);
-                ca.addColorStop(0, `rgba(56,189,248,${this.opacity*0.06})`);
-                ca.addColorStop(1, 'transparent');
-                ctx.fillStyle = ca; ctx.fill();
+                // === Shadow (depth) ===
+                ctx.beginPath();
+                ctx.ellipse(cx + 1.5, cy + 1.5, r * 1.05, r * stretch * 1.05, 0, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0,0,0,${op * 0.08})`;
+                ctx.fill();
+
+                // === Main drop body (glass refraction look) ===
+                ctx.save();
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, r, r * stretch, 0, 0, Math.PI * 2);
+                ctx.clip();
+
+                // Inner body gradient (dark edges, lighter center = lens effect)
+                const bodyG = ctx.createRadialGradient(
+                    cx + r * 0.15, cy + r * 0.15, 0,
+                    cx, cy, r * 1.1
+                );
+                bodyG.addColorStop(0, `rgba(200,220,245,${op * 0.12})`);
+                bodyG.addColorStop(0.4, `rgba(170,195,225,${op * 0.07})`);
+                bodyG.addColorStop(0.8, `rgba(140,165,200,${op * 0.04})`);
+                bodyG.addColorStop(1, `rgba(100,130,175,${op * 0.02})`);
+                ctx.fillStyle = bodyG;
+                ctx.fillRect(cx - r, cy - r * stretch, r * 2, r * stretch * 2);
+
+                // Distortion illusion: slightly brighter patch offset from center
+                const distG = ctx.createRadialGradient(
+                    cx + r * 0.2, cy + r * 0.25, 0,
+                    cx + r * 0.2, cy + r * 0.25, r * 0.6
+                );
+                distG.addColorStop(0, `rgba(56,189,248,${op * 0.04})`);
+                distG.addColorStop(1, 'transparent');
+                ctx.fillStyle = distG;
+                ctx.fillRect(cx - r, cy - r * stretch, r * 2, r * stretch * 2);
+
+                ctx.restore();
+
+                // === Edge ring (refraction boundary) ===
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, r, r * stretch, 0, 0, Math.PI * 2);
+                const edgeG = ctx.createRadialGradient(cx, cy, r * 0.85, cx, cy, r * 1.02);
+                edgeG.addColorStop(0, 'transparent');
+                edgeG.addColorStop(0.5, `rgba(255,255,255,${op * 0.05})`);
+                edgeG.addColorStop(1, `rgba(255,255,255,${op * 0.02})`);
+                ctx.strokeStyle = edgeG;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // === Primary specular highlight (top-left) ===
+                if (r > 2) {
+                    const hlx = cx + r * this.lightAngle * 0.45;
+                    const hly = cy - r * 0.4;
+                    const hlr = r * 0.32;
+                    ctx.beginPath();
+                    ctx.arc(hlx, hly, hlr, 0, Math.PI * 2);
+                    const hlG = ctx.createRadialGradient(hlx, hly, 0, hlx, hly, hlr);
+                    hlG.addColorStop(0, `rgba(255,255,255,${op * 0.85})`);
+                    hlG.addColorStop(0.4, `rgba(255,255,255,${op * 0.3})`);
+                    hlG.addColorStop(1, 'transparent');
+                    ctx.fillStyle = hlG;
+                    ctx.fill();
+                }
+
+                // === Secondary highlight (bottom-right, smaller) ===
+                if (r > 4) {
+                    const h2x = cx + r * 0.25;
+                    const h2y = cy + r * 0.3;
+                    ctx.beginPath();
+                    ctx.arc(h2x, h2y, r * 0.12, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${op * 0.4})`;
+                    ctx.fill();
+                }
+
+                // === Crescent highlight (curved light on edge) ===
+                if (r > 5) {
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, r * 0.9, -2.3, -1.0);
+                    ctx.strokeStyle = `rgba(255,255,255,${op * 0.12})`;
+                    ctx.lineWidth = r * 0.08;
+                    ctx.stroke();
+                }
+
+                // === Bottom caustic (light bending at base) ===
+                if (r > 3) {
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy + r * stretch * 0.6, r * 0.45, r * 0.1, 0, 0, Math.PI * 2);
+                    const caG = ctx.createRadialGradient(cx, cy + r * stretch * 0.6, 0, cx, cy + r * stretch * 0.6, r * 0.45);
+                    caG.addColorStop(0, `rgba(56,189,248,${op * 0.05})`);
+                    caG.addColorStop(1, 'transparent');
+                    ctx.fillStyle = caG;
+                    ctx.fill();
+                }
             }
         }
 
-        // Tiny static condensation dots
-        class CondDrop {
+        // Static micro-condensation (tiny dots covering the glass)
+        class MicroDrop {
             constructor() {
-                this.x = Math.random()*W; this.y = Math.random()*H;
-                this.r = 0.5+Math.random()*3.5; this.o = 0.15+Math.random()*0.35;
+                this.x = Math.random() * W;
+                this.y = Math.random() * H;
+                this.r = 0.3 + Math.random() * 3;
+                this.o = 0.1 + Math.random() * 0.3;
             }
             draw(ctx) {
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
-                ctx.fillStyle = `rgba(200,215,235,${this.o*0.07})`; ctx.fill();
-                if (this.r > 2) {
-                    ctx.beginPath(); ctx.arc(this.x-this.r*0.25, this.y-this.r*0.25, this.r*0.25, 0, Math.PI*2);
-                    ctx.fillStyle = `rgba(255,255,255,${this.o*0.35})`; ctx.fill();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(190,210,235,${this.o * 0.06})`;
+                ctx.fill();
+                // Tiny highlight on larger ones
+                if (this.r > 1.5) {
+                    ctx.beginPath();
+                    ctx.arc(this.x - this.r * 0.3, this.y - this.r * 0.3, this.r * 0.25, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${this.o * 0.5})`;
+                    ctx.fill();
                 }
             }
         }
 
-        const drops = []; for (let i=0; i<80; i++) drops.push(new WaterDrop());
-        const condensation = []; for (let i=0; i<300; i++) condensation.push(new CondDrop());
+        const drops = [];
+        for (let i = 0; i < 90; i++) drops.push(new Drop(true));
+        const micro = [];
+        for (let i = 0; i < 400; i++) micro.push(new MicroDrop());
 
-        // === MAIN ANIMATION LOOP ===
+        // ======== PARALLAX DEPTH on scroll ========
+        let scrollY = 0;
+        window.addEventListener('scroll', () => { scrollY = window.scrollY; }, { passive: true });
+
+        // ======== MAIN LOOP ========
         let frame = 0;
         function animate() {
-            frame++; fogT += 0.006;
-            // Handle resize: rebuild condensation
-            if (resizeQueued) {
-                resizeQueued = false;
-                condensation.length = 0;
-                for (let i=0; i<300; i++) condensation.push(new CondDrop());
+            frame++;
+            fogTime += 0.004;
+
+            // Handle resize
+            if (needsCondRebuild) {
+                needsCondRebuild = false;
+                micro.length = 0;
+                for (let i = 0; i < 400; i++) micro.push(new MicroDrop());
             }
-            // Fog: update every 4th frame for performance
-            if (frame % 4 === 0) renderFog();
-            // Drops
-            dropCtx.clearRect(0, 0, W, H);
-            for (const c of condensation) c.draw(dropCtx);
-            for (const d of drops) { d.update(); d.draw(dropCtx); }
-            // Frost edges (top & bottom of screen)
-            const topF = dropCtx.createLinearGradient(0,0,0,50);
-            topF.addColorStop(0,'rgba(200,220,240,0.04)'); topF.addColorStop(1,'transparent');
-            dropCtx.fillStyle = topF; dropCtx.fillRect(0,0,W,50);
-            const botF = dropCtx.createLinearGradient(0,H-50,0,H);
-            botF.addColorStop(0,'transparent'); botF.addColorStop(1,'rgba(200,220,240,0.05)');
-            dropCtx.fillStyle = botF; dropCtx.fillRect(0,H-50,W,50);
+
+            // WebGL fog (runs every frame, GPU is fast)
+            renderFog();
+
+            // Drop canvas
+            dCtx.clearRect(0, 0, W, H);
+
+            // Micro-condensation (static layer)
+            for (const m of micro) m.draw(dCtx);
+
+            // Active drops
+            for (const d of drops) { d.update(); d.draw(dCtx); }
+
+            // Frost edges (top/bottom glass boundary)
+            const tG = dCtx.createLinearGradient(0, 0, 0, 60);
+            tG.addColorStop(0, 'rgba(200,220,240,0.035)');
+            tG.addColorStop(1, 'transparent');
+            dCtx.fillStyle = tG;
+            dCtx.fillRect(0, 0, W, 60);
+
+            const bG = dCtx.createLinearGradient(0, H - 60, 0, H);
+            bG.addColorStop(0, 'transparent');
+            bG.addColorStop(1, 'rgba(200,220,240,0.04)');
+            dCtx.fillStyle = bG;
+            dCtx.fillRect(0, H - 60, W, 60);
+
+            // Side frost
+            const lG = dCtx.createLinearGradient(0, 0, 40, 0);
+            lG.addColorStop(0, 'rgba(200,220,240,0.02)');
+            lG.addColorStop(1, 'transparent');
+            dCtx.fillStyle = lG;
+            dCtx.fillRect(0, 0, 40, H);
+
+            const rG = dCtx.createLinearGradient(W - 40, 0, W, 0);
+            rG.addColorStop(0, 'transparent');
+            rG.addColorStop(1, 'rgba(200,220,240,0.02)');
+            dCtx.fillStyle = rG;
+            dCtx.fillRect(W - 40, 0, 40, H);
+
             requestAnimationFrame(animate);
         }
         animate();
