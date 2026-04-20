@@ -1817,6 +1817,166 @@
     })();
     </script>
 
+    <!-- SETTINGS PANEL + MUSIC PLAYER -->
+    <style>
+    /* Settings gear button */
+    .settings-btn{position:fixed;bottom:80px;left:20px;width:40px;height:40px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;backdrop-filter:blur(12px);transition:all 0.2s;color:var(--dim)}
+    .settings-btn:hover{border-color:rgba(155,35,53,0.3);color:var(--accent-l);transform:rotate(30deg)}
+    .settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8}
+    /* Settings panel */
+    .settings-panel{position:fixed;bottom:130px;left:20px;width:280px;background:rgba(12,5,15,0.95);border:1px solid var(--border);border-radius:16px;padding:20px;z-index:100;backdrop-filter:blur(20px);display:none;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+    .settings-panel.open{display:block}
+    .sp-title{font-size:0.8rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .sp-title svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+    .sp-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .sp-row:last-child{border:none}
+    .sp-label{font-size:0.75rem;color:var(--dim)}
+    /* Toggle switch */
+    .toggle{width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,0.08);position:relative;cursor:pointer;transition:all 0.2s}
+    .toggle.on{background:rgba(155,35,53,0.4)}
+    .toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:all 0.2s}
+    .toggle.on::after{left:18px}
+    /* Music player */
+    .music-bar{position:fixed;bottom:20px;left:20px;height:48px;background:rgba(12,5,15,0.9);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;gap:10px;padding:0 14px;z-index:100;backdrop-filter:blur(12px);display:none}
+    .music-bar.visible{display:flex}
+    .music-play{width:30px;height:30px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#fff;flex-shrink:0;transition:all 0.2s}
+    .music-play:hover{background:var(--accent-l);transform:scale(1.1)}
+    .music-play svg{width:14px;height:14px;fill:currentColor}
+    .music-info{display:flex;flex-direction:column;max-width:180px}
+    .music-source{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+    .music-track{font-size:0.7rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .music-vol{width:60px;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);cursor:pointer;position:relative}
+    .music-vol-fill{height:100%;border-radius:2px;background:var(--accent);width:70%;transition:width 0.1s}
+    .music-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.8rem;padding:4px}
+    .music-close:hover{color:var(--red)}
+    </style>
+
+    <!-- Settings gear -->
+    <button class="settings-btn" onclick="document.querySelector('.settings-panel').classList.toggle('open')" title="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+
+    <!-- Settings panel -->
+    <div class="settings-panel">
+        <div class="sp-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06"/></svg> Settings</div>
+        <div class="sp-row">
+            <span class="sp-label">Ambient Music</span>
+            <div class="toggle" id="togMusic" onclick="toggleMusic()"></div>
+        </div>
+        <div class="sp-row">
+            <span class="sp-label">Plasma Background</span>
+            <div class="toggle on" id="togPlasma" onclick="togglePlasma()"></div>
+        </div>
+        <div class="sp-row">
+            <span class="sp-label">AI Intelligence Feed</span>
+            <div class="toggle on" id="togFeed" onclick="toggleFeed()"></div>
+        </div>
+        <div class="sp-row">
+            <span class="sp-label">Price Ticker</span>
+            <div class="toggle on" id="togTicker" onclick="toggleTicker()"></div>
+        </div>
+        <div class="sp-row">
+            <span class="sp-label">Animations</span>
+            <div class="toggle on" id="togAnim" onclick="toggleAnims()"></div>
+        </div>
+    </div>
+
+    <!-- Floating music player -->
+    <div class="music-bar" id="musicBar">
+        <button class="music-play" id="musicPlayBtn" onclick="togglePlayPause()">
+            <svg viewBox="0 0 24 24" id="musicIcon"><polygon points="5,3 19,12 5,21"/></svg>
+        </button>
+        <div class="music-info">
+            <span class="music-source">chillstep.info</span>
+            <span class="music-track" id="musicTrack">Loading...</span>
+        </div>
+        <div class="music-vol" onclick="setVol(event)">
+            <div class="music-vol-fill" id="musicVolFill"></div>
+        </div>
+        <button class="music-close" onclick="toggleMusic()" title="Close">&times;</button>
+    </div>
+
+    <script>
+    // Music player
+    let musicAudio=null;
+    let musicPlaying=false;
+
+    function toggleMusic(){
+        const tog=document.getElementById('togMusic');
+        const bar=document.getElementById('musicBar');
+        tog.classList.toggle('on');
+        if(tog.classList.contains('on')){
+            bar.classList.add('visible');
+            if(!musicAudio){
+                musicAudio=new Audio('https://chillstep.info/radio/stream.mp3');
+                musicAudio.volume=0.7;
+                musicAudio.crossOrigin='anonymous';
+            }
+            musicAudio.play().catch(()=>{});
+            musicPlaying=true;
+            document.getElementById('musicIcon').innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+            fetchTrack();
+        }else{
+            bar.classList.remove('visible');
+            if(musicAudio){musicAudio.pause();musicPlaying=false}
+            document.getElementById('musicIcon').innerHTML='<polygon points="5,3 19,12 5,21"/>';
+        }
+    }
+
+    function togglePlayPause(){
+        if(!musicAudio)return;
+        if(musicPlaying){
+            musicAudio.pause();musicPlaying=false;
+            document.getElementById('musicIcon').innerHTML='<polygon points="5,3 19,12 5,21"/>';
+        }else{
+            musicAudio.play().catch(()=>{});musicPlaying=true;
+            document.getElementById('musicIcon').innerHTML='<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+        }
+    }
+
+    function setVol(e){
+        if(!musicAudio)return;
+        const rect=e.currentTarget.getBoundingClientRect();
+        const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+        musicAudio.volume=pct;
+        document.getElementById('musicVolFill').style.width=(pct*100)+'%';
+    }
+
+    function fetchTrack(){
+        fetch('https://chillstep.info/jsonInfo.php').then(r=>r.json()).then(d=>{
+            if(d.title)document.getElementById('musicTrack').textContent=d.title;
+        }).catch(()=>{document.getElementById('musicTrack').textContent='Chillstep Radio'});
+        if(musicPlaying)setTimeout(fetchTrack,15000);
+    }
+
+    // Settings toggles
+    function togglePlasma(){
+        const c=document.getElementById('tradingCanvas');
+        const tog=document.getElementById('togPlasma');
+        tog.classList.toggle('on');
+        c.style.display=tog.classList.contains('on')?'block':'none';
+    }
+    function toggleFeed(){
+        const f=document.querySelector('.ai-feed-wrap');
+        const tog=document.getElementById('togFeed');
+        tog.classList.toggle('on');
+        f.style.display=tog.classList.contains('on')?'block':'none';
+    }
+    function toggleTicker(){
+        const t=document.querySelector('.ticker-wrap');
+        const tog=document.getElementById('togTicker');
+        tog.classList.toggle('on');
+        t.style.display=tog.classList.contains('on')?'block':'none';
+    }
+    function toggleAnims(){
+        const tog=document.getElementById('togAnim');
+        tog.classList.toggle('on');
+        document.querySelectorAll('.ticker,.ai-feed,[data-tilt]').forEach(el=>{
+            el.style.animationPlayState=tog.classList.contains('on')?'running':'paused';
+        });
+    }
+    </script>
+
     <!-- Crisp Chat Widget -->
     <script type="text/javascript">
     window.$crisp=[];window.CRISP_WEBSITE_ID="0f5ebbd5-bfc0-44ec-88fc-57261ce533db";
