@@ -749,20 +749,14 @@ function drawKillzones(){
                         ctx.lineWidth=1;
                         ctx.strokeRect(left,top,width,height);
 
-                        // Top/Bottom lines extending right
-                        ctx.setLineDash([4,4]);
-                        ctx.strokeStyle=session.border;
-                        ctx.lineWidth=0.5;
-                        // Top line
-                        ctx.beginPath();ctx.moveTo(right,top);ctx.lineTo(w,top);ctx.stroke();
-                        // Bottom line
-                        ctx.beginPath();ctx.moveTo(right,bottom);ctx.lineTo(w,bottom);ctx.stroke();
-                        // Mid line (dotted)
+                        // Mid line inside box only
                         if(yMid!==null){
-                            ctx.strokeStyle=session.border.replace(/[\d.]+\)$/,'0.12)');
+                            ctx.setLineDash([4,4]);
+                            ctx.strokeStyle=session.border.replace(/[\d.]+\)$/,'0.15)');
+                            ctx.lineWidth=0.5;
                             ctx.beginPath();ctx.moveTo(left,yMid);ctx.lineTo(right,yMid);ctx.stroke();
+                            ctx.setLineDash([]);
                         }
-                        ctx.setLineDash([]);
 
                         // Session label
                         ctx.font='10px JetBrains Mono';
