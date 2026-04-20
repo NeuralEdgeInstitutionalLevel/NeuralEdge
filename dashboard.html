@@ -250,6 +250,7 @@
                             <button class="chart-tab" onclick="changeTF('4h')">4H</button>
                             <button class="chart-tab" onclick="changeTF('1d')">1D</button>
                         </div>
+                        <button class="chart-tab" id="ictToggle" onclick="toggleICT()" style="background:rgba(155,35,53,0.1);border-color:rgba(155,35,53,0.3);color:var(--accent-l)">ICT Killzones</button>
                         <span class="chart-badge"><span class="live-dot"></span> <span id="chartPrice">--</span></span>
                     </div>
                 </div>
@@ -556,6 +557,8 @@ function initChart(){
     // Start with live candles by default
     showCandleChart();
     document.querySelectorAll('.chart-tabs')[0].querySelectorAll('.chart-tab').forEach((t,i)=>t.classList.toggle('active',i===1));
+    // Setup ICT killzone overlay
+    setTimeout(setupKillzoneCanvas,500);
 }
 
 function showEquityChart(){
@@ -606,8 +609,9 @@ function connectBinance(pair,tf){
             const candles=data.map(k=>({time:k[0]/1000,open:+k[1],high:+k[2],low:+k[3],close:+k[4]}));
             series.setData(candles);
             chart.timeScale().fitContent();
-            // Update price display
             if(candles.length)document.getElementById('chartPrice').textContent='$'+candles[candles.length-1].close.toLocaleString('en',{maximumFractionDigits:2});
+            // Draw ICT killzones after data loads
+            setTimeout(drawKillzones,200);
         }).catch(()=>{});
 
     // WebSocket for live updates
@@ -622,6 +626,173 @@ function connectBinance(pair,tf){
     };
     binanceWs.onerror=()=>{};
     binanceWs.onclose=()=>{};
+}
+
+// ============================================================
+// ICT KILLZONES OVERLAY
+// ============================================================
+let ictEnabled = true;
+let ictCanvas = null;
+let kzSessions = [
+    {name:'Asian',     start:20, end:0,    color:'rgba(233,30,99,0.08)',  border:'rgba(233,30,99,0.25)',  textColor:'#e91e63'},
+    {name:'London',    start:2,  end:5,    color:'rgba(0,188,212,0.08)',  border:'rgba(0,188,212,0.25)',  textColor:'#00bcd4'},
+    {name:'New York AM',start:8.5,end:11,  color:'rgba(255,93,0,0.08)',   border:'rgba(255,93,0,0.25)',   textColor:'#ff5d00'},
+    {name:'New York PM',start:13.5,end:16, color:'rgba(33,87,243,0.08)',  border:'rgba(33,87,243,0.25)',  textColor:'#2157f3'},
+];
+
+function toggleICT(){
+    ictEnabled=!ictEnabled;
+    const btn=document.getElementById('ictToggle');
+    btn.style.background=ictEnabled?'rgba(155,35,53,0.15)':'none';
+    btn.style.color=ictEnabled?'var(--accent-l)':'var(--muted)';
+    if(!ictEnabled && ictCanvas){ictCanvas.style.display='none'}
+    else if(ictCanvas){ictCanvas.style.display='block';drawKillzones()}
+}
+
+function setupKillzoneCanvas(){
+    const container=document.getElementById('chartContainer');
+    if(!container)return;
+    // Create overlay canvas
+    ictCanvas=document.createElement('canvas');
+    ictCanvas.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5';
+    container.style.position='relative';
+    container.appendChild(ictCanvas);
+
+    // Redraw on chart scroll/scale
+    chart.timeScale().subscribeVisibleLogicalRangeChange(()=>{if(ictEnabled)requestAnimationFrame(drawKillzones)});
+}
+
+function drawKillzones(){
+    if(!ictCanvas||!chart||!series||!ictEnabled)return;
+    const container=document.getElementById('chartContainer');
+    const dpr=window.devicePixelRatio||1;
+    const w=container.clientWidth, h=container.clientHeight;
+    ictCanvas.width=w*dpr;ictCanvas.height=h*dpr;
+    ictCanvas.style.width=w+'px';ictCanvas.style.height=h+'px';
+    const ctx=ictCanvas.getContext('2d');
+    ctx.scale(dpr,dpr);
+    ctx.clearRect(0,0,w,h);
+
+    const ts=chart.timeScale();
+    const range=ts.getVisibleLogicalRange();
+    if(!range)return;
+
+    // Get visible candle data from series
+    const data=series.data?series.data():[];
+    if(!data||!data.length)return;
+
+    // UTC-5 offset in seconds
+    const utcOff=-5*3600;
+
+    // Group candles by session
+    for(const session of kzSessions){
+        let inSession=false;
+        let sessionStart=null,sessionEnd=null;
+        let sessionHigh=-Infinity,sessionLow=Infinity;
+
+        for(let i=0;i<data.length;i++){
+            const candle=data[i];
+            const t=candle.time;
+            // Convert to UTC-5 hours
+            const d=new Date((t+utcOff)*1000);
+            const hour=d.getUTCHours()+d.getUTCMinutes()/60;
+
+            let isIn=false;
+            if(session.start>session.end){
+                // Wraps midnight (Asian: 20:00-00:00)
+                isIn=(hour>=session.start||hour<session.end);
+            }else{
+                isIn=(hour>=session.start&&hour<session.end);
+            }
+
+            if(isIn&&!inSession){
+                // Session start
+                inSession=true;
+                sessionStart=t;
+                sessionHigh=candle.high||candle.value||0;
+                sessionLow=candle.low||candle.value||Infinity;
+            }
+
+            if(isIn&&inSession){
+                sessionHigh=Math.max(sessionHigh,candle.high||candle.value||0);
+                sessionLow=Math.min(sessionLow,candle.low||candle.value||Infinity);
+                sessionEnd=t;
+            }
+
+            if((!isIn&&inSession)||(isIn&&i===data.length-1)){
+                // Session ended - draw it
+                if(sessionStart&&sessionEnd&&sessionHigh>sessionLow){
+                    const x1=ts.timeToCoordinate(sessionStart);
+                    const x2=ts.timeToCoordinate(sessionEnd);
+                    const ps=chart.priceScale('right');
+
+                    // Use series coordinate converter
+                    const y1=series.priceToCoordinate(sessionHigh);
+                    const y2=series.priceToCoordinate(sessionLow);
+                    const yMid=series.priceToCoordinate((sessionHigh+sessionLow)/2);
+
+                    if(x1!==null&&x2!==null&&y1!==null&&y2!==null&&!isNaN(x1)&&!isNaN(x2)){
+                        const left=Math.min(x1,x2);
+                        const right=Math.max(x1,x2);
+                        const top=Math.min(y1,y2);
+                        const bottom=Math.max(y1,y2);
+                        const width=Math.max(right-left,2);
+                        const height=Math.max(bottom-top,2);
+
+                        // Fill background
+                        ctx.fillStyle=session.color;
+                        ctx.fillRect(left,top,width,height);
+
+                        // Border
+                        ctx.strokeStyle=session.border;
+                        ctx.lineWidth=1;
+                        ctx.strokeRect(left,top,width,height);
+
+                        // Top/Bottom lines extending right
+                        ctx.setLineDash([4,4]);
+                        ctx.strokeStyle=session.border;
+                        ctx.lineWidth=0.5;
+                        // Top line
+                        ctx.beginPath();ctx.moveTo(right,top);ctx.lineTo(w,top);ctx.stroke();
+                        // Bottom line
+                        ctx.beginPath();ctx.moveTo(right,bottom);ctx.lineTo(w,bottom);ctx.stroke();
+                        // Mid line (dotted)
+                        if(yMid!==null){
+                            ctx.strokeStyle=session.border.replace(/[\d.]+\)$/,'0.12)');
+                            ctx.beginPath();ctx.moveTo(left,yMid);ctx.lineTo(right,yMid);ctx.stroke();
+                        }
+                        ctx.setLineDash([]);
+
+                        // Session label
+                        ctx.font='10px JetBrains Mono';
+                        ctx.fillStyle=session.textColor;
+                        ctx.globalAlpha=0.7;
+                        ctx.fillText(session.name,left+4,top-4>10?top-4:top+12);
+                        ctx.globalAlpha=1;
+
+                        // Start label
+                        ctx.font='9px JetBrains Mono';
+                        ctx.fillStyle=session.textColor;
+                        ctx.globalAlpha=0.5;
+                        ctx.fillText('Start',left+2,bottom+10<h?bottom+10:bottom-2);
+                        // End label
+                        ctx.fillText('End',right-20>left?right-20:right+2,top-4>10?top-4:top+12);
+                        ctx.globalAlpha=1;
+                    }
+                }
+                inSession=false;
+                sessionHigh=-Infinity;sessionLow=Infinity;
+                // Check if this candle starts a new session
+                if(isIn){
+                    inSession=true;
+                    sessionStart=t;
+                    sessionHigh=candle.high||candle.value||0;
+                    sessionLow=candle.low||candle.value||Infinity;
+                    sessionEnd=t;
+                }
+            }
+        }
+    }
 }
 
 // ============================================================
