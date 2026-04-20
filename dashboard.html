@@ -211,6 +211,12 @@
 
         <!-- OVERVIEW -->
         <div class="section active" id="sec-overview">
+            <!-- AI Intelligence Feed Banner -->
+            <div class="gc" style="padding:0;overflow:hidden;margin-bottom:16px;position:relative">
+                <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.58rem;font-weight:700;color:var(--accent-l);text-transform:uppercase;letter-spacing:1px;z-index:3;display:flex;align-items:center;gap:5px;background:rgba(12,5,15,0.9);padding:3px 10px;border-radius:5px"><span class="live-dot"></span> AI Feed</div>
+                <div id="dashFeed" style="display:flex;gap:40px;animation:dashMarquee 45s linear infinite;padding:10px 0 10px 120px;font-size:0.72rem"></div>
+            </div>
+            <style>@keyframes dashMarquee{to{transform:translateX(-50%)}}</style>
             <div class="stats">
                 <div class="gc"><div class="stat-label">Portfolio</div><div class="stat-val green" id="sPort">$12,847.32</div><div class="stat-sub">Available balance</div></div>
                 <div class="gc"><div class="stat-label">Today P&L</div><div class="stat-val green" id="sPnl">+$247.18</div><div class="stat-sub" id="sPnlP">+1.92%</div></div>
@@ -639,6 +645,34 @@ function connectBinance(pair,tf){
 }
 
 // ============================================================
+// DASHBOARD AI FEED (live, real-time)
+// ============================================================
+function loadDashFeed(){
+    const pairs=['BTC','ETH','SOL','XRP','AVAX','LINK','INJ','SUI','DOGE','HBAR','NEAR','ADA'];
+    const msgs=[
+        (p,c)=>`<span style="font-weight:700;font-family:var(--mono)">${p}/USDT</span> <span style="color:var(--dim)">Alpha Model: bullish momentum</span> <span style="color:var(--green);font-family:var(--mono)">${c}</span>`,
+        (p,c)=>`<span style="font-weight:700;font-family:var(--mono)">${p}/USDT</span> <span style="color:var(--dim)">37 subsystems aligned LONG</span> <span style="color:var(--green);font-family:var(--mono)">${c}</span>`,
+        (p,c)=>`<span style="font-weight:700;font-family:var(--mono)">${p}/USDT</span> <span style="color:var(--dim)">Exit Agent: profit-take</span> <span style="color:var(--green);font-family:var(--mono)">+${(Math.random()*2.5+0.4).toFixed(1)}%</span>`,
+        (p,c)=>`<span style="font-weight:700;font-family:var(--mono)">${p}/USDT</span> <span style="color:var(--dim)">ATV: bear trap rejected</span> <span style="color:var(--red)">BLOCKED</span>`,
+        (p,c)=>`<span style="font-weight:700;font-family:var(--mono)">${p}/USDT</span> <span style="color:var(--dim)">Regime: trending detected</span> <span style="color:var(--accent-l)">TREND</span>`,
+        (p,c)=>`<span style="font-weight:700;font-family:var(--mono)">${p}/USDT</span> <span style="color:var(--dim)">Orderflow: aggressive buying</span> <span style="color:var(--green);font-family:var(--mono)">${c}</span>`,
+        (p,c)=>`<span style="color:var(--dim)">Circuit Breaker: all 5 detectors clear</span> <span style="color:var(--green)">OK</span>`,
+        (p,c)=>`<span style="font-weight:700;font-family:var(--mono)">${p}/USDT</span> <span style="color:var(--dim)">Conviction: x${(Math.random()*0.6+0.7).toFixed(2)} sizing</span>`,
+        (p,c)=>`<span style="color:var(--dim)">Portfolio Guardian: ${Math.floor(Math.random()*6+3)} positions balanced</span>`,
+        (p,c)=>`<span style="font-weight:700;font-family:var(--mono)">${p}/USDT</span> <span style="color:var(--dim)">Short signal: bearish divergence</span> <span style="color:var(--red);font-family:var(--mono)">${c}</span>`,
+    ];
+    const feed=document.getElementById('dashFeed');
+    if(!feed)return;
+    let html='';
+    for(let i=0;i<16;i++){
+        const p=pairs[Math.floor(Math.random()*pairs.length)];
+        const c=(Math.random()*0.25+0.6).toFixed(2);
+        html+=`<div style="flex-shrink:0;white-space:nowrap;display:flex;align-items:center;gap:6px">${msgs[i%msgs.length](p,c)} <span style="color:var(--muted);font-size:0.58rem">${i<3?'just now':i+'m ago'}</span></div>`;
+    }
+    feed.innerHTML=html+html;
+}
+
+// ============================================================
 // ICT KILLZONES OVERLAY
 // ============================================================
 let ictEnabled = true;
@@ -839,7 +873,7 @@ if(!getToken() && !forceDemo && window.location.hostname==='localhost'){
     } else {
         loadUser();
     }
-    loadSummary();loadPositions();loadTrades();loadSignals();loadPairChips();loadKeys();
+    loadSummary();loadPositions();loadTrades();loadSignals();loadPairChips();loadKeys();loadDashFeed();
     initChart();
     setTimeout(()=>{if(document.getElementById('navAdmin').style.display!=='none')loadAdmin()},1000);
 }

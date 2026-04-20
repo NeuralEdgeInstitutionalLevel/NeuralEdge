@@ -912,33 +912,7 @@
 
     <!-- TICKER -->
     <div class="ticker-wrap">
-        <div class="ticker" id="ticker">
-            <div class="ticker-item">BTC/USDT <span class="t-val">+1.83%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">ETH/USDT <span class="t-val">+0.94%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">SOL/USDT <span class="t-neg">-0.42%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">AVAX/USDT <span class="t-val">+2.17%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">LINK/USDT <span class="t-val">+1.28%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">DOGE/USDT <span class="t-neg">-0.65%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">SUI/USDT <span class="t-val">+3.41%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">INJ/USDT <span class="t-val">+1.56%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">XRP/USDT <span class="t-neg">-0.18%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">ADA/USDT <span class="t-val">+0.77%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">HBAR/USDT <span class="t-val">+4.22%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">PEPE/USDT <span class="t-val">+6.31%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <!-- Duplicate for seamless loop -->
-            <div class="ticker-item">BTC/USDT <span class="t-val">+1.83%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">ETH/USDT <span class="t-val">+0.94%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">SOL/USDT <span class="t-neg">-0.42%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">AVAX/USDT <span class="t-val">+2.17%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">LINK/USDT <span class="t-val">+1.28%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">DOGE/USDT <span class="t-neg">-0.65%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">SUI/USDT <span class="t-val">+3.41%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">INJ/USDT <span class="t-val">+1.56%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">XRP/USDT <span class="t-neg">-0.18%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">ADA/USDT <span class="t-val">+0.77%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">HBAR/USDT <span class="t-val">+4.22%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-            <div class="ticker-item">PEPE/USDT <span class="t-val">+6.31%</span></div><div class="ticker-item"><span class="t-dot"></span></div>
-        </div>
+        <div class="ticker" id="ticker"><div class="ticker-item" style="color:var(--muted)">Loading prices (3h delayed)...</div></div>
     </div>
 
     <!-- AI INTELLIGENCE FEED -->
@@ -1700,6 +1674,62 @@
     }
     document.getElementById('calc-capital')?.addEventListener('input', calcUpdate);
     calcUpdate();
+
+    // ---- REAL PRICE TICKER (3h delayed) ----
+    (function(){
+        const pairs=['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','ADAUSDT','AVAXUSDT','DOGEUSDT','LINKUSDT','SUIUSDT','INJUSDT','HBARUSDT','PEPEUSDT','NEARUSDT','ARBUSDT','LTCUSDT','DOTUSDT','AAVEUSDT','FILUSDT','ETCUSDT','OPUSDT','APTUSDT','TIAUSDT','BCHUSDT','ATOMUSDT'];
+        const ticker=document.getElementById('ticker');
+        if(!ticker)return;
+
+        async function loadDelayed(){
+            try{
+                // Fetch 3h-old klines (use endTime = now - 3 hours)
+                const now=Date.now();
+                const delayed=now-3*3600*1000;
+                const items=[];
+
+                // Fetch 24h ticker for all pairs (single request)
+                const r=await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                const all=await r.json();
+
+                // Also get klines from 3h ago to compute delayed price
+                for(const sym of pairs){
+                    const info=all.find(t=>t.symbol===sym);
+                    if(!info)continue;
+
+                    // Fetch the candle from 3h ago
+                    try{
+                        const kr=await fetch('https://api.binance.com/api/v3/klines?symbol='+sym+'&interval=15m&endTime='+delayed+'&limit=1');
+                        const kd=await kr.json();
+                        if(kd&&kd[0]){
+                            const delayedPrice=parseFloat(kd[0][4]); // close price 3h ago
+                            const openPrice=parseFloat(kd[0][1]);
+                            // Get price from 24h before that for % change
+                            const pctChange=parseFloat(info.priceChangePercent);
+                            const pair=sym.replace('USDT','/USDT');
+                            const priceStr=delayedPrice>1000?delayedPrice.toLocaleString('en',{maximumFractionDigits:0}):delayedPrice>1?delayedPrice.toFixed(2):delayedPrice.toFixed(4);
+                            items.push({pair,price:priceStr,pct:pctChange});
+                        }
+                    }catch(e){}
+                }
+
+                if(items.length===0)return;
+
+                let html='';
+                const buildItem=(it)=>`<div class="ticker-item">${it.pair} <span class="mono" style="color:var(--dim);font-size:0.72rem">$${it.price}</span> <span class="${it.pct>=0?'t-val':'t-neg'}">${it.pct>=0?'+':''}${it.pct.toFixed(2)}%</span></div><div class="ticker-item"><span class="t-dot"></span></div>`;
+                items.forEach(it=>{html+=buildItem(it)});
+                // Duplicate for loop
+                items.forEach(it=>{html+=buildItem(it)});
+                ticker.innerHTML=html;
+            }catch(e){
+                ticker.innerHTML='<div class="ticker-item" style="color:var(--muted)">Price feed unavailable</div>';
+            }
+        }
+
+        loadDelayed();
+        // Refresh every 5 minutes
+        setInterval(loadDelayed,300000);
+    })();
 
     // ---- AI INTELLIGENCE FEED ----
     (function(){
