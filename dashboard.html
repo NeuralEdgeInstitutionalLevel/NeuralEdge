@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuralEdge AI - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #08030a; --card: rgba(12,5,15,0.6); --border: rgba(155,35,53,0.1);
+            --text: #e8eaf0; --dim: #7a7f94; --muted: #3e4259;
+            --accent: #9b2335; --accent-light: #c4666e;
+            --green: #10b981; --red: #ef4444;
+            --font: 'DM Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', monospace;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; }
+
+        /* Top nav */
+        .topbar {
+            display:flex; align-items:center; justify-content:space-between;
+            padding:14px 24px; border-bottom:1px solid var(--border);
+            background:rgba(8,3,10,0.8); backdrop-filter:blur(12px);
+            position:sticky; top:0; z-index:100;
+        }
+        .topbar-brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem; }
+        .topbar-icon { width:32px;height:32px;background:linear-gradient(135deg,#9b2335,#6b1d3a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:800;color:#fff; }
+        .topbar-right { display:flex; align-items:center; gap:16px; }
+        .topbar-user { font-size:0.8rem; color:var(--dim); }
+        .topbar-tier { font-size:0.6rem; background:rgba(155,35,53,0.15); color:var(--accent-light); padding:3px 10px; border-radius:6px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
+        .btn-sm { padding:7px 16px; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px; color:var(--dim); font-size:0.75rem; cursor:pointer; font-family:var(--font); transition:all 0.2s; }
+        .btn-sm:hover { border-color:rgba(155,35,53,0.3); color:var(--text); }
+
+        /* Main layout */
+        .main { max-width:1200px; margin:0 auto; padding:24px; }
+
+        /* Stats row */
+        .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+        .stat-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; backdrop-filter:blur(12px); }
+        .stat-label { font-size:0.7rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+        .stat-val { font-size:1.6rem; font-weight:800; font-family:var(--mono); }
+        .stat-sub { font-size:0.65rem; color:var(--muted); margin-top:4px; }
+        .green { color:var(--green); }
+        .red { color:var(--red); }
+
+        /* Chart */
+        .chart-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:24px; backdrop-filter:blur(12px); }
+        .chart-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+        .chart-title { font-size:0.8rem; font-weight:600; }
+        .chart-badge { font-size:0.65rem; color:var(--green); display:flex; align-items:center; gap:5px; }
+        .live-dot { width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        #equityChart { width:100%; height:300px; }
+
+        /* Two column layout */
+        .cols { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px; }
+
+        /* Positions */
+        .pos-card { background:var(--card); border:1px solid var(--border); border-radius:14px; backdrop-filter:blur(12px); overflow:hidden; }
+        .pos-header { padding:14px 18px; border-bottom:1px solid rgba(255,255,255,0.03); font-size:0.82rem; font-weight:600; display:flex; justify-content:space-between; }
+        .pos-count { color:var(--dim); font-weight:400; }
+        .pos-list { max-height:300px; overflow-y:auto; }
+        .pos-row { display:grid; grid-template-columns:1fr 0.5fr 0.8fr 0.8fr; padding:10px 18px; border-bottom:1px solid rgba(255,255,255,0.02); font-size:0.78rem; align-items:center; }
+        .pos-row:hover { background:rgba(255,255,255,0.015); }
+        .pos-pair { font-weight:600; font-family:var(--mono); }
+        .pos-side { font-weight:700; font-size:0.7rem; letter-spacing:0.5px; }
+        .long { color:var(--green); }
+        .short { color:var(--red); }
+
+        /* Recent trades */
+        .trade-row { display:grid; grid-template-columns:1fr 0.5fr 0.8fr 0.7fr 0.7fr; padding:10px 18px; border-bottom:1px solid rgba(255,255,255,0.02); font-size:0.75rem; align-items:center; }
+        .trade-time { color:var(--muted); font-size:0.68rem; }
+
+        /* Bot control */
+        .bot-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; backdrop-filter:blur(12px); margin-bottom:24px; }
+        .bot-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+        .bot-status { display:flex; align-items:center; gap:8px; font-size:0.85rem; font-weight:600; }
+        .bot-dot { width:8px; height:8px; border-radius:50%; }
+        .bot-dot.running { background:var(--green); box-shadow:0 0 8px rgba(16,185,129,0.4); }
+        .bot-dot.stopped { background:var(--red); }
+        .bot-actions { display:flex; gap:8px; }
+        .btn-start { padding:8px 20px; background:var(--green); color:#fff; border:none; border-radius:8px; font-weight:700; font-size:0.78rem; cursor:pointer; font-family:var(--font); }
+        .btn-stop { padding:8px 20px; background:var(--red); color:#fff; border:none; border-radius:8px; font-weight:700; font-size:0.78rem; cursor:pointer; font-family:var(--font); }
+        .bot-info { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+        .bot-info-item { font-size:0.75rem; }
+        .bot-info-label { color:var(--muted); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px; }
+
+        /* API Keys section */
+        .keys-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; backdrop-filter:blur(12px); }
+        .key-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.03); }
+        .key-info { font-size:0.8rem; }
+        .key-exchange { font-weight:600; }
+        .key-label { color:var(--dim); font-size:0.72rem; }
+        .key-status { font-size:0.65rem; padding:3px 8px; border-radius:6px; }
+        .key-valid { background:rgba(16,185,129,0.1); color:var(--green); }
+        .btn-add-key { padding:10px 20px; background:rgba(155,35,53,0.15); border:1px solid var(--border); border-radius:10px; color:var(--accent-light); font-size:0.8rem; font-weight:600; cursor:pointer; font-family:var(--font); margin-top:12px; }
+        .btn-add-key:hover { background:rgba(155,35,53,0.25); }
+
+        /* Admin section */
+        .admin-badge { background:rgba(245,158,11,0.1); color:#f59e0b; padding:3px 10px; border-radius:6px; font-size:0.6rem; font-weight:700; text-transform:uppercase; }
+        .admin-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px; }
+        .admin-stat { background:rgba(0,0,0,0.2); border-radius:10px; padding:14px; text-align:center; }
+        .admin-stat-val { font-size:1.3rem; font-weight:800; font-family:var(--mono); }
+        .admin-stat-label { font-size:0.65rem; color:var(--muted); margin-top:4px; }
+
+        @media(max-width:768px) {
+            .stats { grid-template-columns:repeat(2,1fr); }
+            .cols { grid-template-columns:1fr; }
+            .bot-info { grid-template-columns:1fr; }
+            .admin-grid { grid-template-columns:repeat(2,1fr); }
+        }
+    </style>
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-brand">
+            <div class="topbar-icon">N</div>
+            <span>NeuralEdge</span>
+        </div>
+        <div class="topbar-right">
+            <span class="topbar-tier" id="userTier">PRO</span>
+            <span class="topbar-user" id="userName">Loading...</span>
+            <button class="btn-sm" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <!-- STATS -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Portfolio</div>
+                <div class="stat-val green" id="stPortfolio">$0.00</div>
+                <div class="stat-sub">Available balance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Today P&L</div>
+                <div class="stat-val green" id="stPnl">$0.00</div>
+                <div class="stat-sub" id="stPnlPct">0.00%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Win Rate</div>
+                <div class="stat-val" id="stWinRate">0%</div>
+                <div class="stat-sub" id="stTrades">0 trades</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Open Positions</div>
+                <div class="stat-val" id="stPositions">0</div>
+                <div class="stat-sub">Active now</div>
+            </div>
+        </div>
+
+        <!-- EQUITY CHART -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <span class="chart-title">Equity Curve</span>
+                <span class="chart-badge"><span class="live-dot"></span> Live</span>
+            </div>
+            <canvas id="equityChart"></canvas>
+        </div>
+
+        <!-- BOT CONTROL -->
+        <div class="bot-card">
+            <div class="bot-header">
+                <div class="bot-status">
+                    <span class="bot-dot running" id="botDot"></span>
+                    <span id="botStatus">Running</span>
+                </div>
+                <div class="bot-actions">
+                    <button class="btn-start" id="btnStart" onclick="botStart()">Start</button>
+                    <button class="btn-stop" id="btnStop" onclick="botStop()">Stop</button>
+                </div>
+            </div>
+            <div class="bot-info">
+                <div class="bot-info-item"><div class="bot-info-label">Exchange</div>Bitget</div>
+                <div class="bot-info-item"><div class="bot-info-label">Leverage</div>2x Cross</div>
+                <div class="bot-info-item"><div class="bot-info-label">Pairs</div><span id="botPairs">24 active</span></div>
+            </div>
+        </div>
+
+        <!-- POSITIONS + TRADES -->
+        <div class="cols">
+            <div class="pos-card">
+                <div class="pos-header">Open Positions <span class="pos-count" id="posCount">0</span></div>
+                <div class="pos-list" id="posList">
+                    <div style="padding:30px;text-align:center;color:var(--muted);font-size:0.8rem;">No open positions</div>
+                </div>
+            </div>
+            <div class="pos-card">
+                <div class="pos-header">Recent Trades</div>
+                <div class="pos-list" id="tradeList">
+                    <div style="padding:30px;text-align:center;color:var(--muted);font-size:0.8rem;">No trades yet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API KEYS -->
+        <div class="keys-card">
+            <div class="pos-header" style="padding:0 0 14px;border-bottom:1px solid rgba(255,255,255,0.03)">API Keys <span class="pos-count">Encrypted with AES-256-GCM</span></div>
+            <div id="keysList">
+                <div style="padding:20px 0;text-align:center;color:var(--muted);font-size:0.8rem;">No API keys configured</div>
+            </div>
+            <button class="btn-add-key" onclick="addKey()">+ Add Bitget API Key</button>
+        </div>
+
+        <!-- ADMIN SECTION (only visible for admin) -->
+        <div id="adminSection" style="display:none;margin-top:24px;">
+            <div class="bot-card">
+                <div class="bot-header">
+                    <span class="chart-title">Admin Panel</span>
+                    <span class="admin-badge">ADMIN</span>
+                </div>
+                <div class="admin-grid">
+                    <div class="admin-stat"><div class="admin-stat-val" id="adUsers">0</div><div class="admin-stat-label">Total Users</div></div>
+                    <div class="admin-stat"><div class="admin-stat-val" id="adActive">0</div><div class="admin-stat-label">Active Bots</div></div>
+                    <div class="admin-stat"><div class="admin-stat-val" id="adRevenue">$0</div><div class="admin-stat-label">Monthly Revenue</div></div>
+                    <div class="admin-stat"><div class="admin-stat-val" id="adTrades">0</div><div class="admin-stat-label">Trades Today</div></div>
+                    <div class="admin-stat"><div class="admin-stat-val" id="adSignals">0</div><div class="admin-stat-label">Signals Today</div></div>
+                    <div class="admin-stat"><div class="admin-stat-val" id="adHealth">OK</div><div class="admin-stat-label">System Health</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const API = window.location.hostname === 'localhost' ? 'http://localhost:8000/api' : 'https://api.neuraledge.ai/api';
+
+    function getToken() { return localStorage.getItem('ne_token'); }
+
+    async function apiFetch(path, opts = {}) {
+        const token = getToken();
+        if (!token) { window.location.href = 'login.html'; return; }
+        const r = await fetch(API + path, {
+            ...opts,
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...(opts.headers||{}) }
+        });
+        if (r.status === 401) { localStorage.removeItem('ne_token'); window.location.href = 'login.html'; return; }
+        return r.json();
+    }
+
+    function logout() {
+        localStorage.removeItem('ne_token');
+        localStorage.removeItem('ne_refresh');
+        window.location.href = 'login.html';
+    }
+
+    // Load user info
+    async function loadUser() {
+        try {
+            const data = await apiFetch('/auth/me');
+            if (!data) return;
+            document.getElementById('userName').textContent = data.display_name || data.email;
+            document.getElementById('userTier').textContent = (data.tier || 'free').toUpperCase();
+            if (data.role === 'admin') {
+                document.getElementById('adminSection').style.display = 'block';
+                loadAdmin();
+            }
+        } catch(e) { console.error('Failed to load user:', e); }
+    }
+
+    // Load dashboard data
+    async function loadDashboard() {
+        try {
+            const data = await apiFetch('/dashboard/summary');
+            if (!data) return;
+            document.getElementById('stPortfolio').textContent = '$' + (data.portfolio || 0).toLocaleString('en-US', {minimumFractionDigits:2});
+            document.getElementById('stPnl').textContent = (data.daily_pnl >= 0 ? '+$' : '-$') + Math.abs(data.daily_pnl || 0).toFixed(2);
+            document.getElementById('stPnl').className = 'stat-val ' + (data.daily_pnl >= 0 ? 'green' : 'red');
+            document.getElementById('stWinRate').textContent = (data.win_rate || 0).toFixed(1) + '%';
+            document.getElementById('stTrades').textContent = (data.total_trades || 0) + ' trades';
+            document.getElementById('stPositions').textContent = data.open_positions || 0;
+        } catch(e) {}
+    }
+
+    // Load positions
+    async function loadPositions() {
+        try {
+            const data = await apiFetch('/dashboard/positions');
+            if (!data || !data.length) return;
+            document.getElementById('posCount').textContent = data.length;
+            document.getElementById('posList').innerHTML = data.map(p => `
+                <div class="pos-row">
+                    <span class="pos-pair">${p.pair}</span>
+                    <span class="pos-side ${p.direction==='long'?'long':'short'}">${p.direction.toUpperCase()}</span>
+                    <span>$${p.entry_price}</span>
+                    <span class="${p.pnl_pct>=0?'green':'red'}">${p.pnl_pct>=0?'+':''}${p.pnl_pct.toFixed(2)}%</span>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    // Load trades
+    async function loadTrades() {
+        try {
+            const data = await apiFetch('/dashboard/trades?limit=10');
+            if (!data || !data.length) return;
+            document.getElementById('tradeList').innerHTML = data.map(t => `
+                <div class="trade-row">
+                    <span class="pos-pair">${t.pair}</span>
+                    <span class="pos-side ${t.direction==='long'?'long':'short'}">${t.direction.toUpperCase()}</span>
+                    <span>$${t.entry_price}</span>
+                    <span class="${(t.pnl_pct||0)>=0?'green':'red'}">${(t.pnl_pct||0)>=0?'+':''}${(t.pnl_pct||0).toFixed(2)}%</span>
+                    <span class="trade-time">${new Date(t.closed_at || t.opened_at).toLocaleDateString()}</span>
+                </div>
+            `).join('');
+        } catch(e) {}
+    }
+
+    // Admin data
+    async function loadAdmin() {
+        try {
+            const data = await apiFetch('/admin/health');
+            if (!data) return;
+            document.getElementById('adUsers').textContent = data.total_users || 0;
+            document.getElementById('adActive').textContent = data.active_bots || 0;
+            document.getElementById('adTrades').textContent = data.trades_today || 0;
+            document.getElementById('adSignals').textContent = data.signals_today || 0;
+            document.getElementById('adHealth').textContent = data.status || 'OK';
+        } catch(e) {}
+        try {
+            const rev = await apiFetch('/admin/revenue');
+            if (rev) document.getElementById('adRevenue').textContent = '$' + (rev.monthly || 0);
+        } catch(e) {}
+    }
+
+    // Equity chart
+    function drawChart() {
+        const c = document.getElementById('equityChart');
+        const ctx = c.getContext('2d');
+        c.width = c.offsetWidth * 2; c.height = 300 * 2;
+        c.style.height = '300px';
+        ctx.scale(2,2);
+        const w = c.width/2, h = c.height/2;
+
+        // Demo data
+        const pts = [];
+        let eq = 1000;
+        for(let i=0;i<60;i++){
+            eq = Math.max(eq*0.97, eq + eq*0.002 + (Math.random()-0.42)*15);
+            pts.push(eq);
+        }
+        const mn = Math.min(...pts)*0.98, mx = Math.max(...pts)*1.02;
+
+        // Grid
+        ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=0.5;
+        for(let i=0;i<5;i++){const y=20+(h-40)*i/4;ctx.beginPath();ctx.moveTo(40,y);ctx.lineTo(w-10,y);ctx.stroke();}
+
+        // Fill
+        const g=ctx.createLinearGradient(0,20,0,h-20);
+        g.addColorStop(0,'rgba(16,185,129,0.12)');g.addColorStop(1,'rgba(16,185,129,0)');
+        ctx.beginPath();ctx.moveTo(40,h-20);
+        pts.forEach((v,i)=>{ctx.lineTo(40+(w-50)*i/(pts.length-1),20+(h-40)*(1-(v-mn)/(mx-mn)));});
+        ctx.lineTo(w-10,h-20);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+
+        // Line
+        ctx.beginPath();
+        pts.forEach((v,i)=>{const x=40+(w-50)*i/(pts.length-1),y=20+(h-40)*(1-(v-mn)/(mx-mn));i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+        ctx.strokeStyle='#10b981';ctx.lineWidth=1.5;ctx.stroke();
+
+        // Dot
+        const lx=w-10,ly=20+(h-40)*(1-(pts[pts.length-1]-mn)/(mx-mn));
+        ctx.beginPath();ctx.arc(lx,ly,3,0,Math.PI*2);ctx.fillStyle='#10b981';ctx.fill();
+    }
+
+    function botStart() { apiFetch('/bot/start', {method:'POST'}); }
+    function botStop() { apiFetch('/bot/stop', {method:'POST'}); }
+    function addKey() { alert('API Key management coming soon. Contact support for manual setup.'); }
+
+    // Init
+    if (!getToken()) { window.location.href = 'login.html'; }
+    else {
+        loadUser();
+        loadDashboard();
+        loadPositions();
+        loadTrades();
+        drawChart();
+    }
+    </script>
+</body>
+</html>
