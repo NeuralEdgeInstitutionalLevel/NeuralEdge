@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeuralEdge AI - Institutional-Grade Crypto Trading</title>
     <meta name="description" content="AI-powered crypto trading system running 24/7 across 24 pairs. 70M+ parameters, 37 AI subsystems, 7 neural architectures. MambaV2 + Differential Attention.">
+    <!-- Security Headers (meta) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: wss: data: blob:;">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1767,6 +1772,51 @@
         });
     });
     </script>
+    <!-- SECURITY: Anti-scraping + content protection -->
+    <script>
+    (function(){
+        // Disable right-click context menu
+        document.addEventListener('contextmenu',function(e){e.preventDefault();return false});
+
+        // Disable text selection on sensitive areas
+        document.querySelectorAll('.bento-code,.sig-pipeline,.lp-trades,.calc-results').forEach(function(el){
+            el.style.userSelect='none';el.style.webkitUserSelect='none';
+        });
+
+        // Detect DevTools (basic)
+        let devOpen=false;
+        const threshold=160;
+        setInterval(function(){
+            const w=window.outerWidth-window.innerWidth>threshold;
+            const h=window.outerHeight-window.innerHeight>threshold;
+            if(w||h){
+                if(!devOpen){devOpen=true;console.log('%cNeuralEdge AI Security','font-size:20px;color:#9b2335;font-weight:bold');console.log('%cThis system is monitored. Unauthorized access attempts are logged.','font-size:12px;color:#888');}
+            }else{devOpen=false}
+        },1000);
+
+        // Disable common keyboard shortcuts for inspection
+        document.addEventListener('keydown',function(e){
+            // F12
+            if(e.key==='F12'){e.preventDefault();return false}
+            // Ctrl+Shift+I (DevTools)
+            if(e.ctrlKey&&e.shiftKey&&e.key==='I'){e.preventDefault();return false}
+            // Ctrl+Shift+J (Console)
+            if(e.ctrlKey&&e.shiftKey&&e.key==='J'){e.preventDefault();return false}
+            // Ctrl+U (View Source)
+            if(e.ctrlKey&&e.key==='u'){e.preventDefault();return false}
+            // Ctrl+S (Save)
+            if(e.ctrlKey&&e.key==='s'){e.preventDefault();return false}
+        });
+
+        // Disable drag on images
+        document.addEventListener('dragstart',function(e){if(e.target.tagName==='IMG')e.preventDefault()});
+
+        // Console warning for social engineering attempts
+        console.log('%c STOP!','font-size:40px;color:red;font-weight:bold');
+        console.log('%cThis is a browser feature intended for developers. If someone told you to copy-paste something here, it is a scam and will give them access to your account.','font-size:14px;color:#888');
+    })();
+    </script>
+
     <!-- Crisp Chat Widget -->
     <script type="text/javascript">
     window.$crisp=[];window.CRISP_WEBSITE_ID="0f5ebbd5-bfc0-44ec-88fc-57261ce533db";

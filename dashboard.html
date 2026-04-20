@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeuralEdge AI - Dashboard</title>
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
     <style>
@@ -414,6 +417,20 @@ const DEMO = {
 // ============================================================
 function getToken(){return localStorage.getItem('ne_token')}
 function logout(){localStorage.clear();window.location.href='login.html'}
+
+// Auto-logout after 30 min inactivity
+let lastActivity=Date.now();
+['mousemove','keydown','click','scroll'].forEach(ev=>
+    document.addEventListener(ev,()=>{lastActivity=Date.now()},{passive:true})
+);
+setInterval(()=>{
+    if(!forceDemo&&Date.now()-lastActivity>30*60*1000){logout()}
+},60000);
+
+// Token expiry check (JWT decode)
+function isTokenExpired(token){
+    try{const p=JSON.parse(atob(token.split('.')[1]));return p.exp*1000<Date.now()}catch(e){return true}
+}
 
 async function apiFetch(path,opts={}){
     const t=getToken();
@@ -854,6 +871,9 @@ const isGitHub = window.location.hostname.includes('github.io');
 const isLocalFile = window.location.protocol === 'file:';
 const demoParam = new URLSearchParams(window.location.search).has('demo');
 const forceDemo = isGitHub || isLocalFile || demoParam;
+
+// Check token expiry
+if(getToken()&&isTokenExpired(getToken())&&!forceDemo){logout()}
 
 if(!getToken() && !forceDemo && window.location.hostname==='localhost'){
     window.location.href='login.html';
