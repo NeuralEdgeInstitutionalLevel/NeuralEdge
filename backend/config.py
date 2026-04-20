@@ -66,13 +66,13 @@ class Settings(BaseSettings):
     TELEGRAM_ADMIN_CHAT_ID: str = ""
 
     # === Tier Configuration ===
-    # All paid tiers get full auto-execution + dashboard. Only pair/position limits differ.
+    # All paid tiers get full auto-execution + dashboard.
     TIER_LIMITS: dict = {
-        "free": {"max_pairs": 0, "max_positions": 0, "auto_execute": False, "dashboard": False},
-        "starter": {"max_pairs": 5, "max_positions": 5, "auto_execute": True, "dashboard": True},
-        "pro": {"max_pairs": 24, "max_positions": 8, "auto_execute": True, "dashboard": True},
-        "elite": {"max_pairs": 24, "max_positions": 12, "auto_execute": True, "dashboard": True},
-        "system": {"max_pairs": 24, "max_positions": 24, "auto_execute": True, "dashboard": True},
+        "free": {"max_pairs": 0, "max_positions": 0, "auto_execute": False, "dashboard": False, "max_api_keys": 0, "history_days": 0, "priority_exec": False, "signal_api": False},
+        "starter": {"max_pairs": 5, "max_positions": 5, "auto_execute": True, "dashboard": True, "max_api_keys": 1, "history_days": 30, "priority_exec": False, "signal_api": False},
+        "pro": {"max_pairs": 24, "max_positions": 8, "auto_execute": True, "dashboard": True, "max_api_keys": 1, "history_days": 30, "priority_exec": False, "signal_api": False},
+        "elite": {"max_pairs": 24, "max_positions": 12, "auto_execute": True, "dashboard": True, "max_api_keys": 3, "history_days": 365, "priority_exec": True, "signal_api": True},
+        "system": {"max_pairs": 24, "max_positions": 24, "auto_execute": True, "dashboard": True, "max_api_keys": 10, "history_days": 9999, "priority_exec": True, "signal_api": True},
     }
 
     # === Email (future) ===
