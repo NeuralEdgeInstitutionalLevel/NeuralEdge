@@ -1053,12 +1053,11 @@
         const dropC = document.getElementById('dropCanvas');
         const dropCtx = dropC.getContext('2d');
         let W, H;
+        let resizeQueued = false;
         function resize() {
             W = fogC.width = dropC.width = window.innerWidth;
             H = fogC.height = dropC.height = window.innerHeight;
-            // Rebuild condensation on resize
-            condensation.length = 0;
-            for (let i = 0; i < 300; i++) condensation.push(new CondDrop());
+            resizeQueued = true;
         }
         window.addEventListener('resize', resize);
         resize();
@@ -1231,6 +1230,12 @@
         let frame = 0;
         function animate() {
             frame++; fogT += 0.006;
+            // Handle resize: rebuild condensation
+            if (resizeQueued) {
+                resizeQueued = false;
+                condensation.length = 0;
+                for (let i=0; i<300; i++) condensation.push(new CondDrop());
+            }
             // Fog: update every 4th frame for performance
             if (frame % 4 === 0) renderFog();
             // Drops
