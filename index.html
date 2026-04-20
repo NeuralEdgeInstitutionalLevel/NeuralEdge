@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #000000;
+            --bg: #08030a;
             --bg-subtle: #080810;
             --bg-card: rgba(8, 8, 16, 0.6);
             --border: rgba(255,255,255,0.06);
@@ -25,7 +25,7 @@
             --red: #ef4444;
             --gold: #f59e0b;
             --pink: #ec4899;
-            --gradient-main: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+            --gradient-main: linear-gradient(135deg, #9b2335 0%, #6b1d3a 40%, #c4666e 70%, #8b3a4a 100%);
             --font: 'DM Sans', system-ui, sans-serif;
             --mono: 'JetBrains Mono', monospace;
         }
@@ -36,7 +36,7 @@
             font-family: var(--font); background: var(--bg); color: var(--text);
             line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased;
         }
-        ::selection { background: rgba(59,130,246,0.3); }
+        ::selection { background: rgba(155,35,53,0.35); }
 
         /* ---- SCROLL PROGRESS BAR ---- */
         .scroll-progress {
@@ -222,7 +222,7 @@
             border-radius: 14px; z-index: -1;
             opacity: 0; transition: opacity 0.3s;
         }
-        .btn-glow:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(59,130,246,0.25); color: #000; }
+        .btn-glow:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(155,35,53,0.3); color: #000; }
         .btn-glow:hover::after { opacity: 1; }
 
         .btn-ghost {
@@ -1094,7 +1094,7 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // -- WebGL fog shader (smooth simplex noise on GPU) --
+        // -- WebGL BURGUNDY PLASMA + FOG shader --
         const vsrc = `attribute vec2 p;varying vec2 uv;void main(){uv=p*0.5+0.5;gl_Position=vec4(p,0,1);}`;
         const fsrc = `
         precision highp float;
@@ -1102,7 +1102,6 @@
         uniform float t;
         uniform vec2 res;
 
-        // Simplex-ish noise (fast GPU version)
         vec3 mod289(vec3 x){return x-floor(x/289.0)*289.0;}
         vec2 mod289(vec2 x){return x-floor(x/289.0)*289.0;}
         vec3 permute(vec3 x){return mod289((x*34.0+1.0)*x);}
@@ -1126,45 +1125,92 @@
         float fbm(vec2 p, float tm) {
             float v = 0.0, a = 0.5;
             mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 7; i++) {
                 v += a * snoise(p);
-                p = rot * p * 2.0 + vec2(tm * 0.1);
+                p = rot * p * 2.0 + vec2(tm * 0.08);
                 a *= 0.5;
             }
             return v;
         }
 
+        // Domain warping for organic plasma flow
+        float warpedFbm(vec2 p, float tm) {
+            vec2 q = vec2(fbm(p + vec2(0.0, 0.0), tm), fbm(p + vec2(5.2, 1.3), tm));
+            vec2 r = vec2(fbm(p + 4.0*q + vec2(1.7, 9.2), tm), fbm(p + 4.0*q + vec2(8.3, 2.8), tm));
+            return fbm(p + 3.5*r, tm);
+        }
+
         void main() {
             vec2 st = uv;
             float aspect = res.x / res.y;
-            vec2 p1 = st * vec2(aspect * 3.0, 3.0);
-            vec2 p2 = st * vec2(aspect * 2.5, 2.5) + vec2(5.0, 3.0);
 
-            // Two fog layers drifting in different directions
-            float f1 = fbm(p1 + vec2(t * 0.08, t * 0.03), t);
-            float f2 = fbm(p2 - vec2(t * 0.05, -t * 0.07), t * 0.7);
-            float fog = f1 * 0.55 + f2 * 0.45;
-            fog = fog * 0.5 + 0.5; // normalize to 0-1
+            // === LAYER 1: Deep plasma (slow, large-scale flow) ===
+            vec2 p1 = st * vec2(aspect * 2.0, 2.0);
+            float plasma1 = warpedFbm(p1 + vec2(t*0.03, t*0.02), t*0.4);
+            plasma1 = plasma1 * 0.5 + 0.5;
 
-            // Steam density: thicker at bottom, thinner at top
-            float yGrad = pow(st.y, 0.35);
-            fog *= 0.1 + yGrad * 0.9;
+            // === LAYER 2: Medium turbulence ===
+            vec2 p2 = st * vec2(aspect * 3.5, 3.5) + vec2(3.0, 7.0);
+            float plasma2 = warpedFbm(p2 - vec2(t*0.04, -t*0.025), t*0.6);
+            plasma2 = plasma2 * 0.5 + 0.5;
 
-            // Wispy tendrils at bottom
-            float wisp = 0.0;
-            for (float i = 0.0; i < 4.0; i++) {
-                float wx = st.x * (3.0 + i) + t * (0.05 + i * 0.02) + i * 1.5;
-                float wy = (st.y - 0.7 - i * 0.05) * 8.0;
-                wisp += smoothstep(0.3, 0.0, abs(sin(wx) * 0.3 + wy)) * 0.15;
-            }
-            fog += wisp * yGrad;
+            // === LAYER 3: Fine detail (faster, smaller scale) ===
+            vec2 p3 = st * vec2(aspect * 6.0, 6.0) + vec2(10.0, 2.0);
+            float plasma3 = fbm(p3 + vec2(t*0.06, t*0.04), t*0.8);
+            plasma3 = plasma3 * 0.5 + 0.5;
 
-            // Keep fog subtle for readability
-            fog = clamp(fog, 0.0, 1.0) * 0.09;
+            // Combine layers
+            float plasma = plasma1 * 0.5 + plasma2 * 0.3 + plasma3 * 0.2;
 
-            // Slight blue-white tint
-            vec3 fogColor = vec3(0.78, 0.82, 0.90);
-            gl_FragColor = vec4(fogColor, fog);
+            // === BURGUNDY / WINE COLOR PALETTE ===
+            // Deep black-wine base
+            vec3 col0 = vec3(0.03, 0.01, 0.04);   // near black with purple
+            // Dark wine
+            vec3 col1 = vec3(0.18, 0.04, 0.08);   // deep burgundy
+            // Rich burgundy
+            vec3 col2 = vec3(0.38, 0.08, 0.14);   // wine red
+            // Warm burgundy-rose
+            vec3 col3 = vec3(0.52, 0.12, 0.18);   // cherry
+            // Rose gold highlight
+            vec3 col4 = vec3(0.65, 0.28, 0.25);   // rose gold
+            // Deep purple accent
+            vec3 col5 = vec3(0.15, 0.04, 0.20);   // midnight purple
+
+            // Map plasma value to color (smooth gradient)
+            vec3 color;
+            float p = clamp(plasma, 0.0, 1.0);
+            if (p < 0.2) color = mix(col0, col1, p / 0.2);
+            else if (p < 0.4) color = mix(col1, col2, (p - 0.2) / 0.2);
+            else if (p < 0.6) color = mix(col2, col3, (p - 0.4) / 0.2);
+            else if (p < 0.8) color = mix(col3, col4, (p - 0.6) / 0.2);
+            else color = mix(col4, col3, (p - 0.8) / 0.2);
+
+            // Add purple vein accents in dark areas
+            float purpleVein = smoothstep(0.48, 0.52, fbm(st * vec2(aspect*5.0, 5.0) + vec2(t*0.02), t*0.3) * 0.5 + 0.5);
+            color = mix(color, col5, purpleVein * 0.25 * (1.0 - plasma));
+
+            // Subtle glow pulses in bright areas
+            float pulse = sin(t * 0.3 + plasma * 6.28) * 0.5 + 0.5;
+            color += col4 * pulse * 0.04 * smoothstep(0.5, 0.8, plasma);
+
+            // Edge darkening (vignette)
+            float vig = 1.0 - smoothstep(0.3, 1.2, length((st - 0.5) * vec2(1.3, 1.8)));
+            color *= 0.4 + vig * 0.6;
+
+            // Keep overall intensity controlled (dark, moody, not blown out)
+            color *= 0.75;
+
+            // === FOG OVERLAY (steam on top of plasma) ===
+            float yGrad = pow(st.y, 0.4);
+            vec2 fp1 = st * vec2(aspect*3.0, 3.0);
+            float fog = fbm(fp1 + vec2(t*0.1, t*0.04), t) * 0.5 + 0.5;
+            fog *= 0.08 + yGrad * 0.92;
+            fog = clamp(fog * 0.08, 0.0, 0.07);
+            // Fog tint: warm off-white with slight burgundy
+            vec3 fogTint = vec3(0.85, 0.75, 0.78);
+            color = mix(color, fogTint, fog);
+
+            gl_FragColor = vec4(color, 1.0);
         }`;
 
         let fogProg = null, fogTime = 0;
@@ -1312,7 +1358,7 @@
                     cx + r * 0.2, cy + r * 0.25, 0,
                     cx + r * 0.2, cy + r * 0.25, r * 0.6
                 );
-                distG.addColorStop(0, `rgba(56,189,248,${op * 0.04})`);
+                distG.addColorStop(0, `rgba(155,35,53,${op * 0.04})`);
                 distG.addColorStop(1, 'transparent');
                 ctx.fillStyle = distG;
                 ctx.fillRect(cx - r, cy - r * stretch, r * 2, r * stretch * 2);
@@ -1369,7 +1415,7 @@
                     ctx.beginPath();
                     ctx.ellipse(cx, cy + r * stretch * 0.6, r * 0.45, r * 0.1, 0, 0, Math.PI * 2);
                     const caG = ctx.createRadialGradient(cx, cy + r * stretch * 0.6, 0, cx, cy + r * stretch * 0.6, r * 0.45);
-                    caG.addColorStop(0, `rgba(56,189,248,${op * 0.05})`);
+                    caG.addColorStop(0, `rgba(155,35,53,${op * 0.05})`);
                     caG.addColorStop(1, 'transparent');
                     ctx.fillStyle = caG;
                     ctx.fill();
@@ -1436,27 +1482,27 @@
 
             // Frost edges (top/bottom glass boundary)
             const tG = dCtx.createLinearGradient(0, 0, 0, 60);
-            tG.addColorStop(0, 'rgba(200,220,240,0.035)');
+            tG.addColorStop(0, 'rgba(220,200,205,0.035)');
             tG.addColorStop(1, 'transparent');
             dCtx.fillStyle = tG;
             dCtx.fillRect(0, 0, W, 60);
 
             const bG = dCtx.createLinearGradient(0, H - 60, 0, H);
             bG.addColorStop(0, 'transparent');
-            bG.addColorStop(1, 'rgba(200,220,240,0.04)');
+            bG.addColorStop(1, 'rgba(220,200,205,0.04)');
             dCtx.fillStyle = bG;
             dCtx.fillRect(0, H - 60, W, 60);
 
             // Side frost
             const lG = dCtx.createLinearGradient(0, 0, 40, 0);
-            lG.addColorStop(0, 'rgba(200,220,240,0.02)');
+            lG.addColorStop(0, 'rgba(220,200,205,0.02)');
             lG.addColorStop(1, 'transparent');
             dCtx.fillStyle = lG;
             dCtx.fillRect(0, 0, 40, H);
 
             const rG = dCtx.createLinearGradient(W - 40, 0, W, 0);
             rG.addColorStop(0, 'transparent');
-            rG.addColorStop(1, 'rgba(200,220,240,0.02)');
+            rG.addColorStop(1, 'rgba(220,200,205,0.02)');
             dCtx.fillStyle = rG;
             dCtx.fillRect(W - 40, 0, 40, H);
 
