@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeuralEdge AI - Institutional-Grade Crypto Trading</title>
-    <meta name="description" content="AI-powered crypto trading system running 24/7 across 26 pairs. 90M+ parameters, 37 AI subsystems, 7 neural architectures.">
+    <meta name="description" content="AI-powered crypto trading system running 24/7 across 24 pairs. 70M+ parameters, 37 AI subsystems, 7 neural architectures. MambaV2 + Differential Attention.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -46,9 +46,12 @@
             transition: none;
         }
 
-        /* ---- STEAM CANVAS (Valve / Half-Life theme) ---- */
+        /* ---- FOGGED GLASS CANVAS ---- */
         #tradingCanvas {
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
+        }
+        #dropCanvas {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
         }
 
         /* ---- NOISE GRAIN TEXTURE ---- */
@@ -735,6 +738,7 @@
     <div class="scroll-progress" id="scrollProg"></div>
     <!-- The Neural Market - trading-specific background -->
     <canvas id="tradingCanvas"></canvas>
+    <canvas id="dropCanvas"></canvas>
     <div class="grain"></div>
     <!-- cursor glow removed -->
 
@@ -760,7 +764,7 @@
                 <span class="line"><span class="line-inner"><span class="gradient-text">AI Trading System</span></span></span>
                 <span class="line"><span class="line-inner">Ever Built</span></span>
             </h1>
-            <p>90+ million parameters. 37 integrated subsystems. 7 neural architectures. Built to institutional standards &mdash; deployable on a single GPU with one command.</p>
+            <p>70+ million parameters. 37 integrated subsystems. 7 neural architectures. MambaV2 + Differential Attention. Built to institutional standards &mdash; deployable on a single GPU with one command.</p>
             <div class="hero-buttons">
                 <a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="btn-glow">Get Access on Whop &#8594;</a>
                 <a href="#features" class="btn-ghost">Technical Specs</a>
@@ -811,15 +815,15 @@
             <div class="s-header center reveal">
                 <div class="s-label">Core Technology</div>
                 <h2 class="s-title">Built Different</h2>
-                <p class="s-sub">37 AI subsystems. 7 neural architectures. 5 tree-based ensembles. Every component earns its place through demonstrated edge.</p>
+                <p class="s-sub">37 AI subsystems. 7 neural architectures. 5 tree-based ensembles. MambaV2 x6 + Differential Attention x3. Every component earns its place through demonstrated edge.</p>
             </div>
             <div class="bento">
                 <div class="bento-card wide reveal" data-tilt>
                     <div class="card-spotlight"></div><div class="card-shine"></div>
                     <div class="bento-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="currentColor" fill="none"/><path d="M8 12l3 3 5-6" stroke="currentColor" fill="none"/></svg></div>
-                    <h3>Alpha Model (68M params)</h3>
-                    <p>MambaV2 + Differential Attention hybrid. Predicts direction, uncertainty, magnitude, volatility, and duration across all 24 pairs simultaneously with cross-pair attention.</p>
-                    <div class="bento-code"><span class="ck">model</span>: <span class="cs">"MambaV2 x3 -> DiffTransformer x2 -> MambaV2 x3"</span><br><span class="ck">params</span>: <span class="cv">68_000_000</span><br><span class="ck">accuracy</span>: <span class="cv">67.4%</span> <span class="t-cmt">// cross-validated</span></div>
+                    <h3>Alpha Model (48.5M params)</h3>
+                    <p>MambaV2 + Differential Attention hybrid. 15-block deep architecture with 6 MoE experts per layer. Predicts direction, uncertainty, magnitude across all 24 pairs with cross-pair attention.</p>
+                    <div class="bento-code"><span class="ck">model</span>: <span class="cs">"MambaV2 x6 -> DiffTransformer x3 -> MambaV2 x6"</span><br><span class="ck">params</span>: <span class="cv">48_454_048</span><br><span class="ck">experts</span>: <span class="cv">6</span> <span class="t-cmt">// MoE regime specialization</span></div>
                 </div>
                 <div class="bento-card tall reveal rd1" data-tilt>
                     <div class="card-spotlight"></div><div class="card-shine"></div>
@@ -958,7 +962,7 @@
         <div class="container">
             <div class="s-header center reveal"><div class="s-label">Pricing</div><h2 class="s-title">Simple, Transparent Pricing</h2><p class="s-sub">Subscribe for signals and auto-execution, or acquire the system outright.</p></div>
             <div class="pricing-grid reveal">
-                <div class="price-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Starter</div><div class="pc-price">$199<span>/mo</span></div><div class="pc-desc">Signals via Telegram</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Real-time signals</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>3 pairs max</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Telegram delivery</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Basic stats</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Email support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
+                <div class="price-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Starter</div><div class="pc-price">$199<span>/mo</span></div><div class="pc-desc">Full auto-execution</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>5 trading pairs</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Automated execution</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live dashboard</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Risk controls</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Email support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
                 <div class="price-card pop" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Pro</div><div class="pc-price">$499<span>/mo</span></div><div class="pc-desc">Full auto-execution</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All 24 pairs</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Automated execution</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live dashboard</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Custom risk params</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Priority support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
                 <div class="price-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Elite</div><div class="pc-price">$999<span>/mo</span></div><div class="pc-desc">White-glove service</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Everything in Pro</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Custom strategies</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Dedicated server</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>1-on-1 onboarding</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Direct Telegram</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Get Started</a></div>
                 <div class="price-card" data-tilt><div class="card-spotlight"></div><div class="card-shine"></div><div class="pc-tier">Full System</div><div class="pc-price">$15K<span> one-time</span></div><div class="pc-desc">Own the entire bot outright</div><ul class="pc-list"><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Complete source code</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All 37 AI subsystems</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>All trained models</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Self-hosted, yours forever</li><li><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>90 days setup support</li></ul><a href="https://whop.com/neuraledge-ai-163a/" target="_blank" class="pc-btn">Contact Us</a></div>
@@ -1008,8 +1012,8 @@
                 <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Is my money safe?</button><div class="faq-a"><p>Your funds never leave your exchange. API keys have trade-only permissions, encrypted with AES-256. Each user runs in an isolated environment. We cannot withdraw or transfer funds.</p></div></div>
                 <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">What's the minimum capital needed?</button><div class="faq-a"><p>The bot works with accounts as small as $50. For optimal diversification across all 24 pairs, we recommend $500+. The funded account program requires no personal capital.</p></div></div>
                 <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">What exchanges are supported?</button><div class="faq-a"><p>Currently live on Bitget (USDT-M Perpetual Futures). Bybit Q2 2026, OKX and Binance Q3 2026.</p></div></div>
-                <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I customize which pairs to trade?</button><div class="faq-a"><p>Yes. Pro and Elite plans let you select pairs, adjust sizing, set max positions, and configure risk tolerance. The AI adapts thresholds per pair automatically.</p></div></div>
-                <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">How is this different from other trading bots?</button><div class="faq-a"><p>Most bots use simple indicators. NeuralEdge uses 90M+ parameters across 7 neural architectures, 30 proprietary features, institutional-grade orderflow analysis, and 5 live-learning systems. 180,000+ lines of code.</p></div></div>
+                <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">Can I customize which pairs to trade?</button><div class="faq-a"><p>Yes. All plans let you select pairs, adjust sizing, set max positions, and configure risk tolerance. Starter gets 5 pairs, Pro and Elite get all 24. The AI adapts thresholds per pair automatically.</p></div></div>
+                <div class="faq-item"><button class="faq-q" onclick="this.parentElement.classList.toggle('open')">How is this different from other trading bots?</button><div class="faq-a"><p>Most bots use simple indicators. NeuralEdge uses 70M+ parameters across 7 neural architectures with MambaV2 + Differential Attention, 140 proprietary features, institutional-grade orderflow analysis, and 5 live-learning systems. 180,000+ lines of code.</p></div></div>
             </div>
         </div>
     </section>
@@ -1039,144 +1043,210 @@
     </footer>
 
     <script>
-    // ---- VALVE STEAM ENGINE (Half-Life inspired background) ----
+    // ---- FOGGED GLASS + WATER DROPLETS ENGINE ----
     (function() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const canvas = document.getElementById('tradingCanvas');
-        const ctx = canvas.getContext('2d');
+
+        // === FOG CANVAS (layer 1: drifting volumetric mist) ===
+        const fogC = document.getElementById('tradingCanvas');
+        const fogCtx = fogC.getContext('2d');
+        const dropC = document.getElementById('dropCanvas');
+        const dropCtx = dropC.getContext('2d');
         let W, H;
-        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+        function resize() {
+            W = fogC.width = dropC.width = window.innerWidth;
+            H = fogC.height = dropC.height = window.innerHeight;
+            // Rebuild condensation on resize
+            condensation.length = 0;
+            for (let i = 0; i < 300; i++) condensation.push(new CondDrop());
+        }
         window.addEventListener('resize', resize);
         resize();
-        const t0 = performance.now();
 
-        // === STEAM PARTICLES (volumetric vapor rising) ===
-        const emitters = [];
-        for (let i = 0; i < 8; i++) emitters.push({ x: 0.05 + (i/7)*0.9, width: 0.06 + Math.random()*0.08, rate: 0.3 + Math.random()*0.5, baseSpeed: 0.4 + Math.random()*0.3 });
-
-        const MAX_STEAM = 400;
-        const steamArr = [];
-        class SteamP {
-            constructor() { this.alive = false; }
-            spawn(em) {
-                this.alive = true;
-                this.x = (em.x + (Math.random()-0.5)*em.width) * W;
-                this.y = H + 10 + Math.random()*30;
-                this.vx = (Math.random()-0.5)*0.3;
-                this.vy = -(em.baseSpeed + Math.random()*0.6);
-                this.startR = 15 + Math.random()*25;
-                this.r = this.startR;
-                this.maxR = this.startR * (2.5 + Math.random()*2.0);
-                this.life = 0; this.maxLife = 200 + Math.random()*250;
-                this.maxAlpha = 0.02 + Math.random()*0.04;
-                this.alpha = 0; this.depth = Math.random();
-                this.turbPhase = Math.random()*1000;
-                this.turbFreq = 0.008 + Math.random()*0.012;
-                this.turbAmp = 0.3 + Math.random()*0.8;
-                const w = Math.random();
-                this.cr = 180+w*40; this.cg = 175+w*35; this.cb = 170+w*30;
+        // Noise generator for fog
+        class NoiseField {
+            constructor() { this.p = []; for (let i = 0; i < 512; i++) this.p[i] = Math.floor(Math.random()*256); }
+            noise(x,y) {
+                const X=Math.floor(x)&255, Y=Math.floor(y)&255;
+                const xf=x-Math.floor(x), yf=y-Math.floor(y);
+                const u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf);
+                const a=this.p[X]+Y, b=this.p[X+1]+Y;
+                return (this.p[a]/256)*(1-u)*(1-v) + (this.p[b]/256)*u*(1-v) + (this.p[a+1]/256)*(1-u)*v + (this.p[b+1]/256)*u*v;
             }
-            update() {
-                if (!this.alive) return;
-                this.life++;
-                const ratio = this.life / this.maxLife;
-                this.r = this.startR + (this.maxR - this.startR) * Math.pow(ratio, 0.6);
-                if (ratio < 0.08) this.alpha = this.maxAlpha * (ratio/0.08);
-                else if (ratio > 0.4) this.alpha = this.maxAlpha * (1-(ratio-0.4)/0.6);
-                else this.alpha = this.maxAlpha;
-                const tt = this.life + this.turbPhase;
-                this.vx += Math.sin(tt*this.turbFreq)*this.turbAmp*0.008;
-                this.vx += Math.sin(tt*this.turbFreq*2.7+3.0)*this.turbAmp*0.003;
-                this.vy *= 0.9992; this.vx *= 0.998;
-                this.x += this.vx; this.y += this.vy;
-                if (this.life >= this.maxLife || this.y < -this.r*2) this.alive = false;
-            }
+            fbm(x,y,oct) { let v=0,a=0.5,f=1; for(let i=0;i<oct;i++){v+=a*this.noise(x*f,y*f);a*=0.5;f*=2;} return v; }
         }
-        for (let i = 0; i < MAX_STEAM; i++) steamArr.push(new SteamP());
+        const n1 = new NoiseField(), n2 = new NoiseField();
 
-        // === EMBER PARTICLES (tiny orange sparks from heat) ===
-        const MAX_EMBERS = 60;
-        const embersArr = [];
-        class EmberP {
-            constructor() { this.alive = false; }
-            spawn() {
-                this.alive = true;
-                this.x = Math.random()*W; this.y = H+5;
-                this.vx = (Math.random()-0.5)*0.8; this.vy = -(1.5+Math.random()*2.5);
-                this.r = 0.8+Math.random()*1.8; this.life = 0; this.maxLife = 80+Math.random()*120;
-                this.alpha = 0; this.maxAlpha = 0.3+Math.random()*0.5;
-                this.cr = 220+Math.random()*35; this.cg = 100+Math.random()*80; this.cb = 10+Math.random()*30;
-            }
-            update() {
-                if (!this.alive) return;
-                this.life++;
-                const ratio = this.life/this.maxLife;
-                if (ratio < 0.1) this.alpha = this.maxAlpha*(ratio/0.1);
-                else this.alpha = this.maxAlpha*(1-(ratio-0.1)/0.9);
-                this.vx += (Math.random()-0.5)*0.1; this.vy *= 0.998;
-                this.x += this.vx; this.y += this.vy; this.r *= 0.999;
-                if (this.life >= this.maxLife) this.alive = false;
-            }
-        }
-        for (let i = 0; i < MAX_EMBERS; i++) embersArr.push(new EmberP());
-
-        // === RENDER ===
-        function render() {
-            const t = (performance.now()-t0)*0.001;
-            ctx.clearRect(0, 0, W, H);
-
-            // Bottom heat glow
-            const hg = ctx.createLinearGradient(0, H, 0, H*0.35);
-            hg.addColorStop(0, 'rgba(180,80,20,0.07)');
-            hg.addColorStop(0.15, 'rgba(140,60,15,0.04)');
-            hg.addColorStop(0.4, 'rgba(80,40,10,0.015)');
-            hg.addColorStop(1, 'transparent');
-            ctx.fillStyle = hg; ctx.fillRect(0, H*0.35, W, H*0.65);
-
-            // Spawn steam
-            for (const em of emitters) { if (Math.random() < em.rate*0.15) { const p = steamArr.find(s => !s.alive); if (p) p.spawn(em); } }
-            // Spawn embers
-            if (Math.random() < 0.08) { const e = embersArr.find(e => !e.alive); if (e) e.spawn(); }
-
-            // Draw steam
-            const alive = steamArr.filter(s => s.alive);
-            alive.sort((a,b) => a.depth - b.depth);
-            for (const s of alive) {
-                s.update();
-                if (!s.alive || s.alpha <= 0.001) continue;
-                const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r);
-                g.addColorStop(0, `rgba(${s.cr|0},${s.cg|0},${s.cb|0},${s.alpha*1.2})`);
-                g.addColorStop(0.3, `rgba(${s.cr|0},${s.cg|0},${s.cb|0},${s.alpha*0.8})`);
-                g.addColorStop(0.6, `rgba(${s.cr|0},${s.cg|0},${s.cb|0},${s.alpha*0.3})`);
-                g.addColorStop(1, `rgba(${s.cr|0},${s.cg|0},${s.cb|0},0)`);
-                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
-            }
-
-            // Draw embers
-            for (const e of embersArr) {
-                e.update();
-                if (!e.alive || e.alpha <= 0) continue;
-                ctx.shadowBlur = 8+e.r*3;
-                ctx.shadowColor = `rgba(${e.cr|0},${e.cg|0},${e.cb|0},${e.alpha*0.6})`;
-                ctx.fillStyle = `rgba(${e.cr|0},${e.cg|0},${e.cb|0},${e.alpha})`;
-                ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
-            }
-            ctx.shadowBlur = 0;
-
-            // Heat distortion lines
-            for (let i = 0; i < 3; i++) {
-                const ly = H*(0.7+i*0.08) + Math.sin(t*0.5+i*2)*5;
-                ctx.strokeStyle = `rgba(200,120,40,${0.012+Math.sin(t*0.3+i)*0.005})`;
-                ctx.lineWidth = 1; ctx.beginPath();
-                for (let x = 0; x < W; x += 4) {
-                    const y = ly + Math.sin(x*0.01+t*1.5+i)*3 + Math.sin(x*0.025+t*0.8)*1.5;
-                    if (x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        // === FOG RENDER (runs at lower resolution for performance) ===
+        const FOG_SCALE = 6;
+        let fogT = 0;
+        function renderFog() {
+            const sw = Math.ceil(W/FOG_SCALE), sh = Math.ceil(H/FOG_SCALE);
+            const offC = document.createElement('canvas');
+            offC.width = sw; offC.height = sh;
+            const oCtx = offC.getContext('2d');
+            const img = oCtx.createImageData(sw, sh);
+            const d = img.data;
+            for (let y=0; y<sh; y++) {
+                for (let x=0; x<sw; x++) {
+                    const nx = x/sw*5, ny = y/sh*4;
+                    const f1 = n1.fbm(nx+fogT*0.12, ny+fogT*0.04, 5);
+                    const f2 = n2.fbm(nx-fogT*0.07+2, ny+fogT*0.09+3, 4);
+                    let val = f1*0.55 + f2*0.45;
+                    // Thicker at bottom (steam rises), thinner at top
+                    val *= 0.15 + Math.pow(y/sh, 0.5)*0.85;
+                    // Slightly thinner in center for readability
+                    const cx = x/sw - 0.5, cy = y/sh - 0.5;
+                    val *= 1 - Math.max(0, 0.2 - Math.sqrt(cx*cx*1.5 + cy*cy*3))*2;
+                    const intensity = Math.min(1, val * 1.4);
+                    const idx = (y*sw+x)*4;
+                    d[idx]   = 190 + intensity*40;
+                    d[idx+1] = 200 + intensity*35;
+                    d[idx+2] = 220 + intensity*25;
+                    d[idx+3] = intensity * 65;
                 }
-                ctx.stroke();
             }
-            requestAnimationFrame(render);
+            oCtx.putImageData(img, 0, 0);
+            fogCtx.clearRect(0, 0, W, H);
+            fogCtx.imageSmoothingEnabled = true;
+            fogCtx.drawImage(offC, 0, 0, W, H);
+
+            // Wispy tendrils
+            fogCtx.save();
+            for (let i=0; i<6; i++) {
+                fogCtx.beginPath();
+                const bx = (i*W/5 + fogT*40) % (W+400) - 200;
+                const by = H - 30 - i*25;
+                fogCtx.moveTo(bx, by);
+                for (let s=0; s<400; s+=6) {
+                    fogCtx.lineTo(bx+s, by - s*0.4 + Math.sin(s*0.025+fogT+i)*50 + Math.sin(s*0.008+fogT*0.4)*30);
+                }
+                fogCtx.strokeStyle = `rgba(210,220,235,${0.015+Math.sin(fogT+i)*0.008})`;
+                fogCtx.lineWidth = 25+Math.sin(fogT*0.3+i)*12;
+                fogCtx.filter = 'blur(18px)';
+                fogCtx.stroke();
+            }
+            fogCtx.filter = 'none';
+            fogCtx.restore();
         }
-        render();
+
+        // === WATER DROPLETS (layer 2: condensation on glass) ===
+        class WaterDrop {
+            constructor() { this.reset(); this.y = Math.random()*H; }
+            reset() {
+                this.x = Math.random()*W; this.y = -10-Math.random()*80;
+                this.r = 2+Math.random()*10; this.maxR = this.r;
+                this.growing = true; this.growRate = 0.003+Math.random()*0.008;
+                this.opacity = 0.25+Math.random()*0.5;
+                this.dripSpeed = 0; this.dripThresh = 9+Math.random()*7;
+                this.dripping = false; this.trail = [];
+                this.wobble = Math.random()*Math.PI*2; this.wobbleSpd = 0.015+Math.random()*0.025;
+                this.life = 0; this.maxLife = 600+Math.random()*1200;
+            }
+            update() {
+                this.life++; this.wobble += this.wobbleSpd;
+                if (this.growing && !this.dripping) {
+                    this.r += this.growRate;
+                    if (this.r > this.dripThresh) { this.dripping = true; this.growing = false; }
+                }
+                if (this.dripping) {
+                    this.dripSpeed += 0.012;
+                    this.y += this.dripSpeed;
+                    this.r *= 0.9985;
+                    if (Math.random()>0.6) this.trail.push({x:this.x+Math.sin(this.wobble)*1, y:this.y, r:this.r*0.25, o:0.25});
+                }
+                this.trail.forEach(t => { t.o *= 0.993; t.r *= 0.998; });
+                this.trail = this.trail.filter(t => t.o > 0.015);
+                if (this.y > H+20 || this.life > this.maxLife) this.reset();
+            }
+            draw(ctx) {
+                // Drip trail (wet streaks on glass)
+                for (const t of this.trail) {
+                    ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(180,200,220,${t.o*0.12})`; ctx.fill();
+                }
+                const cx = this.x + Math.sin(this.wobble)*0.6;
+                const cy = this.y;
+                const r = this.r;
+                const stretch = this.dripping ? 1.35 : 1.05;
+
+                // Drop shadow
+                ctx.beginPath(); ctx.ellipse(cx+1, cy+1, r, r*stretch, 0, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(0,0,0,${this.opacity*0.1})`; ctx.fill();
+
+                // Main drop body (glass-like)
+                ctx.beginPath(); ctx.ellipse(cx, cy, r, r*stretch, 0, 0, Math.PI*2);
+                const bg = ctx.createRadialGradient(cx-r*0.3, cy-r*0.3, 0, cx, cy, r*1.2);
+                bg.addColorStop(0, `rgba(220,235,250,${this.opacity*0.15})`);
+                bg.addColorStop(0.5, `rgba(180,200,225,${this.opacity*0.08})`);
+                bg.addColorStop(1, `rgba(150,175,210,${this.opacity*0.03})`);
+                ctx.fillStyle = bg; ctx.fill();
+
+                // Glass edge
+                ctx.beginPath(); ctx.ellipse(cx, cy, r, r*stretch, 0, 0, Math.PI*2);
+                ctx.strokeStyle = `rgba(255,255,255,${this.opacity*0.06})`; ctx.lineWidth = 0.5; ctx.stroke();
+
+                // Primary highlight (top-left, bright)
+                ctx.beginPath(); ctx.arc(cx-r*0.3, cy-r*0.3, r*0.35, 0, Math.PI*2);
+                const hl = ctx.createRadialGradient(cx-r*0.3, cy-r*0.3, 0, cx-r*0.3, cy-r*0.3, r*0.35);
+                hl.addColorStop(0, `rgba(255,255,255,${this.opacity*0.7})`);
+                hl.addColorStop(1, 'transparent');
+                ctx.fillStyle = hl; ctx.fill();
+
+                // Secondary micro-highlight
+                if (r > 4) {
+                    ctx.beginPath(); ctx.arc(cx+r*0.2, cy+r*0.2, r*0.12, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(255,255,255,${this.opacity*0.35})`; ctx.fill();
+                }
+
+                // Bottom caustic (refracted light)
+                ctx.beginPath(); ctx.ellipse(cx, cy+r*0.5, r*0.4, r*0.12, 0, 0, Math.PI*2);
+                const ca = ctx.createRadialGradient(cx, cy+r*0.5, 0, cx, cy+r*0.5, r*0.4);
+                ca.addColorStop(0, `rgba(56,189,248,${this.opacity*0.06})`);
+                ca.addColorStop(1, 'transparent');
+                ctx.fillStyle = ca; ctx.fill();
+            }
+        }
+
+        // Tiny static condensation dots
+        class CondDrop {
+            constructor() {
+                this.x = Math.random()*W; this.y = Math.random()*H;
+                this.r = 0.5+Math.random()*3.5; this.o = 0.15+Math.random()*0.35;
+            }
+            draw(ctx) {
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(200,215,235,${this.o*0.07})`; ctx.fill();
+                if (this.r > 2) {
+                    ctx.beginPath(); ctx.arc(this.x-this.r*0.25, this.y-this.r*0.25, this.r*0.25, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(255,255,255,${this.o*0.35})`; ctx.fill();
+                }
+            }
+        }
+
+        const drops = []; for (let i=0; i<80; i++) drops.push(new WaterDrop());
+        const condensation = []; for (let i=0; i<300; i++) condensation.push(new CondDrop());
+
+        // === MAIN ANIMATION LOOP ===
+        let frame = 0;
+        function animate() {
+            frame++; fogT += 0.006;
+            // Fog: update every 4th frame for performance
+            if (frame % 4 === 0) renderFog();
+            // Drops
+            dropCtx.clearRect(0, 0, W, H);
+            for (const c of condensation) c.draw(dropCtx);
+            for (const d of drops) { d.update(); d.draw(dropCtx); }
+            // Frost edges (top & bottom of screen)
+            const topF = dropCtx.createLinearGradient(0,0,0,50);
+            topF.addColorStop(0,'rgba(200,220,240,0.04)'); topF.addColorStop(1,'transparent');
+            dropCtx.fillStyle = topF; dropCtx.fillRect(0,0,W,50);
+            const botF = dropCtx.createLinearGradient(0,H-50,0,H);
+            botF.addColorStop(0,'transparent'); botF.addColorStop(1,'rgba(200,220,240,0.05)');
+            dropCtx.fillStyle = botF; dropCtx.fillRect(0,H-50,W,50);
+            requestAnimationFrame(animate);
+        }
+        animate();
     })();
 
     // (old trading background code removed)
