@@ -228,13 +228,28 @@
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px">
-                        <select class="pair-select" id="pairSelect" onchange="changePair(this.value)" style="display:none">
+                        <select class="pair-select" id="pairSelect" onchange="changePair(this.value)">
                             <option value="btcusdt">BTC/USDT</option><option value="ethusdt">ETH/USDT</option>
                             <option value="solusdt">SOL/USDT</option><option value="xrpusdt">XRP/USDT</option>
                             <option value="adausdt">ADA/USDT</option><option value="avaxusdt">AVAX/USDT</option>
                             <option value="dogeusdt">DOGE/USDT</option><option value="dotusdt">DOT/USDT</option>
                             <option value="linkusdt">LINK/USDT</option><option value="ltcusdt">LTC/USDT</option>
+                            <option value="bchusdt">BCH/USDT</option><option value="atomusdt">ATOM/USDT</option>
+                            <option value="nearusdt">NEAR/USDT</option><option value="arbusdt">ARB/USDT</option>
+                            <option value="opusdt">OP/USDT</option><option value="suiusdt">SUI/USDT</option>
+                            <option value="aptusdt">APT/USDT</option><option value="injusdt">INJ/USDT</option>
+                            <option value="hbarusdt">HBAR/USDT</option><option value="aaveusdt">AAVE/USDT</option>
+                            <option value="tiausdt">TIA/USDT</option><option value="pepeusdt">PEPE/USDT</option>
+                            <option value="filusdt">FIL/USDT</option><option value="etcusdt">ETC/USDT</option>
                         </select>
+                        <div class="chart-tabs" id="tfTabs">
+                            <button class="chart-tab" onclick="changeTF('1m')">1m</button>
+                            <button class="chart-tab" onclick="changeTF('5m')">5m</button>
+                            <button class="chart-tab active" onclick="changeTF('15m')">15m</button>
+                            <button class="chart-tab" onclick="changeTF('1h')">1H</button>
+                            <button class="chart-tab" onclick="changeTF('4h')">4H</button>
+                            <button class="chart-tab" onclick="changeTF('1d')">1D</button>
+                        </div>
                         <span class="chart-badge"><span class="live-dot"></span> <span id="chartPrice">--</span></span>
                     </div>
                 </div>
@@ -354,9 +369,10 @@
 const API = window.location.hostname === 'localhost' ? 'http://localhost:8000/api' : 'https://api.neuraledge.ai/api';
 const PAIRS = ['BTC','ETH','SOL','XRP','ADA','AVAX','DOGE','DOT','LINK','LTC','BCH','ATOM','NEAR','ARB','OP','SUI','APT','INJ','HBAR','AAVE','TIA','PEPE','FIL','ETC'];
 let isDemo = false;
-let currentChart = 'equity';
+let currentChart = 'candles';
 let chart = null, series = null, binanceWs = null;
 let currentPair = 'btcusdt';
+let currentTF = '15m';
 
 // ============================================================
 // DEMO DATA (shown when backend unreachable)
@@ -533,11 +549,13 @@ function initChart(){
         layout:{background:{type:'solid',color:'transparent'},textColor:'#7a7f94',fontFamily:'JetBrains Mono'},
         grid:{vertLines:{color:'rgba(255,255,255,0.02)'},horzLines:{color:'rgba(255,255,255,0.02)'}},
         rightPriceScale:{borderColor:'rgba(255,255,255,0.04)'},
-        timeScale:{borderColor:'rgba(255,255,255,0.04)'},
+        timeScale:{borderColor:'rgba(255,255,255,0.04)',timeVisible:true,secondsVisible:false},
         crosshair:{mode:0},
         handleScroll:true,handleScale:true,
     });
-    showEquityChart();
+    // Start with live candles by default
+    showCandleChart();
+    document.querySelectorAll('.chart-tabs')[0].querySelectorAll('.chart-tab').forEach((t,i)=>t.classList.toggle('active',i===1));
 }
 
 function showEquityChart(){
@@ -570,27 +588,40 @@ function switchChart(type){
 
 function changePair(pair){
     currentPair=pair;
-    if(currentChart==='candles')connectBinance(pair);
+    if(currentChart==='candles')connectBinance(pair,currentTF);
 }
 
-function connectBinance(pair){
-    if(binanceWs){binanceWs.close()}
-    // Load historical klines first
-    fetch(`https://api.binance.com/api/v3/klines?symbol=${pair.toUpperCase()}&interval=15m&limit=200`)
+function changeTF(tf){
+    currentTF=tf;
+    document.querySelectorAll('#tfTabs .chart-tab').forEach(t=>t.classList.toggle('active',t.textContent.toLowerCase()===tf));
+    if(currentChart==='candles')connectBinance(currentPair,tf);
+}
+
+function connectBinance(pair,tf){
+    if(binanceWs){binanceWs.close();binanceWs=null}
+    // Load historical klines
+    fetch(`https://api.binance.com/api/v3/klines?symbol=${pair.toUpperCase()}&interval=${tf}&limit=300`)
         .then(r=>r.json()).then(data=>{
+            if(!Array.isArray(data))return;
             const candles=data.map(k=>({time:k[0]/1000,open:+k[1],high:+k[2],low:+k[3],close:+k[4]}));
             series.setData(candles);
             chart.timeScale().fitContent();
+            // Update price display
+            if(candles.length)document.getElementById('chartPrice').textContent='$'+candles[candles.length-1].close.toLocaleString('en',{maximumFractionDigits:2});
         }).catch(()=>{});
 
     // WebSocket for live updates
-    binanceWs=new WebSocket(`wss://stream.binance.com:9443/ws/${pair}@kline_15m`);
+    binanceWs=new WebSocket(`wss://stream.binance.com:9443/ws/${pair}@kline_${tf}`);
     binanceWs.onmessage=e=>{
-        const k=JSON.parse(e.data).k;
-        if(!k)return;
-        series.update({time:k.t/1000,open:+k.o,high:+k.h,low:+k.l,close:+k.c});
-        document.getElementById('chartPrice').textContent='$'+Number(k.c).toLocaleString('en',{maximumFractionDigits:2});
+        try{
+            const k=JSON.parse(e.data).k;
+            if(!k)return;
+            series.update({time:k.t/1000,open:+k.o,high:+k.h,low:+k.l,close:+k.c});
+            document.getElementById('chartPrice').textContent='$'+Number(k.c).toLocaleString('en',{maximumFractionDigits:2});
+        }catch(err){}
     };
+    binanceWs.onerror=()=>{};
+    binanceWs.onclose=()=>{};
 }
 
 // ============================================================
